@@ -1,0 +1,387 @@
+{
+ "kind": "http",
+ "api_title": "MediCore EHR API",
+ "api_version": "2.3.1",
+ "api_description": "Patient demographics and problem list. Requires the X-API-Key header.",
+ "auth_headers_required": [
+  "X-API-Key"
+ ],
+ "list_endpoints": [
+  {
+   "path": "/api/v2/patients",
+   "summary": "List patients (paged)",
+   "parameters": [
+    {
+     "name": "page",
+     "in": "query",
+     "default": 1,
+     "maximum": null
+    },
+    {
+     "name": "pageSize",
+     "in": "query",
+     "default": 25,
+     "maximum": 100
+    },
+    {
+     "name": "x-api-key",
+     "in": "header",
+     "default": "",
+     "maximum": null
+    }
+   ],
+   "response_shape": {
+    "items_under_key": "data",
+    "other_keys_example": {
+     "paging": {
+      "page": 1,
+      "pageSize": 25,
+      "total": 40
+     }
+    }
+   },
+   "item_count_all_pages": 40,
+   "field_statistics": {
+    "patientId": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 40,
+     "format": "text (max length 8)",
+     "sample_values": "masked"
+    },
+    "mrn": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 40,
+     "format": "integer stored as text",
+     "sample_values": "masked"
+    },
+    "name.first": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 26,
+     "format": "text (max length 7)",
+     "sample_values": "masked"
+    },
+    "name.last": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 21,
+     "format": "text (max length 10)",
+     "sample_values": "masked"
+    },
+    "dob": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 40,
+     "format": "date MM/DD/YYYY",
+     "sample_values": "date-shifted"
+    },
+    "sex": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 2,
+     "format": "text (max length 1)",
+     "values": [
+      "F",
+      "M"
+     ]
+    },
+    "contact.phone": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 40,
+     "format": "text (max length 16)",
+     "sample_values": "masked"
+    },
+    "contact.email": {
+     "present_in": 0,
+     "of": 40,
+     "distinct": 0,
+     "format": "always empty",
+     "sample_values": "masked"
+    },
+    "address.line1": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 40,
+     "format": "text (max length 17)",
+     "sample_values": "masked"
+    },
+    "address.city": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 5,
+     "format": "text (max length 9)",
+     "sample_values": "masked"
+    },
+    "address.postCode": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 40,
+     "format": "text (max length 8)",
+     "sample_values": "masked"
+    },
+    "address.country": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 1,
+     "format": "text (max length 2)",
+     "values": [
+      "IE"
+     ]
+    },
+    "active": {
+     "present_in": 40,
+     "of": 40,
+     "distinct": 1,
+     "format": "boolean",
+     "sample_values": "masked"
+    }
+   },
+   "sample_items_masked": [
+    {
+     "patientId": "A-884857",
+     "mrn": "6026978",
+     "name": {
+      "first": "Fgbzq",
+      "last": "Hvtiy"
+     },
+     "dob": "05/17/1939",
+     "sex": "F",
+     "contact": {
+      "phone": "+017 49 085 1538",
+      "email": null
+     },
+     "address": {
+      "line1": "35 Fdpl Vrplx",
+      "city": "Whkrtbaxw",
+      "postCode": "N04 F6R3",
+      "country": "IE"
+     },
+     "active": true
+    },
+    {
+     "patientId": "L-529238",
+     "mrn": "1754405",
+     "name": {
+      "first": "Wgekv",
+      "last": "Xufnkhy"
+     },
+     "dob": "07/01/1967",
+     "sex": "M",
+     "contact": {
+      "phone": "+475 20 174 9845",
+      "email": null
+     },
+     "address": {
+      "line1": "411 Oxpbbof Wqai",
+      "city": "Jvgl",
+      "postCode": "G82 A6K6",
+      "country": "IE"
+     },
+     "active": true
+    },
+    {
+     "patientId": "X-639791",
+     "mrn": "5214617",
+     "name": {
+      "first": "Vicqc",
+      "last": "Msmia"
+     },
+     "dob": "03/15/1954",
+     "sex": "M",
+     "contact": {
+      "phone": "+613 78 252 6042",
+      "email": null
+     },
+     "address": {
+      "line1": "39 Hvxov Hayf",
+      "city": "Yvtuuk",
+      "postCode": "N54 T2N1",
+      "country": "IE"
+     },
+     "active": true
+    }
+   ]
+  },
+  {
+   "path": "/api/v2/conditions",
+   "summary": "List problem-list conditions (paged)",
+   "parameters": [
+    {
+     "name": "page",
+     "in": "query",
+     "default": 1,
+     "maximum": null
+    },
+    {
+     "name": "pageSize",
+     "in": "query",
+     "default": 25,
+     "maximum": 100
+    },
+    {
+     "name": "x-api-key",
+     "in": "header",
+     "default": "",
+     "maximum": null
+    }
+   ],
+   "response_shape": {
+    "items_under_key": "data",
+    "other_keys_example": {
+     "paging": {
+      "page": 1,
+      "pageSize": 25,
+      "total": 49
+     }
+    }
+   },
+   "item_count_all_pages": 49,
+   "field_statistics": {
+    "conditionId": {
+     "present_in": 49,
+     "of": 49,
+     "distinct": 49,
+     "format": "text (max length 7)",
+     "sample_values": "masked"
+    },
+    "patientId": {
+     "present_in": 49,
+     "of": 49,
+     "distinct": 32,
+     "format": "text (max length 8)",
+     "sample_values": "masked"
+    },
+    "mrn": {
+     "present_in": 49,
+     "of": 49,
+     "distinct": 32,
+     "format": "integer stored as text",
+     "sample_values": "masked"
+    },
+    "code.system": {
+     "present_in": 49,
+     "of": 49,
+     "distinct": 1,
+     "format": "text (max length 6)",
+     "values": [
+      "SNOMED"
+     ]
+    },
+    "code.value": {
+     "present_in": 49,
+     "of": 49,
+     "distinct": 10,
+     "format": "integer stored as text",
+     "values": [
+      "13645005",
+      "195967001",
+      "235595009",
+      "35489007",
+      "38341003",
+      "40930008",
+      "44054006",
+      "49436004",
+      "55822004",
+      "69896004"
+     ]
+    },
+    "code.text": {
+     "present_in": 49,
+     "of": 49,
+     "distinct": 10,
+     "format": "text (max length 32)",
+     "values": [
+      "Asthma",
+      "Atrial fibrillation",
+      "Chronic obstructive lung disease",
+      "Depressive disorder",
+      "Diabetes mellitus type 2",
+      "Gastroesophageal reflux disease",
+      "Hyperlipidemia",
+      "Hypertensive disorder",
+      "Hypothyroidism",
+      "Rheumatoid arthritis"
+     ]
+    },
+    "onsetDate": {
+     "present_in": 49,
+     "of": 49,
+     "distinct": 49,
+     "format": "date YYYY-MM-DD",
+     "sample_values": "date-shifted"
+    },
+    "state": {
+     "present_in": 49,
+     "of": 49,
+     "distinct": 2,
+     "format": "text (max length 1)",
+     "values": [
+      "A",
+      "R"
+     ]
+    }
+   },
+   "sample_items_masked": [
+    {
+     "conditionId": "G851774",
+     "patientId": "L-529238",
+     "mrn": "1754405",
+     "code": {
+      "system": "SNOMED",
+      "value": "13645005",
+      "text": "Chronic obstructive lung disease"
+     },
+     "onsetDate": "2021-10-05",
+     "state": "A"
+    },
+    {
+     "conditionId": "X589869",
+     "patientId": "L-529238",
+     "mrn": "1754405",
+     "code": {
+      "system": "SNOMED",
+      "value": "195967001",
+      "text": "Asthma"
+     },
+     "onsetDate": "2024-01-26",
+     "state": "A"
+    },
+    {
+     "conditionId": "K947032",
+     "patientId": "X-639791",
+     "mrn": "5214617",
+     "code": {
+      "system": "SNOMED",
+      "value": "44054006",
+      "text": "Diabetes mellitus type 2"
+     },
+     "onsetDate": "2014-04-02",
+     "state": "A"
+    }
+   ]
+  }
+ ],
+ "other_endpoints": [
+  {
+   "path": "/api/v2/patients/{patientId}",
+   "summary": "Get one patient",
+   "parameters": [
+    {
+     "name": "patientId",
+     "in": "path",
+     "default": null,
+     "maximum": null
+    },
+    {
+     "name": "x-api-key",
+     "in": "header",
+     "default": "",
+     "maximum": null
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,52 @@
+{
+  "system_id": "ehr-rest",
+  "summary": "STUB FIXTURE. MediCore EHR exposes a JSON REST API for patient demographics and the problem list. The API is usable but not FHIR: custom field names, US-style dates and single-letter codes.",
+  "access": {"mechanism": "rest_api", "notes": "X-API-Key header required. List endpoints are paged with page and pageSize (maximum 100); the total is in paging.total."},
+  "entities": [
+    {
+      "name": "Patient",
+      "source": "/api/v2/patients",
+      "description": "One item per registered patient.",
+      "primary_key": "patientId",
+      "patient_key": "mrn",
+      "fields": [
+        {"name": "patientId", "format": "text P-NNNNNN", "meaning": "EHR-internal patient key", "phi": true, "fhir_candidate": "Patient.id"},
+        {"name": "mrn", "format": "text", "meaning": "Hospital medical record number", "phi": true, "fhir_candidate": "Patient.identifier"},
+        {"name": "name.first", "format": "text", "meaning": "Given name", "phi": true, "fhir_candidate": "Patient.name.given"},
+        {"name": "name.last", "format": "text", "meaning": "Family name", "phi": true, "fhir_candidate": "Patient.name.family"},
+        {"name": "dob", "format": "date MM/DD/YYYY", "meaning": "Date of birth", "phi": true, "fhir_candidate": "Patient.birthDate"},
+        {"name": "sex", "format": "F | M", "meaning": "Administrative sex", "phi": false, "fhir_candidate": "Patient.gender"},
+        {"name": "contact.phone", "format": "text", "meaning": "Phone number", "phi": true, "fhir_candidate": "Patient.telecom"},
+        {"name": "address.line1", "format": "text", "meaning": "Street address", "phi": true, "fhir_candidate": "Patient.address.line"},
+        {"name": "address.city", "format": "text", "meaning": "City", "phi": true, "fhir_candidate": "Patient.address.city"},
+        {"name": "address.postCode", "format": "text", "meaning": "Postal code", "phi": true, "fhir_candidate": "Patient.address.postalCode"},
+        {"name": "address.country", "format": "text", "meaning": "Country code", "phi": false, "fhir_candidate": "Patient.address.country"},
+        {"name": "active", "format": "boolean", "meaning": "Record in use", "phi": false, "fhir_candidate": "Patient.active"}
+      ]
+    },
+    {
+      "name": "Condition",
+      "source": "/api/v2/conditions",
+      "description": "One item per problem-list entry.",
+      "primary_key": "conditionId",
+      "patient_key": "mrn",
+      "fields": [
+        {"name": "conditionId", "format": "text", "meaning": "Problem-list entry key", "phi": false, "fhir_candidate": "Condition.id"},
+        {"name": "mrn", "format": "text", "meaning": "Patient MRN", "phi": true, "fhir_candidate": "Condition.subject"},
+        {"name": "code.value", "format": "SNOMED CT concept id", "meaning": "Diagnosis code", "phi": false, "fhir_candidate": "Condition.code"},
+        {"name": "code.text", "format": "text", "meaning": "Diagnosis description", "phi": false, "fhir_candidate": "Condition.code.coding.display"},
+        {"name": "onsetDate", "format": "date YYYY-MM-DD", "meaning": "Onset date", "phi": false, "fhir_candidate": "Condition.onsetDateTime"},
+        {"name": "state", "format": "A | R", "meaning": "Clinical state", "phi": false, "fhir_candidate": "Condition.clinicalStatus"}
+      ]
+    }
+  ],
+  "relationships": ["conditions.patientId -> patients.patientId", "conditions.mrn -> patients.mrn"],
+  "cross_system_keys": [{"field": "mrn", "meaning": "Hospital MRN"}],
+  "code_systems": [
+    {"field": "code.value", "system": "SNOMED CT", "value_map": {}},
+    {"field": "sex", "system": "local", "value_map": {"F": "female", "M": "male"}},
+    {"field": "state", "system": "local", "value_map": {"A": "active", "R": "resolved"}}
+  ],
+  "data_quality_notes": ["dob is MM/DD/YYYY, unlike every other date in the estate.", "contact.email is always empty."],
+  "open_questions": ["Does state have values other than A and R in production?", "Is there a rate limit on the API?"]
+}

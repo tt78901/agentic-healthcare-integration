@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Integration Fabric console</title>
+<link rel="icon" href="data:,">
+<style>
+:root{--ink:#16202e;--muted:#5b6777;--line:#dfe4ea;--bg:#f6f7f9;--card:#fff;--ok:#1a7f4b;--bad:#b3261e;--warn:#8a5a00;--accent:#1f4e79}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:#12263a;color:#fff;padding:14px 28px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+header h1{font-size:19px;margin:0;font-weight:650;letter-spacing:.01em}
+header .sub{color:#b9c7d6;font-size:13.5px}
+header .right{margin-left:auto;color:#b9c7d6;font-size:13px}
+nav{background:#fff;border-bottom:1px solid var(--line);padding:0 28px;display:flex;gap:4px}
+nav button,nav a{appearance:none;border:0;background:none;font:inherit;color:var(--muted);padding:12px 14px;cursor:pointer;border-bottom:3px solid transparent;text-decoration:none}
+nav button.on{color:var(--ink);border-bottom-color:var(--accent);font-weight:600}
+nav button:focus-visible,nav a:focus-visible,button:focus-visible,li:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+main{max-width:1180px;margin:0 auto;padding:22px 28px 60px}
+.banner{background:#fff4e5;border:1px solid #f0c98a;color:var(--warn);border-radius:10px;padding:10px 14px;margin:0 0 16px;font-weight:600;font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:16px 18px}
+.card h3{margin:0 0 2px;font-size:16px}
+.small{font-size:13px;color:var(--muted)}
+.pill{display:inline-block;border-radius:999px;padding:2px 10px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.pill.ok{background:#e6f4ea;color:var(--ok)}.pill.bad{background:#fde7e5;color:var(--bad)}.pill.na{background:#eef0f3;color:var(--muted)}
+dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:12px 0 0;font-size:14px}
+dt{color:var(--muted)}dd{margin:0}
+.changes{margin:10px 0 0;padding:8px 10px;background:#fdf3f2;border-radius:6px;font:12.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#5c1a15;white-space:pre-wrap;word-break:break-word}
+.bar{display:flex;align-items:center;gap:12px;margin:0 0 14px;flex-wrap:wrap}
+button.act{appearance:none;border:1px solid var(--accent);background:var(--accent);color:#fff;border-radius:7px;padding:7px 14px;font:inherit;font-weight:600;cursor:pointer}
+button.act[disabled]{opacity:.6;cursor:progress}
+.two{display:grid;grid-template-columns:300px 1fr;gap:16px;align-items:start}
+@media(max-width:820px){.two{grid-template-columns:1fr}}
+input[type=search]{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:7px;font:inherit;margin-bottom:8px}
+ul.people{list-style:none;margin:0;padding:0;max-height:70vh;overflow:auto;border:1px solid var(--line);border-radius:10px;background:#fff}
+ul.people li{padding:8px 12px;border-bottom:1px solid var(--line);cursor:pointer}
+ul.people li:last-child{border-bottom:0}ul.people li:hover{background:#f2f5f8}ul.people li.on{background:#e8f0f8}
+.src{display:inline-block;border-radius:5px;padding:1px 8px;font-size:12px;font-weight:600;white-space:nowrap}
+.s0{background:#e8f0fe;color:#174ea6}.s1{background:#e6f4ea;color:#137333}.s2{background:#fef7e0;color:#8a5a00}.s3{background:#f3e8fd;color:#6a1b9a}.s4{background:#eef0f3;color:#444}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.filters{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0 8px}
+.filters button{appearance:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:4px 12px;font:inherit;font-size:13.5px;cursor:pointer;color:var(--ink)}
+.filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+td,th{text-align:left;padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);font-weight:600}
+tr:last-child td{border-bottom:0}td.when{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
+.flag{font-weight:700;color:var(--bad)}
+.empty{color:var(--muted);padding:30px;text-align:center}
+</style>
+</head>
+<body>
+<header>
+  <h1>Integration Fabric</h1>
+  <span class="sub">One FHIR R4 API over the hospital estate, integrated by agents, checked by contract, approved by people</span>
+  <span class="right" id="meta">synthetic data</span>
+</header>
+<nav>
+  <button id="tab-estate" class="on">Estate</button>
+  <button id="tab-patient">Patient record</button>
+  <a href="/report" target="_blank" rel="noopener">Run report</a>
+  <a href="/docs" target="_blank" rel="noopener">API</a>
+</nav>
+<main>
+  <div id="stub" class="banner" hidden>STUB adapters are loaded: hand-written fixtures, not agent output.</div>
+  <section id="estate">
+    <div class="bar">
+      <button class="act" id="check">Check estate now</button>
+      <span class="small" id="checked">Re-probes every source, compares its structure with what was approved and re-runs the validation contract.</span>
+    </div>
+    <div class="grid" id="systems"></div>
+  </section>
+  <section id="patient" hidden>
+    <div class="two">
+      <div>
+        <input type="search" id="q" placeholder="Search name or MRN" aria-label="Search patients">
+        <ul class="people" id="people"></ul>
+      </div>
+      <div id="record"><div class="card empty">Select a patient to see one record assembled from every source system.</div></div>
+    </div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+function h(tag, attrs, ...kids) {
+  const el = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs || {})) { if (k === "class") el.className = v; else if (k.startsWith("on")) el.addEventListener(k.slice(2), v); else el.setAttribute(k, v); }
+  for (const kid of kids.flat()) if (kid !== null && kid !== undefined && kid !== false) el.append(kid.nodeType ? kid : document.createTextNode(String(kid)));
+  return el;
+}
+const api = async (path, opts) => { const r = await fetch(path, opts); if (!r.ok) throw new Error(path + " -> HTTP " + r.status); return r.json(); };
+let sources = [];                       // system ids in estate order, for stable badge colours
+const srcBadge = uri => { const id = String(uri || "").replace("urn:system:", ""); const i = sources.indexOf(id); return h("span", {class: "src s" + (i < 0 || i > 3 ? 4 : i)}, id); };
+const pct = v => v === null || v === undefined ? "n/a" : (v * 100).toFixed(1) + "%";
+
+// ---------------------------------------------------------------- estate
+async function loadEstate() {
+  const systems = await api("/systems");
+  sources = Object.keys(systems);
+  const box = $("systems"); box.replaceChildren();
+  if (!sources.length) { box.append(h("div", {class: "card empty"}, "No promoted systems yet. Run the agent pipeline: python -m fabric demo")); return; }
+  $("stub").hidden = !Object.values(systems).some(s => s.stub);
+  $("meta").textContent = "synthetic data · agents: " + [...new Set(Object.values(systems).map(s => s.model))].join(", ");
+  for (const [id, s] of Object.entries(systems)) {
+    const hs = s.health;
+    const pill = !hs ? h("span", {class: "pill na"}, "Not checked yet")
+      : hs.healthy ? h("span", {class: "pill ok"}, "Healthy")
+      : h("span", {class: "pill bad"}, hs.drift ? "Source drifted" : "Contract failing");
+    const counts = Object.entries(s.counts || {}).map(([k, v]) => k + " " + v).join(" · ");
+    const card = h("div", {class: "card"},
+      h("div", {style: "display:flex;justify-content:space-between;gap:10px;align-items:flex-start"}, h("h3", {}, s.name || id), pill),
+      h("div", {class: "small"}, srcBadge(id), " ", s.kind || ""),
+      h("dl", {},
+        h("dt", {}, "Pattern"), h("dd", {}, s.pattern || "n/a"),
+        h("dt", {}, "Serves"), h("dd", {}, counts || "n/a"),
+        h("dt", {}, "Values correct"), h("dd", {}, pct(s.accuracy) + " of mapped values, " + pct(s.coverage) + " of source values covered"),
+        h("dt", {}, "Self-repairs"), h("dd", {}, String(s.repair_rounds ?? "n/a")),
+        h("dt", {}, "Approved by"), h("dd", {}, s.approved_by || "n/a")));
+    if (hs && !hs.healthy) {
+      const d = hs.drift || {};
+      const lines = [].concat((d.removed || []).map(x => "- removed from source: " + x), (d.added || []).map(x => "+ new in source: " + x),
+        (d.changed || []).map(c => "~ " + c.field + ": " + c.was + " -> " + c.now), (hs.failed || []).map(f => "FAIL " + f.id + ": " + f.detail.slice(0, 180)));
+      const ev = hs.evaluation;
+      if (ev && !ev.clean) for (const [k, t] of Object.entries(ev.fields)) if (t.wrong || t.absent) lines.push("data: " + k + " " + t.wrong + " wrong, " + t.absent + " missing");
+      if (hs.error) lines.push(hs.error);
+      card.append(h("div", {class: "changes"}, lines.join("\n")), h("div", {class: "small", style: "margin-top:8px"}, "Heal: python -m fabric check --heal"));
+    }
+    box.append(card);
+  }
+  const times = Object.values(systems).map(s => s.health && s.health.checked_at).filter(Boolean).sort();
+  if (times.length) $("checked").textContent = "Last checked " + times[times.length - 1].replace("T", " ").replace("+00:00", " UTC");
+}
+$("check").addEventListener("click", async () => {
+  const b = $("check"); b.disabled = true; b.textContent = "Checking ...";
+  try { await api("/check", {method: "POST"}); await loadEstate(); } catch (e) { $("checked").textContent = String(e); }
+  b.disabled = false; b.textContent = "Check estate now";
+});
+
+// ---------------------------------------------------------------- patient record
+let patients = [];
+const nameOf = p => { const n = (p.name || [{}])[0]; return [(n.given || []).join(" "), n.family].filter(Boolean).join(" ") || "(no name)"; };
+const mrnOf = p => ((p.identifier || [])[0] || {}).value;
+async function loadPatients() {
+  const bundle = await api("/fhir/Patient?_count=1000");
+  patients = (bundle.entry || []).filter(e => !e.search || e.search.mode !== "outcome").map(e => e.resource).sort((a, b) => nameOf(a).localeCompare(nameOf(b)));
+  drawPeople();
+}
+function drawPeople() {
+  const q = $("q").value.trim().toLowerCase();
+  const list = $("people"); list.replaceChildren();
+  for (const p of patients) {
+    if (q && !(nameOf(p).toLowerCase().includes(q) || String(mrnOf(p)).includes(q))) continue;
+    const li = h("li", {tabindex: "0"}, h("div", {}, nameOf(p)), h("div", {class: "small"}, "MRN " + mrnOf(p)));
+    const open = () => { for (const x of list.children) x.classList.remove("on"); li.classList.add("on"); showRecord(p); };
+    li.addEventListener("click", open); li.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
+    list.append(li);
+  }
+  if (!list.children.length) list.append(h("li", {class: "small"}, "No match"));
+}
+$("q").addEventListener("input", drawPeople);
+
+const day = v => v ? String(v).slice(0, 10) : "";
+const KIND = {Encounter: "Visits", Observation: "Lab results", Condition: "Conditions", MedicationRequest: "Medications"};
+function row(r) {
+  const code = cc => ((cc || {}).coding || [{}])[0];
+  if (r.resourceType === "Encounter") {
+    const cls = {AMB: "Outpatient visit", EMER: "Emergency visit", IMP: "Inpatient stay"}[(r.class || {}).code] || "Visit";
+    const p = r.period || {};
+    return {when: p.start, what: cls, detail: r.status === "in-progress" ? "Still admitted" : (p.end ? "until " + String(p.end).slice(0, 16).replace("T", " ") : r.status)};
+  }
+  if (r.resourceType === "Observation") {
+    const q = r.valueQuantity || {}; const flag = code((r.interpretation || [])[0]).code;
+    return {when: r.effectiveDateTime, what: code(r.code).display || code(r.code).code, detail: (q.value ?? "") + " " + (q.unit || ""), flag: flag === "H" ? "High" : flag === "L" ? "Low" : "", note: r.status !== "final" ? r.status : ""};
+  }
+  if (r.resourceType === "Condition") return {when: r.onsetDateTime, what: code(r.code).display || code(r.code).code, detail: "Problem list: " + (code(r.clinicalStatus).code || "")};
+  if (r.resourceType === "MedicationRequest") return {when: r.authoredOn, what: code(r.medicationCodeableConcept).display || code(r.medicationCodeableConcept).code, detail: ((r.dosageInstruction || [{}])[0].text || ""), note: r.status};
+  return {when: "", what: r.resourceType, detail: ""};
+}
+async function showRecord(p) {
+  const box = $("record"); box.replaceChildren(h("div", {class: "card empty"}, "Loading ..."));
+  const bundle = await api("/fhir/Patient/" + encodeURIComponent(mrnOf(p)) + "/everything");
+  const outcomes = (bundle.entry || []).filter(e => e.search && e.search.mode === "outcome").map(e => e.resource);
+  const all = (bundle.entry || []).filter(e => !e.search || e.search.mode !== "outcome").map(e => e.resource);
+  const rest = all.filter(r => r.resourceType !== "Patient");
+  const bySource = {};
+  for (const r of all) { const s = (r.meta || {}).source; bySource[s] = (bySource[s] || 0) + 1; }
+  const addr = (p.address || [{}])[0];
+  const head = h("div", {class: "card"},
+    h("h3", {style: "font-size:20px"}, nameOf(p)),
+    h("div", {class: "small"}, ["MRN " + mrnOf(p), p.gender, p.birthDate ? "born " + p.birthDate : "", [addr.city, addr.country].filter(Boolean).join(", ")].filter(Boolean).join(" · ")),
+    h("div", {class: "chips"}, Object.entries(bySource).map(([s, n]) => h("span", {}, srcBadge(s), " ", h("span", {class: "small"}, n + (n === 1 ? " record" : " records"))))),
+    h("div", {class: "small", style: "margin-top:8px"}, Object.keys(bySource).length + " source systems contribute to this record. Demographics shown from ", srcBadge((p.meta || {}).source), "."));
+  let active = "All";
+  const filters = h("div", {class: "filters"});
+  const body = h("tbody", {});
+  const draw = () => {
+    filters.replaceChildren(...["All", ...Object.keys(KIND).filter(k => rest.some(r => r.resourceType === k))].map(k => {
+      const n = k === "All" ? rest.length : rest.filter(r => r.resourceType === k).length;
+      const b = h("button", {class: k === active ? "on" : ""}, (KIND[k] || "All") + " " + n);
+      b.addEventListener("click", () => { active = k; draw(); }); return b; }));
+    const rows = rest.filter(r => active === "All" || r.resourceType === active).map(r => ({r, v: row(r)})).sort((a, b) => String(b.v.when || "").localeCompare(String(a.v.when || "")));
+    body.replaceChildren(...rows.map(({r, v}) => h("tr", {},
+      h("td", {class: "when"}, day(v.when)), h("td", {}, v.what),
+      h("td", {}, v.detail, v.flag ? h("span", {class: "flag"}, "  " + v.flag) : null, v.note ? h("span", {class: "small"}, "  (" + v.note + ")") : null),
+      h("td", {}, srcBadge((r.meta || {}).source)))));
+  };
+  draw();
+  const issues = outcomes.flatMap(o => o.issue || []);
+  const warn = issues.length ? h("div", {class: "banner"}, "Partial record: " + issues.map(i => i.diagnostics).join(" · ")) : null;
+  box.replaceChildren(...[warn].filter(Boolean), head, filters, h("div", {class: "card", style: "padding:6px 8px"}, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Date"), h("th", {}, "Item"), h("th", {}, "Detail"), h("th", {}, "Source system"))), body)));
+}
+
+// ---------------------------------------------------------------- tabs
+function tab(name) {
+  for (const t of ["estate", "patient"]) { $(t).hidden = t !== name; $("tab-" + t).classList.toggle("on", t === name); }
+  if (name === "patient" && !patients.length) loadPatients().catch(e => { $("people").replaceChildren(h("li", {class: "small"}, String(e))); });
+}
+$("tab-estate").addEventListener("click", () => tab("estate"));
+$("tab-patient").addEventListener("click", () => tab("patient"));
+loadEstate().catch(e => { $("systems").replaceChildren(h("div", {class: "card empty"}, String(e))); });
+</script>
+</body>
+</html>

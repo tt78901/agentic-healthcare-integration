@@ -1,0 +1,43 @@
+{
+  "system_id": "lab-sql",
+  "pattern": "database_polling",
+  "pattern_rationale": "STUB FIXTURE. The LIS has no API and no event feed, and its schema is small and stable, so read-only SQL on a schedule is the least invasive option.",
+  "alternatives_considered": [
+    {"pattern": "api_facade", "why_not": "The system exposes no API to wrap."},
+    {"pattern": "file_drop_ingest", "why_not": "Would need the vendor to add an export job; the data is already queryable."}
+  ],
+  "sync": {"mode": "scheduled_poll", "detail": "Every 15 minutes, filtered on RSLT_DTTM once a high-water mark is kept."},
+  "resources": [
+    {
+      "resource_type": "Patient",
+      "source_entity": "PT_MSTR",
+      "id_source_field": "PT_ID",
+      "count_basis": {"entity": "PT_MSTR", "distinct_key": "PT_ID"},
+      "field_map": [
+        {"fhir": "identifier (MRN)", "source": "MRN_NO", "transform": "copy"},
+        {"fhir": "name.family", "source": "LNAME", "transform": "title case"},
+        {"fhir": "name.given", "source": "FNAME", "transform": "title case"},
+        {"fhir": "birthDate", "source": "DOB_DT", "transform": "YYYYMMDD integer -> YYYY-MM-DD"},
+        {"fhir": "gender", "source": "SEX_CD", "transform": "F -> female, M -> male, else unknown"}
+      ],
+      "merge_rule": "none"
+    },
+    {
+      "resource_type": "Observation",
+      "source_entity": "LAB_RSLT joined to TEST_REF and PT_MSTR",
+      "id_source_field": "RSLT_ID",
+      "count_basis": {"entity": "LAB_RSLT", "distinct_key": "RSLT_ID"},
+      "field_map": [
+        {"fhir": "status", "source": "RSLT_STAT", "transform": "F -> final, P -> preliminary, C -> corrected"},
+        {"fhir": "code (LOINC)", "source": "TEST_REF.LOINC_CD, TEST_REF.TEST_NM", "transform": "join on TEST_CD"},
+        {"fhir": "subject (MRN)", "source": "PT_MSTR.MRN_NO", "transform": "join on PT_ID"},
+        {"fhir": "effectiveDateTime", "source": "COLL_DTTM", "transform": "YYYYMMDDHHMMSS -> ISO 8601, treated as UTC"},
+        {"fhir": "valueQuantity", "source": "RSLT_VAL, TEST_REF.UOM", "transform": "text -> number; unit as UCUM"},
+        {"fhir": "interpretation", "source": "ABN_FLG", "transform": "H, L, N copied as v3 interpretation codes"}
+      ],
+      "merge_rule": "none"
+    }
+  ],
+  "risks": ["Direct SQL couples the fabric to the vendor schema.", "Polling load on the production database."],
+  "human_review_points": ["Timestamps are assumed to be UTC.", "Lab Patient records duplicate EHR demographics; the gateway keeps one Patient per MRN."]
+}

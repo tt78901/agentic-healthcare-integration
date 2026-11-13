@@ -1,0 +1,76 @@
+{
+ "ehr-rest": {
+  "run_id": "20261113-175528",
+  "promoted_at": "2026-11-13T18:16:43+00:00",
+  "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
+  "stub": false,
+  "pattern": "api_facade",
+  "resource_types": [
+   "Condition",
+   "Patient"
+  ],
+  "counts": {
+   "Patient": 40,
+   "Condition": 49
+  },
+  "repair_rounds": 0,
+  "accuracy": 1.0,
+  "coverage": 1.0,
+  "approved_by": "reviewer"
+ },
+ "lab-sql": {
+  "run_id": "20261113-175528",
+  "promoted_at": "2026-11-13T18:16:43+00:00",
+  "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
+  "stub": false,
+  "pattern": "database_polling",
+  "resource_types": [
+   "Observation",
+   "Patient"
+  ],
+  "counts": {
+   "Patient": 36,
+   "Observation": 342
+  },
+  "repair_rounds": 0,
+  "accuracy": 1.0,
+  "coverage": 1.0,
+  "approved_by": "reviewer"
+ },
+ "adt-feed": {
+  "run_id": "20261113-175528",
+  "promoted_at": "2026-11-13T18:16:43+00:00",
+  "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
+  "stub": false,
+  "pattern": "message_feed_ingest",
+  "resource_types": [
+   "Encounter",
+   "Patient"
+  ],
+  "counts": {
+   "Patient": 40,
+   "Encounter": 163
+  },
+  "repair_rounds": 1,
+  "accuracy": 1.0,
+  "coverage": 1.0,
+  "approved_by": "reviewer"
+ },
+ "pharmacy-csv": {
+  "run_id": "20261113-175528",
+  "promoted_at": "2026-11-13T18:16:43+00:00",
+  "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
+  "stub": false,
+  "pattern": "file_drop_ingest",
+  "resource_types": [
+   "MedicationRequest"
+  ],
+  "counts": {
+   "MedicationRequest": 60
+  },
+  "repair_rounds": 0,
+  "accuracy": 1.0,
+  "coverage": 1.0,
+  "approved_by": "reviewer"
+ }
+}

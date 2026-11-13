@@ -1,0 +1,151 @@
+{
+ "system_id": "lab-sql",
+ "pattern": "database_polling",
+ "pattern_rationale": "LabTrak LIS is an isolated SQLite relational database without an HTTP API, message feed, or change-data-capture stream. Read-only SQL polling on a scheduled interval is the most direct and least intrusive mechanism to extract patient demographics and laboratory result records.",
+ "alternatives_considered": [
+  {
+   "pattern": "api_facade",
+   "why_not": "LabTrak LIS lacks an HTTP API service to wrap."
+  },
+  {
+   "pattern": "message_feed_ingest",
+   "why_not": "The system does not emit HL7 v2 or real-time event messages."
+  },
+  {
+   "pattern": "file_drop_ingest",
+   "why_not": "The system stores data in a persistent SQLite database file rather than generating scheduled export files."
+  }
+ ],
+ "sync": {
+  "mode": "scheduled_poll",
+  "detail": "Poll SQLite database file on a configured cron schedule (e.g., every 15 minutes) querying records updated since the last poll checkpoint."
+ },
+ "resources": [
+  {
+   "resource_type": "Patient",
+   "source_entity": "PT_MSTR",
+   "id_source_field": "PT_ID",
+   "count_basis": {
+    "entity": "PT_MSTR",
+    "distinct_key": "PT_ID"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "PT_MSTR.PT_ID",
+     "transform": "Prefix with 'lab-sql-' resulting in 'lab-sql-<PT_ID>'"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "N/A",
+     "transform": "Constant 'urn:system:lab-sql'"
+    },
+    {
+     "fhir": "identifier[0]",
+     "source": "PT_MSTR.MRN_NO",
+     "transform": "Map to identifier object with system 'http://hospital.example.org/mrn' and value from MRN_NO"
+    },
+    {
+     "fhir": "name[0].family",
+     "source": "PT_MSTR.LNAME",
+     "transform": "String copy"
+    },
+    {
+     "fhir": "name[0].given[0]",
+     "source": "PT_MSTR.FNAME",
+     "transform": "Wrap in single-element string array"
+    },
+    {
+     "fhir": "gender",
+     "source": "PT_MSTR.SEX_CD",
+     "transform": "Map codes: 'M' -> 'male', 'F' -> 'female', all other values -> 'unknown'"
+    },
+    {
+     "fhir": "birthDate",
+     "source": "PT_MSTR.DOB_DT",
+     "transform": "Convert YYYYMMDD integer/string to ISO date YYYY-MM-DD format"
+    }
+   ],
+   "merge_rule": "none",
+   "expected_count": 36
+  },
+  {
+   "resource_type": "Observation",
+   "source_entity": "LAB_RSLT",
+   "id_source_field": "RSLT_ID",
+   "count_basis": {
+    "entity": "LAB_RSLT",
+    "distinct_key": "RSLT_ID"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "LAB_RSLT.RSLT_ID",
+     "transform": "Prefix with 'lab-sql-' resulting in 'lab-sql-<RSLT_ID>'"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "N/A",
+     "transform": "Constant 'urn:system:lab-sql'"
+    },
+    {
+     "fhir": "status",
+     "source": "LAB_RSLT.RSLT_STAT",
+     "transform": "Map codes: 'F' -> 'final', 'C' -> 'corrected', 'P' -> 'preliminary', default -> 'unknown'"
+    },
+    {
+     "fhir": "category[0]",
+     "source": "N/A",
+     "transform": "Constant code 'laboratory' with system 'http://terminology.hl7.org/CodeSystem/observation-category'"
+    },
+    {
+     "fhir": "code",
+     "source": "TEST_REF.LOINC_CD",
+     "transform": "Map to code.coding[0] with system 'http://loinc.org', code LOINC_CD, and display TEST_REF.TEST_NM"
+    },
+    {
+     "fhir": "subject",
+     "source": "PT_MSTR.MRN_NO",
+     "transform": "Construct logical reference subject.identifier = {'system': 'http://hospital.example.org/mrn', 'value': PT_MSTR.MRN_NO} via join LAB_RSLT.PT_ID = PT_MSTR.PT_ID"
+    },
+    {
+     "fhir": "effectiveDateTime",
+     "source": "LAB_RSLT.COLL_DTTM",
+     "transform": "Parse string 'YYYYMMDDHHMMSS' and format as UTC ISO dateTime 'YYYY-MM-DDThh:mm:ssZ'"
+    },
+    {
+     "fhir": "valueQuantity.value",
+     "source": "LAB_RSLT.RSLT_VAL",
+     "transform": "Parse string to decimal number; if non-numeric or qualitative, omit valueQuantity and set valueString"
+    },
+    {
+     "fhir": "valueQuantity.unit",
+     "source": "TEST_REF.UOM",
+     "transform": "String copy via join LAB_RSLT.TEST_CD = TEST_REF.TEST_CD"
+    },
+    {
+     "fhir": "valueQuantity.system",
+     "source": "N/A",
+     "transform": "Constant 'http://unitsofmeasure.org'"
+    },
+    {
+     "fhir": "interpretation[0]",
+     "source": "LAB_RSLT.ABN_FLG",
+     "transform": "Map codes: 'H' -> 'H', 'L' -> 'L', 'N' -> 'N' with system 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation'"
+    }
+   ],
+   "merge_rule": "none",
+   "expected_count": 342
+  }
+ ],
+ "risks": [
+  "Non-numeric values in LAB_RSLT.RSLT_VAL (e.g. qualitative text or comparison signs like '<0.01') will fail numeric parsing into Observation.valueQuantity.value.",
+  "SQLite database lock contention if the pipeline polls while local LabTrak applications are performing batch writes.",
+  "Unparsed timestamps without timezone offsets are assumed UTC, which may lead to offset discrepancies if source values were captured in local hospital time."
+ ],
+ "human_review_points": [
+  "Confirm local timezone policy for COLL_DTTM and RSLT_DTTM timestamps before enforcing UTC assumption.",
+  "Verify whether non-numeric RSLT_VAL values should map to Observation.valueString or trigger qualitative Observation concepts.",
+  "Confirm that local test code TEST_CD fallback mapping is required when LOINC_CD is null in TEST_REF."
+ ]
+}

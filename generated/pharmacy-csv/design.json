@@ -1,0 +1,106 @@
+{
+ "system_id": "pharmacy-csv",
+ "pattern": "file_drop_ingest",
+ "pattern_rationale": "The system drops periodic flat CSV files (rx_export_*.csv) on a nightly schedule into a designated runtime directory. The file_drop_ingest pattern ingests these files and de-duplicates re-exported records across daily drops.",
+ "alternatives_considered": [
+  {
+   "pattern": "api_facade",
+   "why_not": "The source system provides flat file exports rather than exposing an HTTP API."
+  },
+  {
+   "pattern": "database_polling",
+   "why_not": "No direct database connection or read-only SQL interface is available."
+  },
+  {
+   "pattern": "message_feed_ingest",
+   "why_not": "The system emits periodic batch file drops instead of real-time event messages."
+  }
+ ],
+ "sync": {
+  "mode": "scheduled_poll",
+  "detail": "Nightly polling of directory specified in config['path'] for rx_export_*.csv files"
+ },
+ "resources": [
+  {
+   "resource_type": "MedicationRequest",
+   "source_entity": "Prescription",
+   "id_source_field": "RX_NO",
+   "count_basis": {
+    "entity": "rx_export_*.csv",
+    "distinct_key": "RX_NO"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "RX_NO",
+     "transform": "Format as 'pharmacy-csv-' + RX_NO"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "N/A",
+     "transform": "Hardcode 'urn:system:pharmacy-csv'"
+    },
+    {
+     "fhir": "status",
+     "source": "STAT",
+     "transform": "Map local status codes: 'A' -> 'active', 'C' -> 'completed', 'S' -> 'stopped'"
+    },
+    {
+     "fhir": "intent",
+     "source": "N/A",
+     "transform": "Hardcode 'order'"
+    },
+    {
+     "fhir": "subject.identifier.system",
+     "source": "N/A",
+     "transform": "Hardcode 'http://hospital.example.org/mrn'"
+    },
+    {
+     "fhir": "subject.identifier.value",
+     "source": "MRN",
+     "transform": "Pass through string representation of MRN"
+    },
+    {
+     "fhir": "medicationCodeableConcept.coding[0].system",
+     "source": "N/A",
+     "transform": "Hardcode 'http://www.nlm.nih.gov/research/umls/rxnorm'"
+    },
+    {
+     "fhir": "medicationCodeableConcept.coding[0].code",
+     "source": "RXNORM_CD",
+     "transform": "Pass through RxNorm code as string"
+    },
+    {
+     "fhir": "medicationCodeableConcept.coding[0].display",
+     "source": "DRUG_DESC",
+     "transform": "Pass through DRUG_DESC text as display string"
+    },
+    {
+     "fhir": "dosageInstruction[0].text",
+     "source": "SIG_TXT",
+     "transform": "Pass through administration instructions text"
+    },
+    {
+     "fhir": "dispenseRequest.quantity.value",
+     "source": "QTY",
+     "transform": "Parse integer string to numeric JSON value"
+    },
+    {
+     "fhir": "authoredOn",
+     "source": "START_DT",
+     "transform": "Parse date in DD/MM/YYYY format and emit ISO 8601 YYYY-MM-DD string"
+    }
+   ],
+   "merge_rule": "latest_file_wins",
+   "expected_count": 60
+  }
+ ],
+ "risks": [
+  "Re-processed or out-of-order export files may overwrite newer prescription states if file ordering does not strictly follow timestamp sequence.",
+  "Data parsing failures if START_DT contains malformed date strings or non-standard formats."
+ ],
+ "human_review_points": [
+  "Verify whether local status code 'C' should map to 'completed' or 'cancelled'.",
+  "Confirm whether nightly export files represent cumulative extracts or incremental updates."
+ ]
+}

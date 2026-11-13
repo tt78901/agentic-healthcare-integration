@@ -1,0 +1,151 @@
+{
+ "kind": "delimited_files",
+ "access": "read-only folder of delimited text files",
+ "file_pattern": "rx_export_*.csv",
+ "files_and_row_counts": {
+  "rx_export_20261029.csv": 20,
+  "rx_export_20261030.csv": 20,
+  "rx_export_20261031.csv": 25
+ },
+ "delimiter": "|",
+ "header": [
+  "RX_NO",
+  "MRN",
+  "DRUG_DESC",
+  "RXNORM_CD",
+  "SIG_TXT",
+  "QTY",
+  "START_DT",
+  "STAT"
+ ],
+ "total_rows": 65,
+ "field_statistics": {
+  "RX_NO": {
+   "present_in": 65,
+   "of": 65,
+   "distinct": 60,
+   "format": "text (max length 9)",
+   "sample_values": "masked"
+  },
+  "MRN": {
+   "present_in": 65,
+   "of": 65,
+   "distinct": 32,
+   "format": "integer stored as text",
+   "sample_values": "masked"
+  },
+  "DRUG_DESC": {
+   "present_in": 65,
+   "of": 65,
+   "distinct": 10,
+   "format": "text (max length 70)",
+   "values": [
+    "120 ACTUAT Fluticasone propionate 0.044 MG/ACTUAT Metered Dose Inhaler",
+    "24 HR Metformin hydrochloride 500 MG Extended Release Oral Tablet",
+    "Acetaminophen 325 MG Oral Tablet",
+    "Amlodipine 5 MG Oral Tablet",
+    "Atorvastatin 80 MG Oral Tablet",
+    "Clopidogrel 75 MG Oral Tablet",
+    "Hydrochlorothiazide 25 MG Oral Tablet",
+    "Levothyroxine Sodium 0.075 MG Oral Tablet",
+    "Lisinopril 10 MG Oral Tablet",
+    "Simvastatin 20 MG Oral Tablet"
+   ]
+  },
+  "RXNORM_CD": {
+   "present_in": 65,
+   "of": 65,
+   "distinct": 10,
+   "format": "integer stored as text",
+   "values": [
+    "197361",
+    "259255",
+    "309362",
+    "310798",
+    "312961",
+    "313782",
+    "314076",
+    "860975",
+    "895994",
+    "966247"
+   ]
+  },
+  "SIG_TXT": {
+   "present_in": 65,
+   "of": 65,
+   "distinct": 6,
+   "format": "text (max length 47)",
+   "values": [
+    "Inhale 2 puffs twice daily",
+    "Take 1 tablet by mouth at bedtime",
+    "Take 1 tablet by mouth every morning",
+    "Take 1 tablet by mouth once daily",
+    "Take 1 tablet by mouth twice daily",
+    "Take 2 tablets by mouth every 6 hours as needed"
+   ]
+  },
+  "QTY": {
+   "present_in": 65,
+   "of": 65,
+   "distinct": 5,
+   "format": "integer stored as text",
+   "values": [
+    "28",
+    "30",
+    "56",
+    "60",
+    "90"
+   ]
+  },
+  "START_DT": {
+   "present_in": 65,
+   "of": 65,
+   "distinct": 56,
+   "format": "date DD/MM/YYYY",
+   "sample_values": "date-shifted"
+  },
+  "STAT": {
+   "present_in": 65,
+   "of": 65,
+   "distinct": 3,
+   "format": "text (max length 1)",
+   "values": [
+    "A",
+    "C",
+    "S"
+   ]
+  }
+ },
+ "sample_rows_masked": [
+  {
+   "RX_NO": "NU0062790",
+   "MRN": "6026978",
+   "DRUG_DESC": "Lisinopril 10 MG Oral Tablet",
+   "RXNORM_CD": "314076",
+   "SIG_TXT": "Take 1 tablet by mouth once daily",
+   "QTY": "30",
+   "START_DT": "10/01/2025",
+   "STAT": "A"
+  },
+  {
+   "RX_NO": "CN3605969",
+   "MRN": "5214617",
+   "DRUG_DESC": "120 ACTUAT Fluticasone propionate 0.044 MG/ACTUAT Metered Dose Inhaler",
+   "RXNORM_CD": "895994",
+   "SIG_TXT": "Inhale 2 puffs twice daily",
+   "QTY": "56",
+   "START_DT": "27/07/2026",
+   "STAT": "A"
+  },
+  {
+   "RX_NO": "EZ6672050",
+   "MRN": "5214617",
+   "DRUG_DESC": "Lisinopril 10 MG Oral Tablet",
+   "RXNORM_CD": "314076",
+   "SIG_TXT": "Take 1 tablet by mouth once daily",
+   "QTY": "90",
+   "START_DT": "30/12/2024",
+   "STAT": "A"
+  }
+ ]
+}

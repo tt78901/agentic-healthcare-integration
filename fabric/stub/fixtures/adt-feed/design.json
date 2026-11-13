@@ -1,0 +1,43 @@
+{
+  "system_id": "adt-feed",
+  "pattern": "message_feed_ingest",
+  "pattern_rationale": "STUB FIXTURE. The system already emits HL7 v2 events. Parsing the feed needs no change on the source side and gives near-real-time visit status.",
+  "alternatives_considered": [
+    {"pattern": "database_polling", "why_not": "No database access is offered, and the feed already carries every event."},
+    {"pattern": "file_drop_ingest", "why_not": "These are event messages that must be merged per visit, not periodic full exports."}
+  ],
+  "sync": {"mode": "event_driven", "detail": "Process each new message file as it lands."},
+  "resources": [
+    {
+      "resource_type": "Patient",
+      "source_entity": "PID segment",
+      "id_source_field": "PID.3.1",
+      "count_basis": {"entity": "messages", "distinct_key": "PID.3.1"},
+      "field_map": [
+        {"fhir": "identifier (MRN)", "source": "PID.3.1", "transform": "copy"},
+        {"fhir": "name", "source": "PID.5.1, PID.5.2", "transform": "title case"},
+        {"fhir": "birthDate", "source": "PID.7", "transform": "YYYYMMDD -> YYYY-MM-DD"},
+        {"fhir": "gender", "source": "PID.8", "transform": "F -> female, M -> male, else unknown"},
+        {"fhir": "address", "source": "PID.11", "transform": "components 1, 3, 5, 6 -> line, city, postalCode, country"},
+        {"fhir": "telecom", "source": "PID.13", "transform": "phone"}
+      ],
+      "merge_rule": "One Patient per MRN; the latest message wins."
+    },
+    {
+      "resource_type": "Encounter",
+      "source_entity": "PV1 segment",
+      "id_source_field": "PV1.19",
+      "count_basis": {"entity": "messages", "distinct_key": "PV1.19"},
+      "field_map": [
+        {"fhir": "class", "source": "PV1.2", "transform": "O -> AMB, E -> EMER, I -> IMP"},
+        {"fhir": "subject (MRN)", "source": "PID.3.1", "transform": "copy"},
+        {"fhir": "period.start", "source": "PV1.44", "transform": "YYYYMMDDHHMMSS -> ISO 8601, treated as UTC"},
+        {"fhir": "period.end", "source": "PV1.45", "transform": "as start; omitted while empty"},
+        {"fhir": "status", "source": "PV1.45", "transform": "finished when a discharge time exists, otherwise in-progress"}
+      ],
+      "merge_rule": "One Encounter per visit number: merge A01 and A03 for the same PV1.19, later message wins per field."
+    }
+  ],
+  "risks": ["Messages arriving out of order.", "Cancellation events are not handled because none exist in the sample."],
+  "human_review_points": ["Timestamps are assumed to be UTC.", "Attending clinician (PV1.7) is not mapped in this version."]
+}

@@ -1,0 +1,40 @@
+# The estate the agents integrate. This is everything a human hands to the fabric:
+# where each system lives and how to reach it. The agents work out the rest.
+
+settings:
+  mrn_system: "http://hospital.example.org/mrn"   # identifier system for the shared MRN
+  max_repairs: 3                                   # self-healing rounds per adapter
+  # Placeholder shown only until a hand-built baseline is measured (python -m fabric handbuilt).
+  # It is an assumption, and the report labels it as one.
+  baseline_hours_per_integration: 40
+
+systems:
+  - id: ehr-rest
+    name: MediCore EHR (REST API)
+    kind: http
+    base_url: "http://127.0.0.1:8101"
+    docs_path: /openapi.json
+    headers:
+      X-API-Key: "${EHR_API_KEY:-demo-key}"
+    autostart: mock_systems.ehr_rest               # mock only: module started if the API is down
+    truth: ehr                                    # evaluation only: never shown to an agent
+
+  - id: lab-sql
+    name: LabTrak LIS (legacy SQL database)
+    kind: sqlite
+    path: mock_systems/_data/lab/lab.db
+    truth: lab                                    # evaluation only: never shown to an agent
+
+  - id: adt-feed
+    name: Patient administration HL7 v2 feed
+    kind: hl7v2_files
+    path: mock_systems/_data/adt
+    pattern: "*.hl7"
+    truth: adt                                    # evaluation only: never shown to an agent
+
+  - id: pharmacy-csv
+    name: Pharmacy nightly export (flat files)
+    kind: delimited_files
+    path: mock_systems/_data/pharmacy
+    pattern: "rx_export_*.csv"
+    truth: pharmacy                                    # evaluation only: never shown to an agent

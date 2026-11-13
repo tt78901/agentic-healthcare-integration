@@ -1,0 +1,42 @@
+{
+  "system_id": "ehr-rest",
+  "pattern": "api_facade",
+  "pattern_rationale": "STUB FIXTURE. The EHR already has a supported API, so the fabric wraps it and translates to FHIR on demand without keeping a copy of the data.",
+  "alternatives_considered": [
+    {"pattern": "database_polling", "why_not": "Bypassing a supported API to read the database would be unsupported by the vendor."}
+  ],
+  "sync": {"mode": "on_demand", "detail": "Call the API per request, with a short cache in the gateway."},
+  "resources": [
+    {
+      "resource_type": "Patient",
+      "source_entity": "/api/v2/patients",
+      "id_source_field": "patientId",
+      "count_basis": {"entity": "/api/v2/patients", "distinct_key": "patientId"},
+      "field_map": [
+        {"fhir": "identifier (MRN)", "source": "mrn", "transform": "copy"},
+        {"fhir": "name", "source": "name.last, name.first", "transform": "family, given"},
+        {"fhir": "birthDate", "source": "dob", "transform": "MM/DD/YYYY -> YYYY-MM-DD"},
+        {"fhir": "gender", "source": "sex", "transform": "F -> female, M -> male, else unknown"},
+        {"fhir": "telecom", "source": "contact.phone, contact.email", "transform": "phone, email; omit when empty"},
+        {"fhir": "address", "source": "address.*", "transform": "line1, city, postCode, country"},
+        {"fhir": "active", "source": "active", "transform": "copy"}
+      ],
+      "merge_rule": "none"
+    },
+    {
+      "resource_type": "Condition",
+      "source_entity": "/api/v2/conditions",
+      "id_source_field": "conditionId",
+      "count_basis": {"entity": "/api/v2/conditions", "distinct_key": "conditionId"},
+      "field_map": [
+        {"fhir": "code (SNOMED CT)", "source": "code.value, code.text", "transform": "code, display"},
+        {"fhir": "subject (MRN)", "source": "mrn", "transform": "copy"},
+        {"fhir": "onsetDateTime", "source": "onsetDate", "transform": "copy"},
+        {"fhir": "clinicalStatus", "source": "state", "transform": "A -> active, R -> resolved"}
+      ],
+      "merge_rule": "none"
+    }
+  ],
+  "risks": ["API availability becomes a runtime dependency.", "Paging through every patient on each request will not scale; add incremental sync."],
+  "human_review_points": ["Unknown state codes default to active.", "The EHR is treated as the master source for demographics."]
+}

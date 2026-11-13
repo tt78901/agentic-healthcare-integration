@@ -1,0 +1,23 @@
+{
+ "/api/v2/patients patientId": "text",
+ "/api/v2/patients mrn": "number as text",
+ "/api/v2/patients name.first": "text",
+ "/api/v2/patients name.last": "text",
+ "/api/v2/patients dob": "date MM/DD/YYYY",
+ "/api/v2/patients sex": "text",
+ "/api/v2/patients contact.phone": "text",
+ "/api/v2/patients contact.email": "empty",
+ "/api/v2/patients address.line1": "text",
+ "/api/v2/patients address.city": "text",
+ "/api/v2/patients address.postCode": "text",
+ "/api/v2/patients address.country": "text",
+ "/api/v2/patients active": "boolean",
+ "/api/v2/conditions conditionId": "text",
+ "/api/v2/conditions patientId": "text",
+ "/api/v2/conditions mrn": "number as text",
+ "/api/v2/conditions code.system": "text",
+ "/api/v2/conditions code.value": "number as text",
+ "/api/v2/conditions code.text": "text",
+ "/api/v2/conditions onsetDate": "date YYYY-MM-DD",
+ "/api/v2/conditions state": "text"
+}

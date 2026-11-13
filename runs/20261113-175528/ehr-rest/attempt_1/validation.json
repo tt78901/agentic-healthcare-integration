@@ -1,0 +1,101 @@
+{
+ "passed": true,
+ "checks": [
+  {
+   "id": "static.syntax",
+   "status": "pass",
+   "detail": "",
+   "title": "Module parses"
+  },
+  {
+   "id": "static.imports",
+   "status": "pass",
+   "detail": "",
+   "title": "Imports are on the allow-list"
+  },
+  {
+   "id": "static.no_dangerous_calls",
+   "status": "pass",
+   "detail": "",
+   "title": "No dynamic execution, shell or file-write calls"
+  },
+  {
+   "id": "static.read_only_sql",
+   "status": "pass",
+   "detail": "",
+   "title": "SQL is read-only"
+  },
+  {
+   "id": "static.no_data_logging",
+   "status": "pass",
+   "detail": "",
+   "title": "No print or logging of records"
+  },
+  {
+   "id": "static.no_hardcoded_secrets",
+   "status": "pass",
+   "detail": "",
+   "title": "No credentials in the code"
+  },
+  {
+   "id": "contract.interface",
+   "status": "pass",
+   "detail": "",
+   "title": "SYSTEM_ID, SUPPORTED and fetch() match the contract"
+  },
+  {
+   "id": "runtime.executes",
+   "status": "pass",
+   "detail": "89 resources returned",
+   "title": "Runs to completion in a separate process"
+  },
+  {
+   "id": "runtime.deterministic",
+   "status": "pass",
+   "detail": "",
+   "title": "Two runs give identical output"
+  },
+  {
+   "id": "runtime.silent",
+   "status": "pass",
+   "detail": "",
+   "title": "Writes nothing to stdout or stderr"
+  },
+  {
+   "id": "contract.coverage",
+   "status": "pass",
+   "detail": "",
+   "title": "Publishes exactly the resource types in the design"
+  },
+  {
+   "id": "fhir.schema",
+   "status": "pass",
+   "detail": "89 resources valid",
+   "title": "Every resource is valid FHIR R4"
+  },
+  {
+   "id": "fhir.conventions",
+   "status": "pass",
+   "detail": "",
+   "title": "Estate conventions: ids, provenance, MRN linkage, no empty elements"
+  },
+  {
+   "id": "reconcile.counts",
+   "status": "pass",
+   "detail": "Patient 40/40, Condition 49/49",
+   "title": "Resource counts match the source"
+  }
+ ],
+ "counts": {
+  "Patient": {
+   "emitted": 40,
+   "expected": 40,
+   "basis": "distinct patientId in /api/v2/patients"
+  },
+  "Condition": {
+   "emitted": 49,
+   "expected": 49,
+   "basis": "distinct conditionId in /api/v2/conditions"
+  }
+ }
+}

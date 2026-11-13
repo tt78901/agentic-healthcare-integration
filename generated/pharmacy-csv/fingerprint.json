@@ -1,0 +1,11 @@
+{
+ "(delimiter)": "|",
+ "RX_NO": "text",
+ "MRN": "number as text",
+ "DRUG_DESC": "text",
+ "RXNORM_CD": "number as text",
+ "SIG_TXT": "text",
+ "QTY": "number as text",
+ "START_DT": "date DD/MM/YYYY",
+ "STAT": "text"
+}

@@ -1,0 +1,53 @@
+{
+  "system_id": "lab-sql",
+  "summary": "STUB FIXTURE. LabTrak is a laboratory information system held in a relational database with terse legacy column names. It stores a patient index, a reference table of lab tests and one row per lab result.",
+  "access": {"mechanism": "sql_database", "notes": "No API. Read-only SQL against SQLite. No change-tracking column on LAB_RSLT other than RSLT_DTTM."},
+  "entities": [
+    {
+      "name": "Patient",
+      "source": "PT_MSTR",
+      "description": "One row per patient known to the lab. Only patients who have had a test exist here.",
+      "primary_key": "PT_ID",
+      "patient_key": "MRN_NO",
+      "fields": [
+        {"name": "PT_ID", "format": "integer", "meaning": "Lab-internal patient key", "phi": true, "fhir_candidate": "Patient.id"},
+        {"name": "MRN_NO", "format": "text", "meaning": "Hospital medical record number", "phi": true, "fhir_candidate": "Patient.identifier"},
+        {"name": "LNAME", "format": "upper-case text", "meaning": "Family name", "phi": true, "fhir_candidate": "Patient.name.family"},
+        {"name": "FNAME", "format": "upper-case text", "meaning": "Given name", "phi": true, "fhir_candidate": "Patient.name.given"},
+        {"name": "DOB_DT", "format": "date YYYYMMDD stored as integer", "meaning": "Date of birth", "phi": true, "fhir_candidate": "Patient.birthDate"},
+        {"name": "SEX_CD", "format": "F | M", "meaning": "Administrative sex", "phi": false, "fhir_candidate": "Patient.gender"}
+      ]
+    },
+    {
+      "name": "Lab result",
+      "source": "LAB_RSLT joined to TEST_REF and PT_MSTR",
+      "description": "One row per result value. The test's LOINC code, name and unit come from TEST_REF; the MRN comes from PT_MSTR.",
+      "primary_key": "RSLT_ID",
+      "patient_key": "PT_ID",
+      "fields": [
+        {"name": "RSLT_ID", "format": "integer", "meaning": "Result key", "phi": false, "fhir_candidate": "Observation.id"},
+        {"name": "PT_ID", "format": "integer", "meaning": "Link to PT_MSTR", "phi": true, "fhir_candidate": "Observation.subject"},
+        {"name": "TEST_CD", "format": "local code", "meaning": "Local test code; LOINC is in TEST_REF.LOINC_CD", "phi": false, "fhir_candidate": "Observation.code"},
+        {"name": "RSLT_VAL", "format": "decimal stored as text", "meaning": "Numeric result value", "phi": false, "fhir_candidate": "Observation.valueQuantity.value"},
+        {"name": "ABN_FLG", "format": "H | L | N", "meaning": "Abnormal flag", "phi": false, "fhir_candidate": "Observation.interpretation"},
+        {"name": "RSLT_STAT", "format": "F | P | C", "meaning": "Result status", "phi": false, "fhir_candidate": "Observation.status"},
+        {"name": "COLL_DTTM", "format": "YYYYMMDDHHMMSS, no timezone", "meaning": "Specimen collection time", "phi": false, "fhir_candidate": "Observation.effectiveDateTime"},
+        {"name": "RSLT_DTTM", "format": "YYYYMMDDHHMMSS, no timezone", "meaning": "Time the result was reported", "phi": false, "fhir_candidate": "Observation.issued"}
+      ]
+    }
+  ],
+  "relationships": ["LAB_RSLT.PT_ID -> PT_MSTR.PT_ID", "LAB_RSLT.TEST_CD -> TEST_REF.TEST_CD"],
+  "cross_system_keys": [{"field": "PT_MSTR.MRN_NO", "meaning": "Hospital MRN, expected to match the MRN in other systems"}],
+  "code_systems": [
+    {"field": "TEST_REF.LOINC_CD", "system": "LOINC", "value_map": {}},
+    {"field": "SEX_CD", "system": "local", "value_map": {"F": "female", "M": "male"}},
+    {"field": "RSLT_STAT", "system": "local", "value_map": {"F": "final", "P": "preliminary", "C": "corrected"}},
+    {"field": "ABN_FLG", "system": "local", "value_map": {"H": "high", "L": "low", "N": "normal"}}
+  ],
+  "data_quality_notes": [
+    "Timestamps have no timezone.",
+    "RSLT_VAL is numeric but stored as text.",
+    "PT_MSTR holds fewer patients than the hospital has: patients with no lab history are absent."
+  ],
+  "open_questions": ["Which timezone do COLL_DTTM and RSLT_DTTM use?", "Are the meanings of RSLT_STAT codes F/P/C confirmed by the lab?"]
+}

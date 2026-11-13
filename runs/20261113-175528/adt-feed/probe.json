@@ -1,0 +1,348 @@
+{
+ "kind": "hl7v2_files",
+ "access": "read-only folder of files, one HL7 v2 message per file",
+ "file_count": 176,
+ "file_name_example": "lfj_61725640914109_75252.qd6",
+ "segment_terminator": "carriage return (\\r)",
+ "message_type_counts": {
+  "ADT^A04": 148,
+  "ADT^A01": 15,
+  "ADT^A03": 13
+ },
+ "field_statistics_by_hl7_path": {
+  "MSH.3": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 3)",
+   "values": [
+    "PAS"
+   ]
+  },
+  "MSH.4": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 7)",
+   "values": [
+    "GENHOSP"
+   ]
+  },
+  "MSH.5": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 11)",
+   "values": [
+    "INTEGRATION"
+   ]
+  },
+  "MSH.6": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 7)",
+   "values": [
+    "GENHOSP"
+   ]
+  },
+  "MSH.7": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 176,
+   "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+   "sample_values": "date-shifted"
+  },
+  "MSH.9.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 3)",
+   "values": [
+    "ADT"
+   ]
+  },
+  "MSH.9.2": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 3,
+   "format": "text (max length 3)",
+   "values": [
+    "A01",
+    "A03",
+    "A04"
+   ]
+  },
+  "MSH.10": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 176,
+   "format": "text (max length 11)",
+   "sample_values": "masked"
+  },
+  "MSH.11": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 1)",
+   "values": [
+    "P"
+   ]
+  },
+  "MSH.12": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "decimal stored as text",
+   "values": [
+    "2.5"
+   ]
+  },
+  "EVN.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 3,
+   "format": "text (max length 3)",
+   "values": [
+    "A01",
+    "A03",
+    "A04"
+   ]
+  },
+  "EVN.2": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 176,
+   "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+   "sample_values": "date-shifted"
+  },
+  "PID.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "integer stored as text",
+   "values": [
+    "1"
+   ]
+  },
+  "PID.3.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 40,
+   "format": "integer stored as text",
+   "sample_values": "masked"
+  },
+  "PID.3.4": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 7)",
+   "values": [
+    "GENHOSP"
+   ]
+  },
+  "PID.3.5": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 2)",
+   "values": [
+    "MR"
+   ]
+  },
+  "PID.5.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 21,
+   "format": "text (max length 10)",
+   "sample_values": "masked"
+  },
+  "PID.5.2": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 26,
+   "format": "text (max length 7)",
+   "sample_values": "masked"
+  },
+  "PID.7": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 40,
+   "format": "date YYYYMMDD",
+   "sample_values": "date-shifted"
+  },
+  "PID.8": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 2,
+   "format": "text (max length 1)",
+   "values": [
+    "F",
+    "M"
+   ]
+  },
+  "PID.11.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 40,
+   "format": "text (max length 17)",
+   "sample_values": "masked"
+  },
+  "PID.11.3": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 5,
+   "format": "text (max length 9)",
+   "sample_values": "masked"
+  },
+  "PID.11.5": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 40,
+   "format": "text (max length 8)",
+   "sample_values": "masked"
+  },
+  "PID.11.6": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 2)",
+   "values": [
+    "IE"
+   ]
+  },
+  "PID.13": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 40,
+   "format": "text (max length 16)",
+   "sample_values": "masked"
+  },
+  "PV1.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "integer stored as text",
+   "values": [
+    "1"
+   ]
+  },
+  "PV1.2": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 3,
+   "format": "text (max length 1)",
+   "values": [
+    "E",
+    "I",
+    "O"
+   ]
+  },
+  "PV1.3.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 7,
+   "format": "text (max length 7)",
+   "values": [
+    "CARD3",
+    "CLINIC3",
+    "ED",
+    "MED1",
+    "OPD1",
+    "OPD2",
+    "SURG2"
+   ]
+  },
+  "PV1.3.4": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 7)",
+   "values": [
+    "GENHOSP"
+   ]
+  },
+  "PV1.7.1": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 6,
+   "format": "text (max length 5)",
+   "sample_values": "masked"
+  },
+  "PV1.7.2": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 6,
+   "format": "text (max length 6)",
+   "sample_values": "masked"
+  },
+  "PV1.7.3": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 6,
+   "format": "text (max length 7)",
+   "sample_values": "masked"
+  },
+  "PV1.7.6": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 1,
+   "format": "text (max length 2)",
+   "values": [
+    "DR"
+   ]
+  },
+  "PV1.19": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 163,
+   "format": "text (max length 8)",
+   "sample_values": "masked"
+  },
+  "PV1.44": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 163,
+   "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+   "sample_values": "date-shifted"
+  },
+  "PV1.45": {
+   "present_in": 161,
+   "of": 176,
+   "distinct": 161,
+   "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+   "sample_values": "date-shifted"
+  },
+  "PV2.3.2": {
+   "present_in": 176,
+   "of": 176,
+   "distinct": 9,
+   "format": "text (max length 20)",
+   "values": [
+    "Abdominal pain",
+    "Blood pressure check",
+    "Chest pain",
+    "Fall",
+    "Fever",
+    "Follow-up",
+    "Medication review",
+    "Routine review",
+    "Shortness of breath"
+   ]
+  }
+ },
+ "sample_messages_masked": [
+  {
+   "message_type": "ADT^A04",
+   "message_masked": "MSH|^~\\&|PAS|GENHOSP|INTEGRATION|GENHOSP|20240825094500||ADT^A04|BVL11464137|P|2.5\nEVN|A04|20240825094500\nPID|1||8133431^^^GENHOSP^MR||QNFXCH^JAOIR||19761227|F|||427 Qjhnrd Jdqnxs^^Fujrkppq^^W49 D9A0^IE||+809 33 231 5639\nPV1|1|O|OPD2^^^GENHOSP||||K7849^ICOLS^SZFWX^^^DR||||||||||||J0622668|||||||||||||||||||||||||20240825084500|20240825094500\nPV2|||^Chest pain"
+  },
+  {
+   "message_type": "ADT^A01",
+   "message_masked": "MSH|^~\\&|PAS|GENHOSP|INTEGRATION|GENHOSP|20240924043000||ADT^A01|BQN91058303|P|2.5\nEVN|A01|20240924043000\nPID|1||4475583^^^GENHOSP^MR||VVHUM^AZEK||19970403|M|||617 Dtyut Lmov^^Jvgl^^G77 T5W4^IE||+752 26 802 8940\nPV1|1|I|SURG2^^^GENHOSP||||Z0328^WYEJ^LFMVX^^^DR||||||||||||Q2916983|||||||||||||||||||||||||20240924043000|\nPV2|||^Follow-up"
+  },
+  {
+   "message_type": "ADT^A03",
+   "message_masked": "MSH|^~\\&|PAS|GENHOSP|INTEGRATION|GENHOSP|20240926043000||ADT^A03|ZXT95922916|P|2.5\nEVN|A03|20240926043000\nPID|1||4475583^^^GENHOSP^MR||VVHUM^AZEK||19970403|M|||617 Dtyut Lmov^^Jvgl^^G77 T5W4^IE||+752 26 802 8940\nPV1|1|I|SURG2^^^GENHOSP||||Z0328^WYEJ^LFMVX^^^DR||||||||||||Q2916983|||||||||||||||||||||||||20240924043000|20240926043000\nPV2|||^Follow-up"
+  }
+ ]
+}

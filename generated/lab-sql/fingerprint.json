@@ -1,0 +1,22 @@
+{
+ "PT_MSTR.PT_ID": "number",
+ "PT_MSTR.MRN_NO": "number as text",
+ "PT_MSTR.LNAME": "text",
+ "PT_MSTR.FNAME": "text",
+ "PT_MSTR.DOB_DT": "date YYYYMMDD",
+ "PT_MSTR.SEX_CD": "text",
+ "TEST_REF.TEST_CD": "text",
+ "TEST_REF.LOINC_CD": "text",
+ "TEST_REF.TEST_NM": "text",
+ "TEST_REF.UOM": "text",
+ "TEST_REF.REF_LO": "number",
+ "TEST_REF.REF_HI": "number",
+ "LAB_RSLT.RSLT_ID": "number",
+ "LAB_RSLT.PT_ID": "number",
+ "LAB_RSLT.TEST_CD": "text",
+ "LAB_RSLT.RSLT_VAL": "number as text",
+ "LAB_RSLT.ABN_FLG": "text",
+ "LAB_RSLT.RSLT_STAT": "text",
+ "LAB_RSLT.COLL_DTTM": "datetime YYYYMMDDHHMMSS (no timezone)",
+ "LAB_RSLT.RSLT_DTTM": "datetime YYYYMMDDHHMMSS (no timezone)"
+}

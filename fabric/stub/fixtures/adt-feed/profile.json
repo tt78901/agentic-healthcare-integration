@@ -1,0 +1,50 @@
+{
+  "system_id": "adt-feed",
+  "summary": "STUB FIXTURE. The patient administration system publishes HL7 v2.5 ADT messages as files, one message per file. The messages carry patient demographics (PID) and visit details (PV1) for registrations, admissions and discharges.",
+  "access": {"mechanism": "hl7v2_message_files", "notes": "Read-only folder. File names begin with the event timestamp, so sorted file-name order is event order."},
+  "entities": [
+    {
+      "name": "Patient",
+      "source": "PID segment of every message",
+      "description": "Demographics repeated on every message for the patient. One patient appears in many messages; the latest message holds the current demographics.",
+      "primary_key": "PID.3.1",
+      "patient_key": "PID.3.1",
+      "fields": [
+        {"name": "PID.3.1", "format": "text", "meaning": "MRN (identifier type MR in PID.3.5)", "phi": true, "fhir_candidate": "Patient.identifier"},
+        {"name": "PID.5.1", "format": "upper-case text", "meaning": "Family name", "phi": true, "fhir_candidate": "Patient.name.family"},
+        {"name": "PID.5.2", "format": "upper-case text", "meaning": "Given name", "phi": true, "fhir_candidate": "Patient.name.given"},
+        {"name": "PID.7", "format": "date YYYYMMDD", "meaning": "Date of birth", "phi": true, "fhir_candidate": "Patient.birthDate"},
+        {"name": "PID.8", "format": "F | M", "meaning": "Administrative sex", "phi": false, "fhir_candidate": "Patient.gender"},
+        {"name": "PID.11", "format": "street^^city^^postcode^country", "meaning": "Home address", "phi": true, "fhir_candidate": "Patient.address"},
+        {"name": "PID.13", "format": "text", "meaning": "Phone number", "phi": true, "fhir_candidate": "Patient.telecom"}
+      ]
+    },
+    {
+      "name": "Visit",
+      "source": "PV1 segment; message types ADT^A01, ADT^A03, ADT^A04",
+      "description": "One visit is identified by the visit number in PV1.19. Outpatient and emergency visits arrive as a single A04. An inpatient stay arrives as A01 (admission, no discharge time) and later A03 (discharge), so the two must be merged on PV1.19.",
+      "primary_key": "PV1.19",
+      "patient_key": "PID.3.1",
+      "fields": [
+        {"name": "PV1.2", "format": "O | E | I", "meaning": "Patient class: outpatient, emergency, inpatient", "phi": false, "fhir_candidate": "Encounter.class"},
+        {"name": "PV1.3.1", "format": "text", "meaning": "Ward or clinic", "phi": false, "fhir_candidate": "Encounter.location"},
+        {"name": "PV1.7", "format": "id^family^given", "meaning": "Attending clinician", "phi": true, "fhir_candidate": "Encounter.participant"},
+        {"name": "PV1.19", "format": "text", "meaning": "Visit number", "phi": false, "fhir_candidate": "Encounter.id"},
+        {"name": "PV1.44", "format": "YYYYMMDDHHMMSS, no timezone", "meaning": "Admit or arrival time", "phi": false, "fhir_candidate": "Encounter.period.start"},
+        {"name": "PV1.45", "format": "YYYYMMDDHHMMSS, no timezone", "meaning": "Discharge time; empty while admitted", "phi": false, "fhir_candidate": "Encounter.period.end"}
+      ]
+    }
+  ],
+  "relationships": ["Visit (PV1.19) -> Patient (PID.3.1) within the same message"],
+  "cross_system_keys": [{"field": "PID.3.1", "meaning": "Hospital MRN"}],
+  "code_systems": [
+    {"field": "PV1.2", "system": "local (HL7 table 0004)", "value_map": {"O": "outpatient", "E": "emergency", "I": "inpatient"}},
+    {"field": "PID.8", "system": "HL7 table 0001", "value_map": {"F": "female", "M": "male"}}
+  ],
+  "data_quality_notes": [
+    "There are more messages than distinct visit numbers: inpatient stays produce two messages.",
+    "Some A01 admissions have no matching A03 yet (patient still admitted).",
+    "Timestamps have no timezone."
+  ],
+  "open_questions": ["Can a visit be cancelled (A11/A13)? None are present in the sample feed.", "Which timezone do the timestamps use?"]
+}

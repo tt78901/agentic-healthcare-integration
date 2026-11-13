@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: 'LabTrak LIS (legacy SQL database): FHIR facade'
+  version: 0.1.0
+  description: 'Integration pattern: database_polling. LabTrak LIS is an isolated SQLite relational database without
+    an HTTP API, message feed, or change-data-capture stream. Read-only SQL polling on a scheduled interval is the
+    most direct and least intrusive mechanism to extract patient demographics and laboratory result records.'
+paths:
+  /fhir/Patient:
+    get:
+      summary: Patient resources sourced from LabTrak LIS (legacy SQL database)
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. lab-sql.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: PT_MSTR
+      x-merge-rule: none
+      x-field-map:
+      - fhir: id
+        source: PT_MSTR.PT_ID
+        transform: Prefix with 'lab-sql-' resulting in 'lab-sql-<PT_ID>'
+      - fhir: meta.source
+        source: N/A
+        transform: Constant 'urn:system:lab-sql'
+      - fhir: identifier[0]
+        source: PT_MSTR.MRN_NO
+        transform: Map to identifier object with system 'http://hospital.example.org/mrn' and value from MRN_NO
+      - fhir: name[0].family
+        source: PT_MSTR.LNAME
+        transform: String copy
+      - fhir: name[0].given[0]
+        source: PT_MSTR.FNAME
+        transform: Wrap in single-element string array
+      - fhir: gender
+        source: PT_MSTR.SEX_CD
+        transform: 'Map codes: ''M'' -> ''male'', ''F'' -> ''female'', all other values -> ''unknown'''
+      - fhir: birthDate
+        source: PT_MSTR.DOB_DT
+        transform: Convert YYYYMMDD integer/string to ISO date YYYY-MM-DD format
+  /fhir/Observation:
+    get:
+      summary: Observation resources sourced from LabTrak LIS (legacy SQL database)
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. lab-sql.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: LAB_RSLT
+      x-merge-rule: none
+      x-field-map:
+      - fhir: id
+        source: LAB_RSLT.RSLT_ID
+        transform: Prefix with 'lab-sql-' resulting in 'lab-sql-<RSLT_ID>'
+      - fhir: meta.source
+        source: N/A
+        transform: Constant 'urn:system:lab-sql'
+      - fhir: status
+        source: LAB_RSLT.RSLT_STAT
+        transform: 'Map codes: ''F'' -> ''final'', ''C'' -> ''corrected'', ''P'' -> ''preliminary'', default ->
+          ''unknown'''
+      - fhir: category[0]
+        source: N/A
+        transform: Constant code 'laboratory' with system 'http://terminology.hl7.org/CodeSystem/observation-category'
+      - fhir: code
+        source: TEST_REF.LOINC_CD
+        transform: Map to code.coding[0] with system 'http://loinc.org', code LOINC_CD, and display TEST_REF.TEST_NM
+      - fhir: subject
+        source: PT_MSTR.MRN_NO
+        transform: 'Construct logical reference subject.identifier = {''system'': ''http://hospital.example.org/mrn'',
+          ''value'': PT_MSTR.MRN_NO} via join LAB_RSLT.PT_ID = PT_MSTR.PT_ID'
+      - fhir: effectiveDateTime
+        source: LAB_RSLT.COLL_DTTM
+        transform: Parse string 'YYYYMMDDHHMMSS' and format as UTC ISO dateTime 'YYYY-MM-DDThh:mm:ssZ'
+      - fhir: valueQuantity.value
+        source: LAB_RSLT.RSLT_VAL
+        transform: Parse string to decimal number; if non-numeric or qualitative, omit valueQuantity and set valueString
+      - fhir: valueQuantity.unit
+        source: TEST_REF.UOM
+        transform: String copy via join LAB_RSLT.TEST_CD = TEST_REF.TEST_CD
+      - fhir: valueQuantity.system
+        source: N/A
+        transform: Constant 'http://unitsofmeasure.org'
+      - fhir: interpretation[0]
+        source: LAB_RSLT.ABN_FLG
+        transform: 'Map codes: ''H'' -> ''H'', ''L'' -> ''L'', ''N'' -> ''N'' with system ''http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation'''
+components:
+  schemas:
+    Bundle:
+      type: object
+      description: FHIR R4 Bundle (type searchset)
+      externalDocs:
+        url: https://hl7.org/fhir/R4/bundle.html
+      properties:
+        resourceType:
+          type: string
+          enum:
+          - Bundle
+        type:
+          type: string
+          enum:
+          - searchset
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object

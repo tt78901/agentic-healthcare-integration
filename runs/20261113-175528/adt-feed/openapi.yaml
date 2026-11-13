@@ -1,0 +1,168 @@
+openapi: 3.0.3
+info:
+  title: 'Patient administration HL7 v2 feed: FHIR facade'
+  version: 0.1.0
+  description: 'Integration pattern: message_feed_ingest. The PAS emits real-time HL7 v2 event messages (ADT^A01,
+    ADT^A03, ADT^A04) written as files. Ingesting and parsing these message events sequentially to construct and
+    update Patient and Encounter FHIR resources fits the message feed ingest pattern.'
+paths:
+  /fhir/Patient:
+    get:
+      summary: Patient resources sourced from Patient administration HL7 v2 feed
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. adt-feed.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: Patient
+      x-merge-rule: Update existing Patient resource identified by PID.3.1 with latest demographics on each incoming
+        ADT message.
+      x-field-map:
+      - fhir: meta.source
+        source: n/a
+        transform: Hardcode 'urn:system:adt-feed'
+      - fhir: identifier[0].system
+        source: n/a
+        transform: Hardcode 'http://hospital.example.org/mrn'
+      - fhir: identifier[0].value
+        source: PID.3.1
+        transform: String trimmed; MRN identifier value
+      - fhir: name[0].family
+        source: PID.5.1
+        transform: String trimmed
+      - fhir: name[0].given[0]
+        source: PID.5.2
+        transform: String trimmed
+      - fhir: gender
+        source: PID.8
+        transform: Map 'M' -> 'male', 'F' -> 'female', default to 'unknown'
+      - fhir: birthDate
+        source: PID.7
+        transform: Parse HL7 date YYYYMMDD to FHIR date YYYY-MM-DD
+      - fhir: telecom[0].system
+        source: PID.13
+        transform: Hardcode 'phone' if PID.13 present
+      - fhir: telecom[0].value
+        source: PID.13
+        transform: String trimmed
+      - fhir: address[0].line[0]
+        source: PID.11.1
+        transform: String trimmed
+      - fhir: address[0].city
+        source: PID.11.3
+        transform: String trimmed
+      - fhir: address[0].postalCode
+        source: PID.11.5
+        transform: String trimmed
+      - fhir: address[0].country
+        source: PID.11.6
+        transform: String trimmed
+  /fhir/Encounter:
+    get:
+      summary: Encounter resources sourced from Patient administration HL7 v2 feed
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. adt-feed.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: Encounter
+      x-merge-rule: Merge events sharing PV1.19. ADT^A01/A04 initializes encounter (in-progress); ADT^A03 sets discharge
+        time PV1.45 and marks status as finished.
+      x-field-map:
+      - fhir: meta.source
+        source: n/a
+        transform: Hardcode 'urn:system:adt-feed'
+      - fhir: identifier[0].value
+        source: PV1.19
+        transform: String trimmed; Visit number key
+      - fhir: status
+        source: PV1.45
+        transform: If PV1.45 is present and populated set 'finished', else set 'in-progress'
+      - fhir: class
+        source: PV1.2
+        transform: 'Map PV1.2 code to system ''http://terminology.hl7.org/CodeSystem/v3-ActCode'': ''E'' -> ''EMER'',
+          ''I'' -> ''IMP'', ''O'' -> ''AMB'''
+      - fhir: subject.identifier.system
+        source: n/a
+        transform: Hardcode 'http://hospital.example.org/mrn'
+      - fhir: subject.identifier.value
+        source: PID.3.1
+        transform: Logical reference using MRN
+      - fhir: period.start
+        source: PV1.44
+        transform: Parse HL7 timestamp YYYYMMDDHHMMSS to ISO-8601 UTC string YYYY-MM-DDThh:mm:ssZ
+      - fhir: period.end
+        source: PV1.45
+        transform: Parse HL7 timestamp YYYYMMDDHHMMSS to ISO-8601 UTC string YYYY-MM-DDThh:mm:ssZ; omit if missing
+      - fhir: location[0].location.display
+        source: PV1.3.1
+        transform: Map ward/clinic code ('CARD3' -> 'Cardiology Ward 3', 'CLINIC3' -> 'Outpatient Clinic 3', 'ED'
+          -> 'Emergency Department', 'MED1' -> 'Medical Ward 1', 'OPD1' -> 'Outpatient Department 1', 'OPD2' ->
+          'Outpatient Department 2', 'SURG2' -> 'Surgical Ward 2') or pass raw text if unmapped
+      - fhir: serviceProvider.display
+        source: PV1.3.4
+        transform: String trimmed
+      - fhir: participant[0].individual.identifier.value
+        source: PV1.7.1
+        transform: Attending doctor staff ID
+      - fhir: participant[0].individual.name.family
+        source: PV1.7.2
+        transform: Attending doctor surname
+      - fhir: participant[0].individual.name.given[0]
+        source: PV1.7.3
+        transform: Attending doctor first name
+      - fhir: reasonCode[0].text
+        source: PV2.3.2
+        transform: Admit reason string
+components:
+  schemas:
+    Bundle:
+      type: object
+      description: FHIR R4 Bundle (type searchset)
+      externalDocs:
+        url: https://hl7.org/fhir/R4/bundle.html
+      properties:
+        resourceType:
+          type: string
+          enum:
+          - Bundle
+        type:
+          type: string
+          enum:
+          - searchset
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object

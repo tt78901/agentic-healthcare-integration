@@ -1,0 +1,20 @@
+.env
+.cache/
+__pycache__/
+*.pyc
+.pytest_cache/
+mock_systems/_data/
+runs/.mask_salt
+runs/**/resources.json
+baseline/*/_work/
+generated/status.json
+
+# Earlier runs not part of the submission (stub smoke test, run before the API key was set)
+runs/20261113-175100/
+runs/20261113-175320/
+
+# Local environment and OS files
+.venv/
+venv/
+.DS_Store
+*.egg-info/

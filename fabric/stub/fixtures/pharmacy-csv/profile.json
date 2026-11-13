@@ -1,0 +1,32 @@
+{
+  "system_id": "pharmacy-csv",
+  "summary": "STUB FIXTURE. The pharmacy system has no API or database access. It drops a pipe-delimited prescription export each night, one file per day.",
+  "access": {"mechanism": "delimited_file_export", "notes": "Read-only folder. Pipe-delimited with a header row. The export date is in the file name."},
+  "entities": [
+    {
+      "name": "Prescription",
+      "source": "rx_export_*.csv",
+      "description": "One row per prescription per export. A prescription whose status changed is exported again in a later file, so RX_NO repeats across files; the row in the latest file is current.",
+      "primary_key": "RX_NO",
+      "patient_key": "MRN",
+      "fields": [
+        {"name": "RX_NO", "format": "text", "meaning": "Prescription number", "phi": false, "fhir_candidate": "MedicationRequest.id"},
+        {"name": "MRN", "format": "text", "meaning": "Patient MRN", "phi": true, "fhir_candidate": "MedicationRequest.subject"},
+        {"name": "DRUG_DESC", "format": "text", "meaning": "Drug name, strength and form", "phi": false, "fhir_candidate": "MedicationRequest.medicationCodeableConcept.coding.display"},
+        {"name": "RXNORM_CD", "format": "RxNorm concept id", "meaning": "Drug code", "phi": false, "fhir_candidate": "MedicationRequest.medicationCodeableConcept.coding.code"},
+        {"name": "SIG_TXT", "format": "text", "meaning": "Dosage instructions", "phi": false, "fhir_candidate": "MedicationRequest.dosageInstruction.text"},
+        {"name": "QTY", "format": "integer stored as text", "meaning": "Quantity dispensed", "phi": false, "fhir_candidate": "MedicationRequest.dispenseRequest.quantity"},
+        {"name": "START_DT", "format": "date DD/MM/YYYY", "meaning": "Prescription start date", "phi": false, "fhir_candidate": "MedicationRequest.authoredOn"},
+        {"name": "STAT", "format": "A | S | C", "meaning": "Status", "phi": false, "fhir_candidate": "MedicationRequest.status"}
+      ]
+    }
+  ],
+  "relationships": [],
+  "cross_system_keys": [{"field": "MRN", "meaning": "Hospital MRN"}],
+  "code_systems": [
+    {"field": "RXNORM_CD", "system": "RxNorm", "value_map": {}},
+    {"field": "STAT", "system": "local", "value_map": {"A": "active", "S": "stopped", "C": "completed"}}
+  ],
+  "data_quality_notes": ["RX_NO has fewer distinct values than there are rows: re-exported prescriptions must be de-duplicated.", "START_DT is DD/MM/YYYY."],
+  "open_questions": ["Are the meanings of STAT codes A/S/C confirmed by pharmacy?", "Are old export files ever removed?"]
+}

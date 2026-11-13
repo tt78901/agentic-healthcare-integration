@@ -1,0 +1,1044 @@
+{
+ "run_id": "20261113-175528",
+ "started": "2026-11-13T17:55:28+00:00",
+ "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
+ "stub": false,
+ "auto_approved": false,
+ "settings": {
+  "mrn_system": "http://hospital.example.org/mrn",
+  "max_repairs": 3,
+  "baseline_hours_per_integration": 40
+ },
+ "data_source": "built-in generator (seed 20261113)",
+ "systems": [
+  {
+   "id": "ehr-rest",
+   "name": "MediCore EHR (REST API)",
+   "kind": "http",
+   "status": "promoted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "passed": true,
+     "failed": []
+    }
+   ],
+   "repair_rounds": 0,
+   "review_rounds": 0,
+   "pattern": "api_facade",
+   "pattern_rationale": "MediCore EHR provides a structured REST API over HTTP with JSON endpoints for patients and conditions. Wrapping it with an API facade translates records on demand without duplicating data storage.",
+   "sync": {
+    "mode": "on_demand",
+    "detail": "On-demand request conversion when incoming client requests hit the FHIR facade API."
+   },
+   "open_questions": [
+    "Are incremental filtering parameters (such as modifiedSince) available for /api/v2/patients and /api/v2/conditions to support delta syncs?",
+    "Does /api/v2/conditions support filtering directly by patientId or mrn query parameters?",
+    "Is the email field expected to be populated in future updates or should downstream pipelines treat contact email as optional/unavailable?"
+   ],
+   "human_review_points": [
+    "Confirm with MediCore EHR team if patient/condition endpoints support filtering by MRN or modified date query parameters.",
+    "Verify whether contact.email should be excluded completely or if future backend releases will populate this field.",
+    "Check if alternative values for gender/sex ('U', 'O', etc.) exist in the source system schema."
+   ],
+   "checks": [
+    {
+     "id": "static.syntax",
+     "status": "pass",
+     "detail": "",
+     "title": "Module parses"
+    },
+    {
+     "id": "static.imports",
+     "status": "pass",
+     "detail": "",
+     "title": "Imports are on the allow-list"
+    },
+    {
+     "id": "static.no_dangerous_calls",
+     "status": "pass",
+     "detail": "",
+     "title": "No dynamic execution, shell or file-write calls"
+    },
+    {
+     "id": "static.read_only_sql",
+     "status": "pass",
+     "detail": "",
+     "title": "SQL is read-only"
+    },
+    {
+     "id": "static.no_data_logging",
+     "status": "pass",
+     "detail": "",
+     "title": "No print or logging of records"
+    },
+    {
+     "id": "static.no_hardcoded_secrets",
+     "status": "pass",
+     "detail": "",
+     "title": "No credentials in the code"
+    },
+    {
+     "id": "contract.interface",
+     "status": "pass",
+     "detail": "",
+     "title": "SYSTEM_ID, SUPPORTED and fetch() match the contract"
+    },
+    {
+     "id": "runtime.executes",
+     "status": "pass",
+     "detail": "89 resources returned",
+     "title": "Runs to completion in a separate process"
+    },
+    {
+     "id": "runtime.deterministic",
+     "status": "pass",
+     "detail": "",
+     "title": "Two runs give identical output"
+    },
+    {
+     "id": "runtime.silent",
+     "status": "pass",
+     "detail": "",
+     "title": "Writes nothing to stdout or stderr"
+    },
+    {
+     "id": "contract.coverage",
+     "status": "pass",
+     "detail": "",
+     "title": "Publishes exactly the resource types in the design"
+    },
+    {
+     "id": "fhir.schema",
+     "status": "pass",
+     "detail": "89 resources valid",
+     "title": "Every resource is valid FHIR R4"
+    },
+    {
+     "id": "fhir.conventions",
+     "status": "pass",
+     "detail": "",
+     "title": "Estate conventions: ids, provenance, MRN linkage, no empty elements"
+    },
+    {
+     "id": "reconcile.counts",
+     "status": "pass",
+     "detail": "Patient 40/40, Condition 49/49",
+     "title": "Resource counts match the source"
+    }
+   ],
+   "counts": {
+    "Patient": {
+     "emitted": 40,
+     "expected": 40,
+     "basis": "distinct patientId in /api/v2/patients"
+    },
+    "Condition": {
+     "emitted": 49,
+     "expected": 49,
+     "basis": "distinct conditionId in /api/v2/conditions"
+    }
+   },
+   "adapter_lines": 226,
+   "evaluation": {
+    "records": {
+     "expected": 89,
+     "matched": 89,
+     "missing": 0,
+     "unexpected": 0
+    },
+    "fields": {
+     "Patient.mrn": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.family": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.given": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.birthDate": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.gender": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.phone": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.city": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.postalCode": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Condition.mrn": {
+      "correct": 49,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Condition.code": {
+      "correct": 49,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Condition.clinicalStatus": {
+      "correct": 49,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Condition.onset": {
+      "correct": 49,
+      "wrong": 0,
+      "absent": 0
+     }
+    },
+    "values_correct": 516,
+    "values_wrong": 0,
+    "values_absent": 0,
+    "accuracy": 1.0,
+    "coverage": 1.0,
+    "clean": true
+   },
+   "stage_seconds": {
+    "discover_tools": 0.02,
+    "discover_agent": 24.87,
+    "design_agent": 21.53,
+    "design_tools": 0.02,
+    "generate_agent": 65.19,
+    "validate_tools": 0.16
+   },
+   "llm": {
+    "calls": 3,
+    "from_cache": 0,
+    "prompt_tokens": 15817,
+    "completion_tokens": 5967,
+    "model_seconds": 111.6
+   },
+   "gates": [
+    {
+     "system": "ehr-rest",
+     "gate": "system profile",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 101.1
+    },
+    {
+     "system": "ehr-rest",
+     "gate": "integration design",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 20.8
+    },
+    {
+     "system": "ehr-rest",
+     "gate": "promote adapter",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 145.9
+    }
+   ],
+   "tool_seconds": 0.2,
+   "human_seconds": 267.8
+  },
+  {
+   "id": "lab-sql",
+   "name": "LabTrak LIS (legacy SQL database)",
+   "kind": "sqlite",
+   "status": "promoted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "passed": true,
+     "failed": []
+    }
+   ],
+   "repair_rounds": 0,
+   "review_rounds": 0,
+   "pattern": "database_polling",
+   "pattern_rationale": "LabTrak LIS is an isolated SQLite relational database without an HTTP API, message feed, or change-data-capture stream. Read-only SQL polling on a scheduled interval is the most direct and least intrusive mechanism to extract patient demographics and laboratory result records.",
+   "sync": {
+    "mode": "scheduled_poll",
+    "detail": "Poll SQLite database file on a configured cron schedule (e.g., every 15 minutes) querying records updated since the last poll checkpoint."
+   },
+   "open_questions": [
+    "What specific timezone should be assumed for COLL_DTTM and RSLT_DTTM timestamps when mapping to UTC/FHIR?",
+    "Can RSLT_VAL contain free-text or non-numeric values (e.g. '<0.01', 'Positive', 'Cancelled')?",
+    "Are there any legacy patient records in PT_MSTR where MRN_NO may contain leading zeros or non-numeric characters?"
+   ],
+   "human_review_points": [
+    "Confirm local timezone policy for COLL_DTTM and RSLT_DTTM timestamps before enforcing UTC assumption.",
+    "Verify whether non-numeric RSLT_VAL values should map to Observation.valueString or trigger qualitative Observation concepts.",
+    "Confirm that local test code TEST_CD fallback mapping is required when LOINC_CD is null in TEST_REF."
+   ],
+   "checks": [
+    {
+     "id": "static.syntax",
+     "status": "pass",
+     "detail": "",
+     "title": "Module parses"
+    },
+    {
+     "id": "static.imports",
+     "status": "pass",
+     "detail": "",
+     "title": "Imports are on the allow-list"
+    },
+    {
+     "id": "static.no_dangerous_calls",
+     "status": "pass",
+     "detail": "",
+     "title": "No dynamic execution, shell or file-write calls"
+    },
+    {
+     "id": "static.read_only_sql",
+     "status": "pass",
+     "detail": "",
+     "title": "SQL is read-only"
+    },
+    {
+     "id": "static.no_data_logging",
+     "status": "pass",
+     "detail": "",
+     "title": "No print or logging of records"
+    },
+    {
+     "id": "static.no_hardcoded_secrets",
+     "status": "pass",
+     "detail": "",
+     "title": "No credentials in the code"
+    },
+    {
+     "id": "contract.interface",
+     "status": "pass",
+     "detail": "",
+     "title": "SYSTEM_ID, SUPPORTED and fetch() match the contract"
+    },
+    {
+     "id": "runtime.executes",
+     "status": "pass",
+     "detail": "378 resources returned",
+     "title": "Runs to completion in a separate process"
+    },
+    {
+     "id": "runtime.deterministic",
+     "status": "pass",
+     "detail": "",
+     "title": "Two runs give identical output"
+    },
+    {
+     "id": "runtime.silent",
+     "status": "pass",
+     "detail": "",
+     "title": "Writes nothing to stdout or stderr"
+    },
+    {
+     "id": "contract.coverage",
+     "status": "pass",
+     "detail": "",
+     "title": "Publishes exactly the resource types in the design"
+    },
+    {
+     "id": "fhir.schema",
+     "status": "pass",
+     "detail": "378 resources valid",
+     "title": "Every resource is valid FHIR R4"
+    },
+    {
+     "id": "fhir.conventions",
+     "status": "pass",
+     "detail": "",
+     "title": "Estate conventions: ids, provenance, MRN linkage, no empty elements"
+    },
+    {
+     "id": "reconcile.counts",
+     "status": "pass",
+     "detail": "Patient 36/36, Observation 342/342",
+     "title": "Resource counts match the source"
+    }
+   ],
+   "counts": {
+    "Patient": {
+     "emitted": 36,
+     "expected": 36,
+     "basis": "distinct PT_ID in PT_MSTR"
+    },
+    "Observation": {
+     "emitted": 342,
+     "expected": 342,
+     "basis": "distinct RSLT_ID in LAB_RSLT"
+    }
+   },
+   "adapter_lines": 214,
+   "evaluation": {
+    "records": {
+     "expected": 378,
+     "matched": 378,
+     "missing": 0,
+     "unexpected": 0
+    },
+    "fields": {
+     "Patient.mrn": {
+      "correct": 36,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.family": {
+      "correct": 36,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.given": {
+      "correct": 36,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.birthDate": {
+      "correct": 36,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.gender": {
+      "correct": 36,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Observation.mrn": {
+      "correct": 342,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Observation.code": {
+      "correct": 342,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Observation.value": {
+      "correct": 342,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Observation.unit": {
+      "correct": 342,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Observation.effective": {
+      "correct": 342,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Observation.status": {
+      "correct": 342,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Observation.interpretation": {
+      "correct": 342,
+      "wrong": 0,
+      "absent": 0
+     }
+    },
+    "values_correct": 2574,
+    "values_wrong": 0,
+    "values_absent": 0,
+    "accuracy": 1.0,
+    "coverage": 1.0,
+    "clean": true
+   },
+   "stage_seconds": {
+    "discover_tools": 0.0,
+    "discover_agent": 20.95,
+    "design_agent": 20.54,
+    "design_tools": 0.0,
+    "generate_agent": 72.68,
+    "validate_tools": 0.14
+   },
+   "llm": {
+    "calls": 3,
+    "from_cache": 0,
+    "prompt_tokens": 16513,
+    "completion_tokens": 5956,
+    "model_seconds": 114.2
+   },
+   "gates": [
+    {
+     "system": "lab-sql",
+     "gate": "system profile",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 10.7
+    },
+    {
+     "system": "lab-sql",
+     "gate": "integration design",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 12.7
+    },
+    {
+     "system": "lab-sql",
+     "gate": "promote adapter",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 10.5
+    }
+   ],
+   "tool_seconds": 0.14,
+   "human_seconds": 33.9
+  },
+  {
+   "id": "adt-feed",
+   "name": "Patient administration HL7 v2 feed",
+   "kind": "hl7v2_files",
+   "status": "promoted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "passed": false,
+     "failed": [
+      {
+       "id": "fhir.schema",
+       "title": "Every resource is valid FHIR R4",
+       "detail": "163 of 203 resources invalid. Encounter.participant.0.individual.name: Extra inputs are not permitted (163 resources; value shape: dict)"
+      }
+     ]
+    },
+    {
+     "attempt": 2,
+     "passed": true,
+     "failed": []
+    }
+   ],
+   "repair_rounds": 1,
+   "review_rounds": 0,
+   "pattern": "message_feed_ingest",
+   "pattern_rationale": "The PAS emits real-time HL7 v2 event messages (ADT^A01, ADT^A03, ADT^A04) written as files. Ingesting and parsing these message events sequentially to construct and update Patient and Encounter FHIR resources fits the message feed ingest pattern.",
+   "sync": {
+    "mode": "event_driven",
+    "detail": "File watcher on specified input directory monitoring for incoming *.hl7 files, processing messages upon file creation."
+   },
+   "open_questions": [
+    "Should integration assume Europe/Dublin timezone for all naive timestamps based on Country Code 'IE' in PID.11.6?",
+    "Will files be consumed via real-time directory polling (e.g. MLLP vs file watcher), and should processed files be deleted or moved?",
+    "What is the expected file naming convention (.hl7 vs .qd6 extension)?",
+    "Is there a mechanism to handle out-of-order ADT messages if files are written concurrently?"
+   ],
+   "human_review_points": [
+    "Confirm whether naive timestamps should be explicitly interpreted as Europe/Dublin timezone instead of default UTC 'Z'.",
+    "Confirm file naming pattern and extension (.hl7 vs .qd6) used by the source system.",
+    "Define message archiving and deletion strategy after file ingestion to prevent re-processing."
+   ],
+   "checks": [
+    {
+     "id": "static.syntax",
+     "status": "pass",
+     "detail": "",
+     "title": "Module parses"
+    },
+    {
+     "id": "static.imports",
+     "status": "pass",
+     "detail": "",
+     "title": "Imports are on the allow-list"
+    },
+    {
+     "id": "static.no_dangerous_calls",
+     "status": "pass",
+     "detail": "",
+     "title": "No dynamic execution, shell or file-write calls"
+    },
+    {
+     "id": "static.read_only_sql",
+     "status": "pass",
+     "detail": "",
+     "title": "SQL is read-only"
+    },
+    {
+     "id": "static.no_data_logging",
+     "status": "pass",
+     "detail": "",
+     "title": "No print or logging of records"
+    },
+    {
+     "id": "static.no_hardcoded_secrets",
+     "status": "pass",
+     "detail": "",
+     "title": "No credentials in the code"
+    },
+    {
+     "id": "contract.interface",
+     "status": "pass",
+     "detail": "",
+     "title": "SYSTEM_ID, SUPPORTED and fetch() match the contract"
+    },
+    {
+     "id": "runtime.executes",
+     "status": "pass",
+     "detail": "203 resources returned",
+     "title": "Runs to completion in a separate process"
+    },
+    {
+     "id": "runtime.deterministic",
+     "status": "pass",
+     "detail": "",
+     "title": "Two runs give identical output"
+    },
+    {
+     "id": "runtime.silent",
+     "status": "pass",
+     "detail": "",
+     "title": "Writes nothing to stdout or stderr"
+    },
+    {
+     "id": "contract.coverage",
+     "status": "pass",
+     "detail": "",
+     "title": "Publishes exactly the resource types in the design"
+    },
+    {
+     "id": "fhir.schema",
+     "status": "pass",
+     "detail": "203 resources valid",
+     "title": "Every resource is valid FHIR R4"
+    },
+    {
+     "id": "fhir.conventions",
+     "status": "pass",
+     "detail": "",
+     "title": "Estate conventions: ids, provenance, MRN linkage, no empty elements"
+    },
+    {
+     "id": "reconcile.counts",
+     "status": "pass",
+     "detail": "Patient 40/40, Encounter 163/163",
+     "title": "Resource counts match the source"
+    }
+   ],
+   "counts": {
+    "Patient": {
+     "emitted": 40,
+     "expected": 40,
+     "basis": "distinct PID.3.1 in messages"
+    },
+    "Encounter": {
+     "emitted": 163,
+     "expected": 163,
+     "basis": "distinct PV1.19 in messages"
+    }
+   },
+   "adapter_lines": 329,
+   "evaluation": {
+    "records": {
+     "expected": 203,
+     "matched": 203,
+     "missing": 0,
+     "unexpected": 0
+    },
+    "fields": {
+     "Patient.mrn": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.family": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.given": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.birthDate": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.gender": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.phone": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.city": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Patient.postalCode": {
+      "correct": 40,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Encounter.mrn": {
+      "correct": 163,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Encounter.class": {
+      "correct": 163,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Encounter.status": {
+      "correct": 163,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Encounter.start": {
+      "correct": 163,
+      "wrong": 0,
+      "absent": 0
+     },
+     "Encounter.end": {
+      "correct": 163,
+      "wrong": 0,
+      "absent": 0
+     }
+    },
+    "values_correct": 1135,
+    "values_wrong": 0,
+    "values_absent": 0,
+    "accuracy": 1.0,
+    "coverage": 1.0,
+    "clean": true
+   },
+   "stage_seconds": {
+    "discover_tools": 0.03,
+    "discover_agent": 57.71,
+    "design_agent": 19.15,
+    "design_tools": 0.02,
+    "generate_agent": 140.04,
+    "validate_tools": 0.2,
+    "repair_agent": 40.94
+   },
+   "llm": {
+    "calls": 4,
+    "from_cache": 0,
+    "prompt_tokens": 30343,
+    "completion_tokens": 10597,
+    "model_seconds": 257.8
+   },
+   "gates": [
+    {
+     "system": "adt-feed",
+     "gate": "system profile",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 7.9
+    },
+    {
+     "system": "adt-feed",
+     "gate": "integration design",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 2.0
+    },
+    {
+     "system": "adt-feed",
+     "gate": "promote adapter",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 2.3
+    }
+   ],
+   "tool_seconds": 0.25,
+   "human_seconds": 12.2
+  },
+  {
+   "id": "pharmacy-csv",
+   "name": "Pharmacy nightly export (flat files)",
+   "kind": "delimited_files",
+   "status": "promoted",
+   "attempts": [
+    {
+     "attempt": 1,
+     "passed": true,
+     "failed": []
+    }
+   ],
+   "repair_rounds": 0,
+   "review_rounds": 0,
+   "pattern": "file_drop_ingest",
+   "pattern_rationale": "The system drops periodic flat CSV files (rx_export_*.csv) on a nightly schedule into a designated runtime directory. The file_drop_ingest pattern ingests these files and de-duplicates re-exported records across daily drops.",
+   "sync": {
+    "mode": "scheduled_poll",
+    "detail": "Nightly polling of directory specified in config['path'] for rx_export_*.csv files"
+   },
+   "open_questions": [
+    "What exact business status names correspond to local STAT codes 'A', 'C', and 'S'?",
+    "Are daily export files incremental delta updates or full cumulative extracts of pharmacy prescriptions?",
+    "Should multiple instances of the same RX_NO across daily files be processed as upserts (overwrites) or deduplicated?"
+   ],
+   "human_review_points": [
+    "Verify whether local status code 'C' should map to 'completed' or 'cancelled'.",
+    "Confirm whether nightly export files represent cumulative extracts or incremental updates."
+   ],
+   "checks": [
+    {
+     "id": "static.syntax",
+     "status": "pass",
+     "detail": "",
+     "title": "Module parses"
+    },
+    {
+     "id": "static.imports",
+     "status": "pass",
+     "detail": "",
+     "title": "Imports are on the allow-list"
+    },
+    {
+     "id": "static.no_dangerous_calls",
+     "status": "pass",
+     "detail": "",
+     "title": "No dynamic execution, shell or file-write calls"
+    },
+    {
+     "id": "static.read_only_sql",
+     "status": "pass",
+     "detail": "",
+     "title": "SQL is read-only"
+    },
+    {
+     "id": "static.no_data_logging",
+     "status": "pass",
+     "detail": "",
+     "title": "No print or logging of records"
+    },
+    {
+     "id": "static.no_hardcoded_secrets",
+     "status": "pass",
+     "detail": "",
+     "title": "No credentials in the code"
+    },
+    {
+     "id": "contract.interface",
+     "status": "pass",
+     "detail": "",
+     "title": "SYSTEM_ID, SUPPORTED and fetch() match the contract"
+    },
+    {
+     "id": "runtime.executes",
+     "status": "pass",
+     "detail": "60 resources returned",
+     "title": "Runs to completion in a separate process"
+    },
+    {
+     "id": "runtime.deterministic",
+     "status": "pass",
+     "detail": "",
+     "title": "Two runs give identical output"
+    },
+    {
+     "id": "runtime.silent",
+     "status": "pass",
+     "detail": "",
+     "title": "Writes nothing to stdout or stderr"
+    },
+    {
+     "id": "contract.coverage",
+     "status": "pass",
+     "detail": "",
+     "title": "Publishes exactly the resource types in the design"
+    },
+    {
+     "id": "fhir.schema",
+     "status": "pass",
+     "detail": "60 resources valid",
+     "title": "Every resource is valid FHIR R4"
+    },
+    {
+     "id": "fhir.conventions",
+     "status": "pass",
+     "detail": "",
+     "title": "Estate conventions: ids, provenance, MRN linkage, no empty elements"
+    },
+    {
+     "id": "reconcile.counts",
+     "status": "pass",
+     "detail": "MedicationRequest 60/60",
+     "title": "Resource counts match the source"
+    }
+   ],
+   "counts": {
+    "MedicationRequest": {
+     "emitted": 60,
+     "expected": 60,
+     "basis": "distinct RX_NO in rx_export_*.csv"
+    }
+   },
+   "adapter_lines": 116,
+   "evaluation": {
+    "records": {
+     "expected": 60,
+     "matched": 60,
+     "missing": 0,
+     "unexpected": 0
+    },
+    "fields": {
+     "MedicationRequest.mrn": {
+      "correct": 60,
+      "wrong": 0,
+      "absent": 0
+     },
+     "MedicationRequest.code": {
+      "correct": 60,
+      "wrong": 0,
+      "absent": 0
+     },
+     "MedicationRequest.status": {
+      "correct": 60,
+      "wrong": 0,
+      "absent": 0
+     },
+     "MedicationRequest.authoredOn": {
+      "correct": 60,
+      "wrong": 0,
+      "absent": 0
+     },
+     "MedicationRequest.quantity": {
+      "correct": 60,
+      "wrong": 0,
+      "absent": 0
+     },
+     "MedicationRequest.dosage": {
+      "correct": 60,
+      "wrong": 0,
+      "absent": 0
+     }
+    },
+    "values_correct": 360,
+    "values_wrong": 0,
+    "values_absent": 0,
+    "accuracy": 1.0,
+    "coverage": 1.0,
+    "clean": true
+   },
+   "stage_seconds": {
+    "discover_tools": 0.0,
+    "discover_agent": 54.64,
+    "design_agent": 81.75,
+    "design_tools": 0.0,
+    "generate_agent": 37.34,
+    "validate_tools": 0.07
+   },
+   "llm": {
+    "calls": 4,
+    "from_cache": 0,
+    "prompt_tokens": 14006,
+    "completion_tokens": 4710,
+    "model_seconds": 173.7
+   },
+   "gates": [
+    {
+     "system": "pharmacy-csv",
+     "gate": "system profile",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 4.1
+    },
+    {
+     "system": "pharmacy-csv",
+     "gate": "integration design",
+     "approved": false,
+     "by": "reviewer",
+     "feedback": "Do not hardcode an RxNorm code-to-name dictionary; several of your mappings are wrong. Use the DRUG_DESC column from the source file as medicationCodeableConcept.coding[0].display.",
+     "seconds": 35.3
+    },
+    {
+     "system": "pharmacy-csv",
+     "gate": "integration design",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 48.7
+    },
+    {
+     "system": "pharmacy-csv",
+     "gate": "promote adapter",
+     "approved": true,
+     "by": "reviewer",
+     "feedback": "",
+     "seconds": 25.0
+    }
+   ],
+   "tool_seconds": 0.07,
+   "human_seconds": 113.1
+  }
+ ],
+ "estate": {
+  "shared_key": "MRN (http://hospital.example.org/mrn)",
+  "master": "ehr-rest",
+  "systems": {
+   "ehr-rest": {
+    "publishes": [
+     "Condition",
+     "Patient"
+    ],
+    "patients": 40,
+    "also_in_master": 40,
+    "not_in_master": 0
+   },
+   "lab-sql": {
+    "publishes": [
+     "Observation",
+     "Patient"
+    ],
+    "patients": 36,
+    "also_in_master": 36,
+    "not_in_master": 0
+   },
+   "adt-feed": {
+    "publishes": [
+     "Encounter",
+     "Patient"
+    ],
+    "patients": 40,
+    "also_in_master": 40,
+    "not_in_master": 0
+   },
+   "pharmacy-csv": {
+    "publishes": [
+     "MedicationRequest"
+    ],
+    "patients": 32,
+    "also_in_master": 32,
+    "not_in_master": 0
+   }
+  }
+ },
+ "finished": "2026-11-13T18:16:43+00:00",
+ "wall_seconds": 1085.0
+}

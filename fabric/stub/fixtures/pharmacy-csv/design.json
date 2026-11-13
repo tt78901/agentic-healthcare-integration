@@ -1,0 +1,30 @@
+{
+  "system_id": "pharmacy-csv",
+  "pattern": "file_drop_ingest",
+  "pattern_rationale": "STUB FIXTURE. Nightly export files are the only interface this system offers. Reading every file and keeping the latest row per prescription reproduces current state.",
+  "alternatives_considered": [
+    {"pattern": "api_facade", "why_not": "No API exists."},
+    {"pattern": "message_feed_ingest", "why_not": "The files are batch exports, not per-event messages."}
+  ],
+  "sync": {"mode": "scheduled_poll", "detail": "Once a night, after the export lands."},
+  "resources": [
+    {
+      "resource_type": "MedicationRequest",
+      "source_entity": "Prescription",
+      "id_source_field": "RX_NO",
+      "count_basis": {"entity": "rx_export_*.csv", "distinct_key": "RX_NO"},
+      "field_map": [
+        {"fhir": "status", "source": "STAT", "transform": "A -> active, S -> stopped, C -> completed, else unknown"},
+        {"fhir": "intent", "source": "(constant)", "transform": "order"},
+        {"fhir": "medicationCodeableConcept (RxNorm)", "source": "RXNORM_CD, DRUG_DESC", "transform": "code, display"},
+        {"fhir": "subject (MRN)", "source": "MRN", "transform": "copy"},
+        {"fhir": "authoredOn", "source": "START_DT", "transform": "DD/MM/YYYY -> YYYY-MM-DD"},
+        {"fhir": "dosageInstruction.text", "source": "SIG_TXT", "transform": "copy"},
+        {"fhir": "dispenseRequest.quantity.value", "source": "QTY", "transform": "text -> number"}
+      ],
+      "merge_rule": "One MedicationRequest per RX_NO; the row in the latest export file wins."
+    }
+  ],
+  "risks": ["Data is up to a day old.", "A missed export file silently leaves stale statuses."],
+  "human_review_points": ["authoredOn uses the prescription start date; the export has no separate order date."]
+}
