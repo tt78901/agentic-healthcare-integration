@@ -169,7 +169,32 @@ td.what{font-weight:550}
 .note{color:var(--faint);font-size:12.5px;margin-left:6px}
 .empty{color:var(--muted);padding:64px 24px;text-align:center}
 .empty svg{width:40px;height:40px;color:#cbd5e1;margin-bottom:8px}
-@media(max-width:1100px){body{grid-template-columns:1fr}aside{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.plist{position:static}}
+.apix{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start}
+.eplist{position:sticky;top:84px;overflow:hidden}
+.ep{display:flex;gap:10px;align-items:flex-start;padding:12px 18px;border-bottom:1px solid var(--line2);cursor:pointer}
+.ep:last-child{border-bottom:0}.ep:hover{background:#f8fafc}.ep.on{background:var(--brandsoft)}
+.ep .p{font-family:var(--mono);font-size:12.5px;color:var(--ink);word-break:break-all;line-height:1.4}
+.ep .d{font-size:12.5px;color:var(--muted);margin-top:2px;line-height:1.35}
+.verb{font:700 11px/1 var(--mono);padding:4px 6px;border-radius:5px;flex:none;margin-top:1px;letter-spacing:.03em}
+.verb.get{background:#e7f7f0;color:#047857}.verb.post{background:#eaf0fe;color:#1d4ed8}
+.tryit .bar{display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line2)}
+.urlbox{flex:1;font-family:var(--mono);font-size:13.5px;background:#f8fafc;border:1px solid var(--line);border-radius:8px;padding:9px 12px;word-break:break-all}
+.params{padding:14px 20px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px;border-bottom:1px solid var(--line2)}
+.params label{font-size:12px;color:var(--muted);font-weight:600;display:block;margin-bottom:4px}
+.params label i{font-style:normal;color:var(--faint);font-weight:500}
+.params input,.params select{width:100%;font:13.5px var(--mono);padding:8px 10px;border:1px solid var(--line);border-radius:7px;background:#fff}
+.resmeta{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px 20px;border-bottom:1px solid var(--line2);font-size:13px;color:var(--muted)}
+.code{display:inline-flex;font:700 12px var(--mono);padding:3px 8px;border-radius:6px}
+.code.ok{background:var(--oksoft);color:var(--ok)}.code.bad{background:var(--badsoft);color:var(--bad)}
+.hdr{font-family:var(--mono);font-size:12px;background:#f1f5f9;border-radius:6px;padding:3px 8px;color:var(--ink2)}
+.hdr.warn{background:var(--warnsoft);color:#7a4100}
+pre.json{margin:0;padding:16px 20px;max-height:calc(100vh - 420px);min-height:240px;overflow:auto;background:#0b1220;color:#cbd5e1;font:12.5px/1.55 var(--mono);border-radius:0 0 var(--r) var(--r);white-space:pre-wrap;word-break:break-word}
+pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pre.json .b{color:#f0abfc}
+.fhead{display:flex;align-items:flex-start;gap:16px;justify-content:space-between}
+.fhead .btn{text-decoration:none;flex:none;margin-top:2px}
+.framebox{overflow:hidden;padding:0}
+.framebox iframe{display:block;width:100%;height:calc(100vh - 230px);min-height:520px;border:0;background:#fff}
+@media(max-width:1100px){.apix{grid-template-columns:1fr}.eplist{position:static}body{grid-template-columns:1fr}aside{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.plist{position:static}}
 </style>
 </head>
 <body>
@@ -185,8 +210,8 @@ td.what{font-weight:550}
   </div>
   <div class="sect">Evidence</div>
   <div class="nav">
-    <a href="/report" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Run report<span class="ext">↗</span></a>
-    <a href="/docs" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 4l-4 16"/></svg>FHIR API<span class="ext">↗</span></a>
+    <button id="tab-report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Run report</button>
+    <button id="tab-api"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 4l-4 16"/></svg>FHIR API</button>
   </div>
   <div class="sfoot">
     <div class="env">● SYNTHETIC DATA</div>
@@ -230,6 +255,20 @@ td.what{font-weight:550}
           <ul class="people" id="people"></ul>
         </div>
         <div id="record"><div class="panel empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><div>Select a patient to see one record assembled from every source system.</div></div></div>
+      </div>
+    </section>
+    <section id="report" hidden>
+      <div class="fhead"><div><h2 class="pt">Run report</h2><p class="lead">Evidence from agent run <span class="mono" id="rrun">…</span>: every stage, check, human decision and accuracy result, from the audit log.</p></div>
+        <a class="btn" href="/report" target="_blank" rel="noopener">Open in new tab ↗</a></div>
+      <div class="panel framebox"><iframe id="frame-report" title="Run report" data-src="/report"></iframe></div>
+    </section>
+
+    <section id="api" hidden>
+      <div class="fhead"><div><h2 class="pt">FHIR R4 API</h2><p class="lead">The single API every consumer uses. Try any endpoint live: <span class="mono">GET /fhir/Patient/{mrn}/everything</span> returns one record across all systems.</p></div>
+        <a class="btn" href="/docs" target="_blank" rel="noopener">Swagger docs ↗</a></div>
+      <div class="apix">
+        <div class="panel eplist"><div class="ph"><h3>Endpoints</h3><span class="sp"></span><span class="small" id="epcount"></span></div><div id="eps"></div></div>
+        <div class="panel tryit" id="tryit"><div class="empty">Loading the API definition…</div></div>
       </div>
     </section>
   </main>
@@ -317,7 +356,7 @@ async function loadEstate() {
   $("stub").hidden = !vals.some(s => s.stub);
   const models = [...new Set(vals.map(s => String(s.model || "").split(" via ")[0]).filter(Boolean))];
   $("meta").textContent = models.join(", ") || "n/a";
-  $("runid").textContent = [...new Set(vals.map(s => s.run_id).filter(Boolean))].join(", ") || "n/a";
+  $("rrun").textContent = $("runid").textContent = [...new Set(vals.map(s => s.run_id).filter(Boolean))].join(", ") || "n/a";
 
   const live = vals.filter(s => !isDown(s)).length;
   const passing = vals.filter(s => !s.health || s.health.healthy !== false).length;
@@ -476,15 +515,108 @@ async function showRecord(p) {
     h("div", {class: "panel"}, tabs, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Date"), h("th", {}, "Item"), h("th", {}, "Result / detail"), h("th", {}, "Source"))), body)));
 }
 
+// ---------------------------------------------------------------- API explorer (offline, uses /openapi.json)
+let apiSpec = null;
+const hl = txt => esc(txt).replace(/("(?:\\.|[^"\\])*")(\s*:)?|\b(true|false|null)\b|-?\b\d+(?:\.\d+)?(?:e[+-]?\d+)?\b/gi,
+  (m, str, colon, lit) => str ? '<span class="' + (colon ? 'k' : 's') + '">' + str + '</span>' + (colon || "") : lit ? '<span class="b">' + m + '</span>' : '<span class="n">' + m + '</span>');
+async function loadApi() {
+  if (apiSpec) return;
+  apiSpec = await api("/openapi.json");
+  if (!patients.length) await loadPatients().catch(() => {});
+  const eps = [];
+  for (const [path, ops] of Object.entries(apiSpec.paths)) for (const [m, op] of Object.entries(ops)) eps.push({path, method: m.toUpperCase(), op});
+  const order = p => p.includes("everything") ? 0 : p.startsWith("/fhir") ? 1 : p === "/systems" ? 2 : p === "/check" ? 3 : 4;
+  eps.sort((a, b) => order(a.path) - order(b.path));
+  $("epcount").textContent = eps.length + " endpoints · " + (apiSpec.info || {}).title;
+  const list = $("eps"); list.replaceChildren();
+  eps.forEach((e, i) => {
+    const el = h("div", {class: "ep", tabindex: "0"}, h("span", {class: "verb " + e.method.toLowerCase()}, e.method), h("div", {}, h("div", {class: "p"}, e.path), h("div", {class: "d"}, e.op.summary || "")));
+    const open = () => { for (const x of list.children) x.classList.remove("on"); el.classList.add("on"); showEndpoint(e); };
+    el.addEventListener("click", open); el.addEventListener("keydown", ev => { if (ev.key === "Enter") open(); });
+    list.append(el); if (i === 0) open();
+  });
+}
+function showEndpoint(e) {
+  const box = $("tryit"), inputs = {};
+  const firstMrn = patients.length ? mrnOf(patients.find(p => nameOf(p) === "Aoife Walsh") || patients[0]) : "";
+  const params = (e.op.parameters || []).map(prm => {
+    let field;
+    if (prm.name === "resource_type") field = h("select", {}, ...["Patient", "Encounter", "Observation", "Condition", "MedicationRequest"].map(v => h("option", {}, v)));
+    else if (prm.name === "source") { field = h("select", {}, h("option", {value: ""}, "(all systems)"), ...sources.map(v => h("option", {}, v))); }
+    else field = h("input", {value: prm.name === "mrn" && prm.in === "path" ? firstMrn : prm.schema && prm.schema.default != null ? prm.schema.default : "", placeholder: prm.in === "query" ? "optional" : "required"});
+    field.addEventListener("input", draw); field.addEventListener("change", draw);
+    inputs[prm.name] = {prm, field};
+    return h("div", {}, h("label", {}, prm.name, " ", h("i", {}, prm.in + (prm.required ? " · required" : ""))), field);
+  });
+  const url = h("div", {class: "urlbox"});
+  const send = h("button", {class: "btn pri"}, "Send request");
+  const meta = h("div", {class: "resmeta"}, "Press Send to call the live gateway.");
+  const out = h("pre", {class: "json"}, "// response appears here");
+  function build() {
+    let path = e.path; const q = [];
+    for (const {prm, field} of Object.values(inputs)) {
+      const v = String(field.value || "").trim();
+      if (prm.in === "path") path = path.replace("{" + prm.name + "}", encodeURIComponent(v || "{" + prm.name + "}"));
+      else if (v) q.push(encodeURIComponent(prm.name) + "=" + encodeURIComponent(v));
+    }
+    return path + (q.length ? "?" + q.join("&") : "");
+  }
+  function draw() { url.textContent = e.method + "  " + build(); }
+  send.addEventListener("click", async () => {
+    send.disabled = true; send.textContent = "Sending…";
+    const u = build(), t0 = performance.now();
+    try {
+      const r = await fetch(u, {method: e.method});
+      const ms = Math.round(performance.now() - t0), text = await r.text();
+      let body = text; try { body = JSON.stringify(JSON.parse(text), null, 2); } catch (x) {}
+      const lines = body.split("\n"), cut = lines.length > 400;
+      out.innerHTML = hl(cut ? lines.slice(0, 400).join("\n") : body) + (cut ? '\n<span class="b">… ' + (lines.length - 400) + ' more lines (open in new tab for the full response)</span>' : "");
+      const partial = r.headers.get("X-Fabric-Partial"), srcs = r.headers.get("X-Fabric-Sources"), rid = r.headers.get("X-Request-ID");
+      let total = null; try { total = JSON.parse(text).total; } catch (x) {}
+      meta.replaceChildren(h("span", {class: "code " + (r.ok ? "ok" : "bad")}, r.status + " " + (r.statusText || (r.ok ? "OK" : ""))), h("span", {}, ms + " ms"),
+        total != null ? h("span", {}, total + " resources") : null,
+        partial ? h("span", {class: "hdr" + (partial === "true" ? " warn" : "")}, "X-Fabric-Partial: " + partial) : null,
+        srcs ? h("span", {class: "hdr"}, srcs) : null, rid ? h("span", {class: "hdr"}, "X-Request-ID: " + rid) : null,
+        e.method === "GET" ? h("a", {href: u, target: "_blank", rel: "noopener", class: "small", style: "margin-left:auto"}, "Open raw ↗") : null);
+      if (e.path === "/check") loadEstate().catch(() => {});
+    } catch (err) { meta.replaceChildren(h("span", {class: "code bad"}, "Network error"), String(err)); out.textContent = ""; }
+    send.disabled = false; send.textContent = "Send request";
+  });
+  draw();
+  box.replaceChildren(
+    h("div", {class: "ph"}, h("span", {class: "verb " + e.method.toLowerCase()}, e.method), h("h3", {}, e.op.summary || e.path)),
+    h("div", {class: "bar"}, url, send),
+    params.length ? h("div", {class: "params"}, ...params) : null,
+    meta, out);
+}
+
 // ---------------------------------------------------------------- navigation
-function tab(name) {
-  for (const t of ["estate", "patient"]) { $(t).hidden = t !== name; $("tab-" + t).classList.toggle("on", t === name); }
-  $("ptitle").textContent = name === "estate" ? "Overview" : "Patient records";
+const PAGES = {estate: "Overview", patient: "Patient records", report: "Run report", api: "FHIR API"};
+const HASH = {estate: "overview", patient: "patients", report: "report", api: "api"};
+function styleFrame(f) {
+  try {   // same origin: blend the embedded page into the app
+    const d = f.contentDocument; if (!d || d.getElementById("fabric-embed")) return;
+    const st = d.createElement("style"); st.id = "fabric-embed";
+    st.textContent = f.id === "frame-report" ? "body{background:#fff!important}main{max-width:none!important;padding:24px 28px 40px!important}" : ".swagger-ui .topbar{display:none!important}.swagger-ui .information-container{padding-top:8px}";
+    d.head.append(st);
+  } catch (e) {}
+}
+function tab(name, push) {
+  if (!PAGES[name]) name = "estate";
+  for (const t of Object.keys(PAGES)) { $(t).hidden = t !== name; $("tab-" + t).classList.toggle("on", t === name); }
+  $("ptitle").textContent = PAGES[name];
+  document.title = PAGES[name] + " · Fabric";
+  if (push !== false && location.hash !== "#" + HASH[name]) history.replaceState(null, "", "#" + HASH[name]);
+  if (name === "api") loadApi().catch(e => { $("tryit").replaceChildren(h("div", {class: "empty"}, String(e))); });
+  const f = $("frame-" + name);
+  if (f && !f.src) { f.addEventListener("load", () => styleFrame(f)); f.src = f.dataset.src; }
   if (name === "patient" && !patients.length) loadPatients().catch(e => { $("people").replaceChildren(h("li", {class: "small"}, String(e))); });
   if (name === "estate") loadEstate().catch(() => {});
 }
-$("tab-estate").addEventListener("click", () => tab("estate"));
-$("tab-patient").addEventListener("click", () => tab("patient"));
+for (const t of Object.keys(PAGES)) $("tab-" + t).addEventListener("click", () => tab(t));
+window.addEventListener("hashchange", () => tab(Object.keys(HASH).find(k => "#" + HASH[k] === location.hash) || "estate", false));
+const startPage = Object.keys(HASH).find(k => "#" + HASH[k] === location.hash);
+if (startPage && startPage !== "estate") tab(startPage, false);
 loadEstate().catch(e => { $("systems").replaceChildren(h("div", {class: "empty"}, String(e))); });
 </script>
 </body>
