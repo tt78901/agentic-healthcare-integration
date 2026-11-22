@@ -3,172 +3,238 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Integration Fabric · Team Datarex</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230e7c86'/%3E%3Cpath d='M9 16h14M16 9v14' stroke='white' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<title>Fabric · Agentic Integration</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230d9488'/%3E%3Cpath d='M9 10.5h8M9 21.5h8M17 10.5l6 5.5-6 5.5' stroke='white' stroke-width='2.6' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <style>
 :root{
-  --ink:#0f1b2a;--muted:#5a6878;--faint:#8794a3;--line:#e3e8ee;--bg:#f3f6f9;--card:#fff;
-  --brand:#0e7c86;--brand-ink:#0a5960;--brand-soft:#e3f3f4;--navy:#0d1f33;
-  --ok:#17804a;--ok-soft:#e5f4ec;--bad:#b42318;--bad-soft:#fdecea;--warn:#9a5b00;--warn-soft:#fff3e0;
-  --s0:#2563eb;--s0s:#e8effd;--s1:#15803d;--s1s:#e6f4ea;--s2:#c2410c;--s2s:#fdeee5;--s3:#7c3aed;--s3s:#f1eafd;
-  --shadow:0 1px 2px rgba(15,27,42,.05),0 4px 14px rgba(15,27,42,.05);
+  --bg:#f5f7fa;--panel:#fff;--ink:#0b1220;--ink2:#334155;--muted:#64748b;--faint:#94a3b8;--line:#e5e9f0;--line2:#eef1f5;
+  --side:#0a1422;--side2:#111e30;--sideink:#9fb0c3;
+  --brand:#0d9488;--brand2:#0f766e;--brandsoft:#e6f6f4;
+  --ok:#059669;--oksoft:#e7f7f0;--bad:#dc2626;--badsoft:#fdeeee;--warn:#d97706;--warnsoft:#fff6e8;
+  --c0:#2563eb;--c0s:#eaf0fe;--c1:#059669;--c1s:#e7f7f0;--c2:#ea580c;--c2s:#fdf0e7;--c3:#7c3aed;--c3s:#f2ecfe;
+  --r:12px;--sh:0 1px 2px rgba(11,18,32,.04),0 2px 8px rgba(11,18,32,.04);
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,monospace;
 }
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Inter,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 -apple-system,BlinkMacSystemFont,"SF Pro Text",Inter,"Segoe UI",Roboto,sans-serif;-webkit-font-smoothing:antialiased;display:grid;grid-template-columns:248px 1fr}
 [hidden]{display:none!important}
-
-/* header */
-header{background:linear-gradient(100deg,var(--navy) 0%,#123349 60%,#0f4a52 100%);color:#fff;padding:18px 36px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
-.logo{width:40px;height:40px;border-radius:11px;background:var(--brand);display:grid;place-items:center;flex:none;box-shadow:inset 0 0 0 1px rgba(255,255,255,.15)}
-.logo svg{width:22px;height:22px}
-.brand h1{font-size:21px;margin:0;font-weight:700;letter-spacing:-.01em;line-height:1.15}
-.brand .sub{color:#a9bfd1;font-size:13.5px;margin-top:2px}
-.hright{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.hchip{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#dce7f0;border-radius:999px;padding:5px 12px;font-size:13px;white-space:nowrap}
-.dot{width:8px;height:8px;border-radius:50%;background:#3ddc84;box-shadow:0 0 0 3px rgba(61,220,132,.25)}
-.dot.bad{background:#ff6b5e;box-shadow:0 0 0 3px rgba(255,107,94,.25)}
-
-/* nav */
-nav{background:#fff;border-bottom:1px solid var(--line);padding:0 36px;display:flex;gap:6px;position:sticky;top:0;z-index:5}
-nav button,nav a{appearance:none;border:0;background:none;font:inherit;font-size:15px;color:var(--muted);padding:14px 14px 12px;cursor:pointer;border-bottom:3px solid transparent;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
-nav button:hover,nav a:hover{color:var(--ink)}
-nav button.on{color:var(--ink);border-bottom-color:var(--brand);font-weight:600}
-nav a{margin-left:auto}nav a + a{margin-left:0}
-nav a::after{content:"↗";font-size:12px;color:var(--faint)}
 :focus-visible{outline:2px solid var(--brand);outline-offset:2px}
+button{font:inherit}
 
-main{max-width:1320px;margin:0 auto;padding:28px 36px 64px}
-.banner{display:flex;gap:12px;align-items:flex-start;border-radius:12px;padding:14px 16px;margin:0 0 18px;font-size:14.5px;line-height:1.45}
-.banner b{display:block;font-size:15.5px;margin-bottom:2px}
-.banner.warn{background:var(--warn-soft);border:1px solid #f3c98b;color:#6b3f00}
-.banner.bad{background:var(--bad-soft);border:1px solid #f5b5ae;color:#7a1a12}
-.banner .ico{font-size:20px;line-height:1.1}
+/* ---------- sidebar ---------- */
+aside{background:var(--side);color:var(--sideink);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;padding:18px 14px}
+.prod{display:flex;align-items:center;gap:11px;padding:4px 8px 22px}
+.mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#14b8a6,#0d9488 55%,#0f766e);display:grid;place-items:center;box-shadow:0 4px 14px rgba(13,148,136,.35)}
+.mark svg{width:18px;height:18px}
+.prod .n{color:#fff;font-weight:700;font-size:16px;letter-spacing:-.01em;line-height:1.1}
+.prod .t{font-size:12px;color:#6f8297}
+.sect{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#5d7086;padding:14px 10px 6px;font-weight:600}
+.nav{display:flex;flex-direction:column;gap:2px}
+.nav button,.nav a{appearance:none;border:0;background:none;color:var(--sideink);text-align:left;display:flex;align-items:center;gap:11px;padding:9px 10px;border-radius:8px;cursor:pointer;text-decoration:none;font-size:14.5px}
+.nav button:hover,.nav a:hover{background:var(--side2);color:#e2e8f0}
+.nav button.on{background:#13273d;color:#fff;font-weight:600;box-shadow:inset 3px 0 0 var(--brand)}
+.nav svg{width:18px;height:18px;flex:none;opacity:.9}
+.nav .ext{margin-left:auto;font-size:11px;color:#5d7086}
+.sfoot{margin-top:auto;border-top:1px solid #172538;padding:14px 10px 2px;font-size:12.5px;color:#6f8297;line-height:1.6}
+.sfoot b{color:#c9d5e2;font-weight:600}
+.env{display:inline-flex;align-items:center;gap:6px;background:#132538;color:#9fd8d1;border-radius:6px;padding:2px 8px;font-size:11.5px;font-weight:600;margin-bottom:8px}
 
-/* KPI strip */
-.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin:0 0 22px}
-.kpi{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
-.kpi .v{font-size:34px;font-weight:700;letter-spacing:-.02em;line-height:1.1;font-variant-numeric:tabular-nums}
-.kpi .v small{font-size:18px;color:var(--faint);font-weight:600}
-.kpi .l{color:var(--muted);font-size:14px;margin-top:4px}
-.kpi.hi .v{color:var(--brand-ink)}
+/* ---------- top bar ---------- */
+.app{min-width:0}
+.top{height:64px;background:rgba(255,255,255,.85);backdrop-filter:saturate(1.4) blur(8px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:16px;padding:0 32px;position:sticky;top:0;z-index:10}
+.crumb{font-size:13px;color:var(--muted)}
+.crumb b{color:var(--ink);font-weight:600;font-size:16px;display:block;line-height:1.2}
+.top .sp{flex:1}
+.status{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 12px 6px 10px;font-size:13px;font-weight:500;color:var(--ink2)}
+.pulse{width:8px;height:8px;border-radius:50%;background:var(--ok);position:relative}
+.pulse::after{content:"";position:absolute;inset:-4px;border-radius:50%;background:var(--ok);opacity:.25;animation:ring 2s ease-out infinite}
+.pulse.bad,.pulse.bad::after{background:var(--bad)}
+@keyframes ring{0%{transform:scale(.6);opacity:.4}100%{transform:scale(1.6);opacity:0}}
+.meta{font-size:12.5px;color:var(--muted);white-space:nowrap}
+.btn{appearance:none;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:8px;padding:8px 14px;font-size:14px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.btn:hover{border-color:#cbd5e1;background:#fafbfc}
+.btn.pri{background:var(--brand);border-color:var(--brand);color:#fff;box-shadow:0 1px 2px rgba(13,148,136,.3)}
+.btn.pri:hover{background:var(--brand2);border-color:var(--brand2)}
+.btn[disabled]{opacity:.65;cursor:progress}
+.btn svg{width:16px;height:16px}
 
-.bar{display:flex;align-items:center;gap:14px;margin:0 0 16px;flex-wrap:wrap}
-.bar h2{font-size:18px;margin:0;font-weight:650}
-.bar .grow{flex:1}
-.small{font-size:13.5px;color:var(--muted)}
-button.act{appearance:none;border:0;background:var(--brand);color:#fff;border-radius:9px;padding:9px 16px;font:inherit;font-size:14.5px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:8px}
-button.act:hover{background:var(--brand-ink)}
-button.act[disabled]{opacity:.65;cursor:progress}
+main{padding:28px 32px 56px;max-width:1440px}
+h2.pt{font-size:22px;letter-spacing:-.015em;margin:0}
+.lead{color:var(--muted);margin:4px 0 22px;font-size:14.5px}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh)}
+.ph{display:flex;align-items:center;gap:12px;padding:16px 20px;border-bottom:1px solid var(--line2)}
+.ph h3{margin:0;font-size:15px;font-weight:650}
+.ph .sp{flex:1}
+.small{font-size:13px;color:var(--muted)}
+.banner{display:flex;gap:12px;align-items:flex-start;border-radius:10px;padding:13px 16px;margin:0 0 18px;font-size:14px;line-height:1.45}
+.banner svg{width:20px;height:20px;flex:none;margin-top:1px}
+.banner b{display:block;font-size:14.5px}
+.banner.warn{background:var(--warnsoft);border:1px solid #f6d29b;color:#7a4100}
+.banner.bad{background:var(--badsoft);border:1px solid #f6c1c1;color:#7f1d1d}
 
-/* system cards */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px 20px;box-shadow:var(--shadow)}
-.sys{border-top:4px solid var(--c);padding-top:16px;display:flex;flex-direction:column}
-.sys .top{display:flex;gap:12px;align-items:flex-start}
-.ic{width:42px;height:42px;border-radius:10px;background:var(--cs);color:var(--c);display:grid;place-items:center;flex:none}
-.ic svg{width:22px;height:22px}
-.sys h3{margin:0;font-size:16px;line-height:1.3}
-.sys .kind{font-size:13px;color:var(--muted);margin-top:2px}
-.big{display:flex;align-items:baseline;gap:8px;margin:16px 0 4px}
-.big .v{font-size:30px;font-weight:700;letter-spacing:-.02em;color:var(--ok);font-variant-numeric:tabular-nums}
-.big .l{font-size:13.5px;color:var(--muted)}
-dl{display:grid;grid-template-columns:auto 1fr;gap:6px 14px;margin:10px 0 0;font-size:14px}
-dt{color:var(--muted)}dd{margin:0;font-weight:500}
-.foot{margin-top:auto;padding-top:14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:600;white-space:nowrap}
-.pill::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
-.pill.ok{background:var(--ok-soft);color:var(--ok)}.pill.bad{background:var(--bad-soft);color:var(--bad)}.pill.na{background:#eef1f4;color:var(--muted)}.pill.warn{background:var(--warn-soft);color:var(--warn)}
-.changes{margin:12px 0 0;padding:10px 12px;background:var(--bad-soft);border-radius:8px;font:12.5px/1.5 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:#5c1a15;white-space:pre-wrap;word-break:break-word}
+/* ---------- KPIs ---------- */
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px}
+.kpi{padding:18px 20px}
+.kpi .h{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:13px;font-weight:500}
+.kpi .ico{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--brandsoft);color:var(--brand2)}
+.kpi .ico svg{width:16px;height:16px}
+.kpi .v{font-size:32px;font-weight:700;letter-spacing:-.025em;margin-top:8px;font-variant-numeric:tabular-nums;line-height:1.1}
+.kpi .v small{font-size:16px;color:var(--faint);font-weight:600;letter-spacing:0}
+.kpi .s{font-size:13px;color:var(--muted);margin-top:6px}
+.kpi .s .up{color:var(--ok);font-weight:600}
 
-/* source badge */
-.src{display:inline-block;border-radius:6px;padding:2px 8px;font-size:12.5px;font-weight:600;white-space:nowrap;background:var(--cs);color:var(--c)}
-.k0{--c:var(--s0);--cs:var(--s0s)}.k1{--c:var(--s1);--cs:var(--s1s)}.k2{--c:var(--s2);--cs:var(--s2s)}.k3{--c:var(--s3);--cs:var(--s3s)}.k4{--c:#475467;--cs:#eef1f4}
+/* ---------- topology ---------- */
+.topo{padding:8px 12px 4px}
+.topo svg{width:100%;height:auto;display:block}
+.topo .node rect{fill:#fff;stroke:var(--line);stroke-width:1.2}
+.topo text{font-family:inherit}
+.flow{fill:none;stroke-width:2.2}
+.flow.ok{stroke:#5eead4}
+.flow.ok.anim{stroke:var(--brand);stroke-dasharray:6 8;animation:dash 1.1s linear infinite}
+.flow.bad{stroke:var(--bad);stroke-dasharray:3 6;opacity:.8}
+@keyframes dash{to{stroke-dashoffset:-14}}
+.legend{display:flex;gap:18px;padding:0 20px 16px;font-size:12.5px;color:var(--muted)}
+.legend span{display:inline-flex;align-items:center;gap:7px}
+.legend i{width:18px;height:0;border-top:2.2px dashed var(--brand);display:inline-block}
+.legend i.b{border-top-color:var(--bad);border-top-style:dotted}
 
-/* patient view */
-.two{display:grid;grid-template-columns:310px 1fr;gap:22px;align-items:start}
-@media(max-width:900px){.two{grid-template-columns:1fr}.kpis{grid-template-columns:repeat(2,1fr)}}
-.side{position:sticky;top:70px}
-input[type=search]{width:100%;padding:11px 14px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:15px;margin-bottom:10px;background:#fff}
-input[type=search]:focus{outline:2px solid var(--brand);border-color:transparent}
-ul.people{list-style:none;margin:0;padding:6px;max-height:calc(100vh - 210px);overflow:auto;border:1px solid var(--line);border-radius:14px;background:#fff;box-shadow:var(--shadow)}
-ul.people li{padding:9px 10px;border-radius:9px;cursor:pointer;display:flex;gap:10px;align-items:center}
-ul.people li:hover{background:#f2f6f9}ul.people li.on{background:var(--brand-soft)}
-ul.people .nm{font-weight:500;line-height:1.25}
-.av{width:34px;height:34px;border-radius:50%;background:#e6ecf2;color:#3b4a5c;display:grid;place-items:center;font-size:13px;font-weight:700;flex:none}
-li.on .av{background:var(--brand);color:#fff}
-.av.lg{width:64px;height:64px;font-size:22px;background:var(--brand);color:#fff}
-.phead{display:flex;gap:18px;align-items:center}
-.phead h2{margin:0;font-size:26px;letter-spacing:-.01em}
-.facts{display:flex;gap:8px 18px;flex-wrap:wrap;color:var(--muted);font-size:14.5px;margin-top:4px}
-.facts b{color:var(--ink);font-weight:600}
-.srcrow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
-.srcbox{border:1px solid var(--line);border-left:4px solid var(--c);border-radius:10px;padding:10px 12px;background:#fff}
-.srcbox .n{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
-.srcbox .t{font-size:13px;color:var(--muted)}
-.srcbox .st{font-size:12.5px;font-weight:600;margin-top:4px;color:var(--ok)}
-.srcbox.down{background:var(--bad-soft);border-color:#f5b5ae;border-left-color:var(--bad)}
-.srcbox.down .st{color:var(--bad)}
-.srcbox.stale{background:var(--warn-soft);border-color:#f3c98b;border-left-color:var(--warn)}
-.srcbox.stale .st{color:var(--warn)}
-.filters{display:flex;gap:8px;flex-wrap:wrap;margin:20px 0 12px}
-.filters button{appearance:none;border:1px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;font:inherit;font-size:14px;cursor:pointer;color:var(--ink)}
-.filters button:hover{border-color:#c5cfd9}
-.filters button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
-.tablecard{padding:0;overflow:hidden}
-table{border-collapse:collapse;width:100%;font-size:14.5px}
-td,th{text-align:left;padding:11px 16px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:12px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600;background:#f8fafc}
+/* ---------- systems table ---------- */
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;padding:13px 20px;border-bottom:1px solid var(--line2);vertical-align:middle}
+th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:#fafbfc}
 tbody tr:hover td{background:#fafcfd}
-tr:last-child td{border-bottom:0}
-td.when{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted)}
-td.what{font-weight:500}
-.flag{display:inline-block;margin-left:8px;border-radius:5px;padding:0 7px;font-size:12px;font-weight:700;background:var(--bad-soft);color:var(--bad)}
-.flag.lo{background:#e8effd;color:#1d4ed8}
-.note{color:var(--faint);font-size:13px;margin-left:6px}
-.empty{color:var(--muted);padding:56px 24px;text-align:center}
-.empty .big-ico{font-size:34px;margin-bottom:8px}
+tbody tr:last-child td{border-bottom:0}
+.sysn{display:flex;align-items:center;gap:12px}
+.sic{width:36px;height:36px;border-radius:9px;display:grid;place-items:center;background:var(--cs);color:var(--c);flex:none}
+.sic svg{width:18px;height:18px}
+.sysn b{font-weight:600;display:block;line-height:1.25}
+.sysn span{font-size:12.5px;color:var(--muted)}
+.num{font-variant-numeric:tabular-nums}
+.acc{font-weight:700;color:var(--ok)}
+.meter{height:5px;background:var(--line2);border-radius:99px;overflow:hidden;margin-top:5px;width:88px}
+.meter i{display:block;height:100%;background:var(--ok);border-radius:99px}
+.mono{font-family:var(--mono);font-size:12.5px;color:var(--ink2)}
+.pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:3px 10px;font-size:12.5px;font-weight:600;white-space:nowrap}
+.pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill.ok{background:var(--oksoft);color:var(--ok)}.pill.bad{background:var(--badsoft);color:var(--bad)}.pill.na{background:#f1f5f9;color:var(--muted)}.pill.warn{background:var(--warnsoft);color:var(--warn)}
+.changes{margin-top:8px;padding:8px 10px;background:var(--badsoft);border-radius:7px;font:12px/1.5 var(--mono);color:#7f1d1d;white-space:pre-wrap;word-break:break-word;max-width:520px}
+.k0{--c:var(--c0);--cs:var(--c0s)}.k1{--c:var(--c1);--cs:var(--c1s)}.k2{--c:var(--c2);--cs:var(--c2s)}.k3{--c:var(--c3);--cs:var(--c3s)}.k4{--c:#475569;--cs:#f1f5f9}
+.src{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:600;white-space:nowrap;background:var(--cs);color:var(--c);font-family:var(--mono)}
+
+/* ---------- patients ---------- */
+.two{display:grid;grid-template-columns:320px 1fr;gap:20px;align-items:start}
+.plist{position:sticky;top:84px;overflow:hidden}
+.search{position:relative;padding:12px;border-bottom:1px solid var(--line2)}
+.search svg{position:absolute;left:24px;top:50%;transform:translateY(-50%);width:16px;height:16px;color:var(--faint)}
+input[type=search]{width:100%;padding:9px 12px 9px 36px;border:1px solid var(--line);border-radius:8px;font:inherit;font-size:14px;background:#fafbfc}
+input[type=search]:focus{outline:2px solid var(--brand);border-color:transparent;background:#fff}
+.pcount{padding:8px 16px;font-size:12px;color:var(--muted);border-bottom:1px solid var(--line2);background:#fafbfc}
+ul.people{list-style:none;margin:0;padding:6px;max-height:calc(100vh - 250px);overflow:auto}
+ul.people li{padding:8px 10px;border-radius:8px;cursor:pointer;display:flex;gap:11px;align-items:center}
+ul.people li:hover{background:#f4f7fa}
+ul.people li.on{background:var(--brandsoft)}
+ul.people .nm{font-weight:550;font-size:14px;line-height:1.25}
+ul.people .mr{font-size:12px;color:var(--muted);font-family:var(--mono)}
+.av{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;flex:none;background:#e8edf3;color:#475569}
+li.on .av{background:var(--brand);color:#fff}
+.av.lg{width:56px;height:56px;font-size:19px;background:linear-gradient(135deg,#14b8a6,#0f766e);color:#fff}
+.phd{padding:22px 24px}
+.phd .row{display:flex;gap:16px;align-items:center}
+.phd h2{margin:0;font-size:24px;letter-spacing:-.02em}
+.facts{display:flex;flex-wrap:wrap;gap:6px 22px;margin-top:4px;font-size:14px;color:var(--muted)}
+.facts b{color:var(--ink);font-weight:600}
+.facts .mono{color:var(--ink)}
+.srcs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line2)}
+.sb{padding:14px 20px;border-right:1px solid var(--line2);position:relative}
+.sb:last-child{border-right:0}
+.sb::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:0 3px 3px 0;background:var(--c)}
+.sb .n{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;line-height:1.2}
+.sb .t{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sb .st{font-size:12px;font-weight:600;margin-top:3px;color:var(--ok);display:flex;align-items:center;gap:5px}
+.sb .st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.sb.down{background:var(--badsoft)}.sb.down .st{color:var(--bad)}.sb.down::before{background:var(--bad)}
+.sb.stale{background:var(--warnsoft)}.sb.stale .st{color:var(--warn)}.sb.stale::before{background:var(--warn)}
+.foot{padding:10px 24px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--muted);background:#fafbfc;border-radius:0 0 var(--r) var(--r)}
+.tabs{display:flex;gap:2px;padding:0 12px;border-bottom:1px solid var(--line2)}
+.tabs button{appearance:none;border:0;background:none;padding:13px 10px 11px;font-size:14px;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;display:inline-flex;gap:7px;align-items:center}
+.tabs button:hover{color:var(--ink)}
+.tabs button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--brand)}
+.tabs .c{background:#f1f5f9;color:var(--muted);border-radius:99px;padding:0 7px;font-size:12px;font-weight:600}
+.tabs button.on .c{background:var(--brandsoft);color:var(--brand2)}
+td.when{white-space:nowrap;font-variant-numeric:tabular-nums;color:var(--muted);font-family:var(--mono);font-size:13px}
+td.what{font-weight:550}
+.flag{display:inline-block;margin-left:8px;border-radius:5px;padding:1px 7px;font-size:11.5px;font-weight:700;background:var(--badsoft);color:var(--bad);letter-spacing:.02em}
+.flag.lo{background:var(--c0s);color:var(--c0)}
+.note{color:var(--faint);font-size:12.5px;margin-left:6px}
+.empty{color:var(--muted);padding:64px 24px;text-align:center}
+.empty svg{width:40px;height:40px;color:#cbd5e1;margin-bottom:8px}
+@media(max-width:1100px){body{grid-template-columns:1fr}aside{display:none}.kpis{grid-template-columns:repeat(2,1fr)}.two{grid-template-columns:1fr}.plist{position:static}}
 </style>
 </head>
 <body>
-<header>
-  <div class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"><circle cx="5" cy="6" r="2"/><circle cx="5" cy="18" r="2"/><circle cx="19" cy="12" r="2.4"/><path d="M7 6.8 16.8 11M7 17.2 16.8 13"/></svg></div>
-  <div class="brand">
-    <h1>Agentic Integration Fabric</h1>
-    <div class="sub">One FHIR R4 API over every hospital system · built by AI agents · checked by contract · approved by people</div>
+<aside>
+  <div class="prod">
+    <div class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h8M4 18h8M12 6l7 6-7 6"/></svg></div>
+    <div><div class="n">Fabric</div><div class="t">Agentic integration</div></div>
   </div>
-  <div class="hright">
-    <span class="hchip" id="livechip"><span class="dot"></span><span id="livetext">Connecting…</span></span>
-    <span class="hchip" id="meta">Synthetic data</span>
-    <span class="hchip">Team Datarex · EXL × UCD 2026</span>
+  <div class="sect">Workspace</div>
+  <div class="nav">
+    <button id="tab-estate" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</button>
+    <button id="tab-patient"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Patient records</button>
   </div>
-</header>
-<nav>
-  <button id="tab-estate" class="on">Estate</button>
-  <button id="tab-patient">Patient record</button>
-  <a href="/report" target="_blank" rel="noopener">Run report</a>
-  <a href="/docs" target="_blank" rel="noopener">API docs</a>
-</nav>
-<main>
-  <div id="stub" class="banner warn" hidden><span class="ico">⚠</span><div><b>Stub adapters loaded</b>These are hand-written fixtures, not agent output.</div></div>
-  <section id="estate">
-    <div class="kpis" id="kpis"></div>
-    <div class="bar">
-      <h2>Connected systems</h2>
-      <span class="small grow" id="checked">Re-probes every source, compares its structure with what was approved and re-runs the validation contract.</span>
-      <button class="act" id="check">Check estate now</button>
-    </div>
-    <div class="grid" id="systems"></div>
-  </section>
-  <section id="patient" hidden>
-    <div class="two">
-      <div class="side">
-        <input type="search" id="q" placeholder="Search name or MRN" aria-label="Search patients">
-        <ul class="people" id="people"></ul>
+  <div class="sect">Evidence</div>
+  <div class="nav">
+    <a href="/report" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h5"/></svg>Run report<span class="ext">↗</span></a>
+    <a href="/docs" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 4l-4 16"/></svg>FHIR API<span class="ext">↗</span></a>
+  </div>
+  <div class="sfoot">
+    <div class="env">● SYNTHETIC DATA</div>
+    <div>Model <b id="meta">…</b></div>
+    <div>Run <b id="runid">…</b></div>
+    <div style="margin-top:8px">Team <b>Datarex</b> · EXL × UCD 2026</div>
+  </div>
+</aside>
+
+<div class="app">
+  <div class="top">
+    <div class="crumb">Hospital estate<b id="ptitle">Overview</b></div>
+    <div class="sp"></div>
+    <span class="meta" id="checked"></span>
+    <span class="status"><span class="pulse" id="pulse"></span><span id="livetext">Connecting…</span></span>
+    <button class="btn pri" id="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span>Check estate</span></button>
+  </div>
+  <main>
+    <div id="stub" class="banner warn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Stub adapters loaded</b>These are hand-written fixtures, not agent output.</div></div>
+
+    <section id="estate">
+      <h2 class="pt">Integration estate</h2>
+      <p class="lead">Every connector below was built by AI agents, passed the same 14-check contract and was approved by a person before going live.</p>
+      <div class="kpis" id="kpis"></div>
+      <div class="panel" style="margin-bottom:20px">
+        <div class="ph"><h3>Live topology</h3><span class="small">Source systems → integration fabric → one FHIR R4 API</span></div>
+        <div class="topo" id="topo"></div>
+        <div class="legend"><span><i></i>Live, data flowing</span><span><i class="b"></i>Offline, circuit open</span></div>
       </div>
-      <div id="record"><div class="card empty"><div class="big-ico">🩺</div>Select a patient to see one record assembled from every source system.</div></div>
-    </div>
-  </section>
-</main>
+      <div class="panel">
+        <div class="ph"><h3>Connectors</h3><span class="sp"></span><span class="small" id="sub">Re-probes every source and re-runs the validation contract on demand.</span></div>
+        <div id="systems"></div>
+      </div>
+    </section>
+
+    <section id="patient" hidden>
+      <div class="two">
+        <div class="panel plist">
+          <div class="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input type="search" id="q" placeholder="Search name or MRN" aria-label="Search patients"></div>
+          <div class="pcount" id="pcount">Loading patients…</div>
+          <ul class="people" id="people"></ul>
+        </div>
+        <div id="record"><div class="panel empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><div>Select a patient to see one record assembled from every source system.</div></div></div>
+      </div>
+    </section>
+  </main>
+</div>
+
 <script>
 const $ = id => document.getElementById(id);
 function h(tag, attrs, ...kids) {
@@ -178,75 +244,108 @@ function h(tag, attrs, ...kids) {
   return el;
 }
 const api = async (path, opts) => { const r = await fetch(path, opts); if (!r.ok) throw new Error(path + " -> HTTP " + r.status); return r.json(); };
-let sources = [];                       // system ids in estate order, for stable colours
-let estate = {};
+const esc = s => String(s).replace(/[&<>"]/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;"}[c]));
+let sources = [], estate = {};
 const kOf = id => { const i = sources.indexOf(String(id || "").replace("urn:system:", "")); return "k" + (i < 0 || i > 3 ? 4 : i); };
+const COL = ["#2563eb", "#059669", "#ea580c", "#7c3aed", "#475569"];
 const srcBadge = uri => { const id = String(uri || "").replace("urn:system:", ""); return h("span", {class: "src " + kOf(id)}, id); };
 const pct = v => v === null || v === undefined ? "n/a" : (Math.round(v * 1000) / 10) + "%";
 const fmt = n => Number(n).toLocaleString("en-IE");
 
-const KINDS = {http: "REST API", sqlite: "Legacy SQL database, no API", hl7v2_files: "HL7 v2 message feed", delimited_files: "Nightly flat-file export"};
+const KINDS = {http: "REST API", sqlite: "Legacy SQL database", hl7v2_files: "HL7 v2 message feed", delimited_files: "Nightly flat files"};
 const PATTERNS = {api_facade: "Wrap its API", database_polling: "Poll the database", message_feed_ingest: "Read the message feed", file_drop_ingest: "Collect nightly files"};
+const SVG = (p, w) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="' + (w || 2) + '" stroke-linecap="round" stroke-linejoin="round">' + p + '</svg>';
 const ICONS = {
-  http: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg>',
-  sqlite: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/></svg>',
-  hl7v2_files: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3-8 4 16 3-8h4"/></svg>',
-  delimited_files: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h8"/></svg>'
+  http: SVG('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>'),
+  sqlite: SVG('<ellipse cx="12" cy="5.5" rx="8" ry="3"/><path d="M4 5.5v13c0 1.7 3.6 3 8 3s8-1.3 8-3v-13M4 12c0 1.7 3.6 3 8 3s8-1.3 8-3"/>'),
+  hl7v2_files: SVG('<path d="M3 12h4l3-8 4 16 3-8h4"/>'),
+  delimited_files: SVG('<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6M8 13h8M8 17h8"/>')
+};
+const KICO = {
+  sys: SVG('<rect x="3" y="4" width="18" height="6" rx="1.5"/><rect x="3" y="14" width="18" height="6" rx="1.5"/><path d="M7 7h.01M7 17h.01"/>'),
+  rec: SVG('<path d="M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/>'),
+  acc: SVG('<path d="M20 6 9 17l-5-5"/>', 2.4),
+  ppl: SVG('<path d="M12 3 4 6v6c0 5 3.4 8.4 8 9 4.6-.6 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>')
 };
 
+const isDown = s => (s.circuit || {}).state === "open" || (s.live || {}).status === "down";
 function setLive(up, total) {
-  const ok = total && up === total;
-  $("livechip").querySelector(".dot").classList.toggle("bad", !ok);
+  $("pulse").classList.toggle("bad", !(total && up === total));
   $("livetext").textContent = total ? up + " of " + total + " systems live" : "No systems live";
+}
+
+// ---------------------------------------------------------------- topology
+function drawTopo(systems, override) {
+  const ids = Object.keys(systems), n = ids.length || 1;
+  const W = 1000, rowH = 60, H = Math.max(n * rowH + 20, 220), mid = H / 2;
+  const y = i => 10 + i * rowH + (H - 20 - n * rowH) / 2;
+  const sw = 290, cx = 415, cw = 220, ch = 104, ax = 735, aw = 255;
+  let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Topology of source systems feeding the integration fabric">';
+  ids.forEach((id, i) => {
+    const down = override ? !!override[id] : isDown(systems[id]);
+    const sy = y(i) + 23, x1 = 10 + sw;
+    s += '<path class="flow ' + (down ? 'bad' : 'ok anim') + '" d="M' + x1 + ' ' + sy + ' C ' + (x1 + 60) + ' ' + sy + ', ' + (cx - 60) + ' ' + mid + ', ' + cx + ' ' + mid + '"/>';
+  });
+  s += '<path class="flow ok anim" d="M' + (cx + cw) + ' ' + mid + ' L ' + ax + ' ' + mid + '"/>';
+  ids.forEach((id, i) => {
+    const sys = systems[id], down = override ? !!override[id] : isDown(sys), c = COL[i > 3 ? 4 : i], yy = y(i);
+    s += '<g class="node"><rect x="10" y="' + yy + '" width="' + sw + '" height="46" rx="10" style="' + (down ? 'stroke:#f6c1c1;fill:#fdeeee' : '') + '"/>' +
+      '<rect x="10" y="' + (yy + 10) + '" width="3" height="26" rx="1.5" style="fill:' + (down ? '#dc2626' : c) + ';stroke:none"/>' +
+      '<text x="26" y="' + (yy + 20) + '" font-size="13" font-weight="600" fill="#0b1220">' + esc((sys.name || id).replace(/\s*\(.*\)$/, "").replace("Patient administration ", "Admissions ")) + '</text>' +
+      '<text x="26" y="' + (yy + 36) + '" font-size="11.5" fill="' + (down ? '#dc2626' : '#64748b') + '">' + esc(down ? "Offline · circuit open" : (KINDS[sys.kind] || sys.kind)) + '</text>' +
+      '<circle cx="' + (sw - 6) + '" cy="' + (yy + 23) + '" r="4" fill="' + (down ? '#dc2626' : '#059669') + '"/></g>';
+  });
+  s += '<g><rect x="' + cx + '" y="' + (mid - ch / 2) + '" width="' + cw + '" height="' + ch + '" rx="14" fill="#0a1422"/>' +
+    '<text x="' + (cx + cw / 2) + '" y="' + (mid - 14) + '" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">Integration Fabric</text>' +
+    '<text x="' + (cx + cw / 2) + '" y="' + (mid + 6) + '" text-anchor="middle" font-size="11.5" fill="#9fb0c3">Scatter-gather gateway</text>' +
+    '<text x="' + (cx + cw / 2) + '" y="' + (mid + 28) + '" text-anchor="middle" font-size="10.5" fill="#5eead4">timeouts · retries · breakers · cache</text></g>';
+  s += '<g class="node"><rect x="' + ax + '" y="' + (mid - 40) + '" width="' + aw + '" height="80" rx="12" style="stroke:#99e3da;fill:#e6f6f4"/>' +
+    '<text x="' + (ax + 16) + '" y="' + (mid - 13) + '" font-size="14" font-weight="700" fill="#0f766e">Unified FHIR R4 API</text>' +
+    '<text x="' + (ax + 16) + '" y="' + (mid + 7) + '" font-size="11" fill="#334155" font-family="ui-monospace,Menlo,monospace">/fhir/Patient/{mrn}/everything</text>' +
+    '<text x="' + (ax + 16) + '" y="' + (mid + 25) + '" font-size="11.5" fill="#64748b">One record per patient</text></g>';
+  s += '</svg>';
+  $("topo").innerHTML = s;
 }
 
 // ---------------------------------------------------------------- estate
 async function loadEstate() {
   const systems = await api("/systems");
-  estate = systems;
-  sources = Object.keys(systems);
+  estate = systems; sources = Object.keys(systems);
   const box = $("systems"); box.replaceChildren();
-  if (!sources.length) { $("kpis").replaceChildren(); setLive(0, 0); box.append(h("div", {class: "card empty"}, "No promoted systems yet. Run the agent pipeline: python -m fabric demo")); return; }
-  $("stub").hidden = !Object.values(systems).some(s => s.stub);
-  const models = [...new Set(Object.values(systems).map(s => String(s.model || "").split(" via ")[0]).filter(Boolean))];
-  $("meta").textContent = "Synthetic data" + (models.length ? " · " + models.join(", ") : "");
-
-  // headline numbers
+  if (!sources.length) { $("kpis").replaceChildren(); $("topo").replaceChildren(); setLive(0, 0); box.append(h("div", {class: "empty"}, "No promoted systems yet. Run the agent pipeline: python -m fabric demo")); return; }
   const vals = Object.values(systems);
-  const healthy = vals.filter(s => !s.health || s.health.healthy !== false).filter(s => (s.circuit || {}).state !== "open").length;
+  $("stub").hidden = !vals.some(s => s.stub);
+  const models = [...new Set(vals.map(s => String(s.model || "").split(" via ")[0]).filter(Boolean))];
+  $("meta").textContent = models.join(", ") || "n/a";
+  $("runid").textContent = [...new Set(vals.map(s => s.run_id).filter(Boolean))].join(", ") || "n/a";
+
+  const live = vals.filter(s => !isDown(s)).length;
+  const passing = vals.filter(s => !s.health || s.health.healthy !== false).length;
   const records = vals.reduce((a, s) => a + Object.values(s.counts || {}).reduce((x, y) => x + y, 0), 0);
   let correct = 0, total = 0;
   for (const s of vals) for (const t of Object.values(((s.health || {}).evaluation || {}).fields || {})) { correct += t.correct || 0; total += (t.correct || 0) + (t.wrong || 0) + (t.absent || 0); }
   const repairs = vals.reduce((a, s) => a + (s.repair_rounds || 0), 0);
   const approved = vals.filter(s => s.approved_by).length;
-  setLive(healthy, vals.length);
+  setLive(live, vals.length);
+  const kpi = (ico, label, v, sub) => h("div", {class: "panel kpi"}, h("div", {class: "h"}, label, h("span", {class: "ico", html: KICO[ico]})), h("div", {class: "v"}, ...v), h("div", {class: "s"}, ...sub));
   $("kpis").replaceChildren(
-    h("div", {class: "kpi hi"}, h("div", {class: "v"}, healthy, h("small", {}, " / " + vals.length)), h("div", {class: "l"}, "systems connected and passing all 14 checks")),
-    h("div", {class: "kpi"}, h("div", {class: "v"}, fmt(records)), h("div", {class: "l"}, "patient, visit, lab and prescription records served")),
-    h("div", {class: "kpi"}, h("div", {class: "v"}, total ? fmt(correct) : pct(vals[0].accuracy), total ? h("small", {}, " / " + fmt(total)) : null), h("div", {class: "l"}, "values match the answer key the AI never saw")),
-    h("div", {class: "kpi"}, h("div", {class: "v"}, approved, h("small", {}, " / " + vals.length)), h("div", {class: "l"}, "approved by a person · " + repairs + " AI self-repair" + (repairs === 1 ? "" : "s"))));
+    kpi("sys", "Connectors live", [String(live), h("small", {}, " / " + vals.length)], [h("span", {class: "up"}, passing + "/" + vals.length), " passing all 14 checks"]),
+    kpi("rec", "Records served", [fmt(records)], ["Patients, visits, labs, prescriptions"]),
+    kpi("acc", "Values correct", [total ? fmt(correct) : pct(vals[0].accuracy), total ? h("small", {}, " / " + fmt(total)) : ""], [h("span", {class: "up"}, total ? pct(correct / total) : ""), " vs. answer key the AI never saw"]),
+    kpi("ppl", "Human-approved", [String(approved), h("small", {}, " / " + vals.length)], [repairs + " AI self-repair" + (repairs === 1 ? "" : "s") + " · 3 gates per system"]));
+  drawTopo(systems);
 
+  const tb = h("tbody", {});
   for (const [id, s] of Object.entries(systems)) {
-    const hs = s.health;
-    const circ = (s.circuit || {}).state;
-    const pill = circ === "open" ? h("span", {class: "pill bad"}, "Offline · circuit open")
-      : !hs ? h("span", {class: "pill na"}, "Not checked yet")
+    const hs = s.health, down = isDown(s);
+    const pill = down ? h("span", {class: "pill bad"}, "Offline")
+      : !hs ? h("span", {class: "pill na"}, "Not checked")
       : hs.healthy ? h("span", {class: "pill ok"}, "Healthy")
       : h("span", {class: "pill bad"}, hs.drift ? "Source drifted" : "Contract failing");
+    const lv = s.live || {};
+    const latency = lv.status === "up" && lv.last_ms != null ? Math.round(lv.last_ms) + " ms" : lv.status === "down" ? (lv.last_error || "error") : "–";
     const counts = Object.entries(s.counts || {}).map(([k, v]) => fmt(v) + " " + k).join(" · ");
-    const live = s.live || {};
-    const liveTxt = live.status === "up" ? "Responding" + (live.last_ms != null ? " · " + Math.round(live.last_ms) + " ms" : "")
-      : live.status === "down" ? "Down · " + (live.last_error || "error") : "Not called yet";
-    const card = h("div", {class: "card sys " + kOf(id)},
-      h("div", {class: "top"}, h("div", {class: "ic", html: ICONS[s.kind] || ICONS.http}),
-        h("div", {}, h("h3", {}, s.name || id), h("div", {class: "kind"}, KINDS[s.kind] || s.kind || ""))),
-      h("div", {class: "big"}, h("span", {class: "v"}, pct(s.accuracy)), h("span", {class: "l"}, "values correct · " + pct(s.coverage) + " covered")),
-      h("dl", {},
-        h("dt", {}, "AI's method"), h("dd", {}, PATTERNS[s.pattern] || s.pattern || "n/a"),
-        h("dt", {}, "Serves"), h("dd", {}, counts || "n/a"),
-        h("dt", {}, "Self-repairs"), h("dd", {}, String(s.repair_rounds ?? "n/a")),
-        h("dt", {}, "Live"), h("dd", {}, liveTxt)),
-      h("div", {class: "foot"}, pill, s.approved_by ? h("span", {class: "pill na"}, "Approved by " + s.approved_by) : null, srcBadge(id)));
+    const first = h("td", {}, h("div", {class: "sysn " + kOf(id)}, h("span", {class: "sic", html: ICONS[s.kind] || ICONS.http}), h("div", {}, h("b", {}, s.name || id), h("span", {}, KINDS[s.kind] || s.kind || ""))));
     if (hs && !hs.healthy) {
       const d = hs.drift || {};
       const lines = [].concat((d.removed || []).map(x => "- removed from source: " + x), (d.added || []).map(x => "+ new in source: " + x),
@@ -254,17 +353,26 @@ async function loadEstate() {
       const ev = hs.evaluation;
       if (ev && !ev.clean) for (const [k, t] of Object.entries(ev.fields)) if (t.wrong || t.absent) lines.push("data: " + k + " " + t.wrong + " wrong, " + t.absent + " missing");
       if (hs.error) lines.push(hs.error);
-      card.append(h("div", {class: "changes"}, lines.join("\n")), h("div", {class: "small", style: "margin-top:8px"}, "Heal: python -m fabric check --heal"));
+      lines.push("Heal: python -m fabric check --heal");
+      first.append(h("div", {class: "changes"}, lines.join("\n")));
     }
-    box.append(card);
+    tb.append(h("tr", {},
+      first,
+      h("td", {}, PATTERNS[s.pattern] || s.pattern || "n/a", h("div", {class: "small"}, (s.repair_rounds || 0) + " self-repair" + (s.repair_rounds === 1 ? "" : "s"))),
+      h("td", {class: "num"}, counts || "n/a"),
+      h("td", {}, h("span", {class: "acc num"}, pct(s.accuracy)), h("div", {class: "meter"}, h("i", {style: "width:" + Math.round((s.accuracy || 0) * 100) + "%"}))),
+      h("td", {class: "mono"}, latency),
+      h("td", {}, pill),
+      h("td", {}, srcBadge(id))));
   }
-  const times = Object.values(systems).map(s => s.health && s.health.checked_at).filter(Boolean).sort();
-  if (times.length) $("checked").textContent = "Last checked " + times[times.length - 1].replace("T", " ").replace("+00:00", " UTC");
+  box.append(h("table", {}, h("thead", {}, h("tr", {}, ...["Connector", "AI's method", "Serves", "Accuracy", "Latency", "Status", "Source id"].map(t => h("th", {}, t)))), tb));
+  const times = vals.map(s => s.health && s.health.checked_at).filter(Boolean).sort();
+  if (times.length) $("checked").textContent = "Checked " + times[times.length - 1].slice(0, 16).replace("T", " ") + " UTC";
 }
 $("check").addEventListener("click", async () => {
-  const b = $("check"); b.disabled = true; b.textContent = "Checking …";
+  const b = $("check"), t = b.querySelector("span"); b.disabled = true; t.textContent = "Checking…";
   try { await api("/check", {method: "POST"}); await loadEstate(); } catch (e) { $("checked").textContent = String(e); }
-  b.disabled = false; b.textContent = "Check estate now";
+  b.disabled = false; t.textContent = "Check estate";
 });
 
 // ---------------------------------------------------------------- patient record
@@ -281,14 +389,17 @@ async function loadPatients() {
 function drawPeople() {
   const q = $("q").value.trim().toLowerCase();
   const list = $("people"); list.replaceChildren();
+  let shown = 0;
   for (const p of patients) {
     if (q && !(nameOf(p).toLowerCase().includes(q) || String(mrnOf(p)).includes(q))) continue;
-    const li = h("li", {tabindex: "0"}, h("span", {class: "av"}, initials(p)), h("div", {}, h("div", {class: "nm"}, nameOf(p)), h("div", {class: "small"}, "MRN " + mrnOf(p))));
+    shown++;
+    const li = h("li", {tabindex: "0"}, h("span", {class: "av"}, initials(p)), h("div", {}, h("div", {class: "nm"}, nameOf(p)), h("div", {class: "mr"}, "MRN " + mrnOf(p))));
     const open = () => { for (const x of list.children) x.classList.remove("on"); li.classList.add("on"); showRecord(p); };
     li.addEventListener("click", open); li.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
     list.append(li);
   }
-  if (!list.children.length) list.append(h("li", {class: "small"}, "No match"));
+  $("pcount").textContent = shown + (shown === patients.length ? " patients" : " of " + patients.length + " patients");
+  if (!shown) list.append(h("li", {class: "small"}, "No match"));
 }
 $("q").addEventListener("input", drawPeople);
 
@@ -303,14 +414,14 @@ function row(r) {
   }
   if (r.resourceType === "Observation") {
     const q = r.valueQuantity || {}; const flag = code((r.interpretation || [])[0]).code;
-    return {when: r.effectiveDateTime, what: code(r.code).display || code(r.code).code, detail: (q.value ?? "") + " " + (q.unit || ""), flag: flag === "H" ? "High" : flag === "L" ? "Low" : "", note: r.status !== "final" ? r.status : ""};
+    return {when: r.effectiveDateTime, what: code(r.code).display || code(r.code).code, detail: (q.value ?? "") + " " + (q.unit || ""), flag: flag === "H" ? "HIGH" : flag === "L" ? "LOW" : "", note: r.status !== "final" ? r.status : ""};
   }
   if (r.resourceType === "Condition") return {when: r.onsetDateTime, what: code(r.code).display || code(r.code).code, detail: "Problem list: " + (code(r.clinicalStatus).code || "")};
   if (r.resourceType === "MedicationRequest") return {when: r.authoredOn, what: code(r.medicationCodeableConcept).display || code(r.medicationCodeableConcept).code, detail: ((r.dosageInstruction || [{}])[0].text || ""), note: r.status};
   return {when: "", what: r.resourceType, detail: ""};
 }
 async function showRecord(p) {
-  const box = $("record"); box.replaceChildren(h("div", {class: "card empty"}, "Assembling record from every source …"));
+  const box = $("record"); box.replaceChildren(h("div", {class: "panel empty"}, "Assembling record from every source…"));
   const bundle = await api("/fhir/Patient/" + encodeURIComponent(mrnOf(p)) + "/everything");
   const outcomes = (bundle.entry || []).filter(e => e.search && e.search.mode === "outcome").map(e => e.resource);
   const all = (bundle.entry || []).filter(e => !e.search || e.search.mode !== "outcome").map(e => e.resource);
@@ -318,61 +429,63 @@ async function showRecord(p) {
   const bySource = {};
   for (const r of all) { const s = String((r.meta || {}).source || "").replace("urn:system:", ""); bySource[s] = (bySource[s] || 0) + 1; }
   const issues = outcomes.flatMap(o => o.issue || []);
-  // per-source state from the OperationOutcome: "<system> <Type>: missing|stale data (detail)"
-  const state = {};
+  const state = {};   // "<system> <Type>: missing|stale data (detail)"
   for (const i of issues) { const d = String(i.diagnostics || ""); const sid = d.split(" ")[0]; const st = d.includes("stale data") ? "stale" : "down"; if (state[sid] !== "down") state[sid] = st; }
-  const addr = (p.address || [{}])[0];
-  const age = ageOf(p.birthDate);
   const ids = sources.length ? sources : Object.keys(bySource);
-  const head = h("div", {class: "card"},
-    h("div", {class: "phead"}, h("span", {class: "av lg"}, initials(p)),
+  if (ids.length) setLive(ids.length - ids.filter(sid => state[sid]).length, ids.length);
+  const addr = (p.address || [{}])[0], age = ageOf(p.birthDate);
+
+  const head = h("div", {class: "panel", style: "margin-bottom:16px"},
+    h("div", {class: "phd"}, h("div", {class: "row"}, h("span", {class: "av lg"}, initials(p)),
       h("div", {}, h("h2", {}, nameOf(p)),
         h("div", {class: "facts"},
-          h("span", {}, "MRN ", h("b", {}, mrnOf(p))),
+          h("span", {}, "MRN ", h("span", {class: "mono"}, mrnOf(p))),
           p.gender ? h("span", {}, h("b", {}, p.gender[0].toUpperCase() + p.gender.slice(1))) : null,
-          p.birthDate ? h("span", {}, "Born ", h("b", {}, p.birthDate), age != null ? " (" + age + ")" : "") : null,
-          addr.city ? h("span", {}, [addr.city, addr.country].filter(Boolean).join(", ")) : null))),
-    h("div", {class: "srcrow"}, ids.map(sid => {
-      const st = state[sid]; const n = bySource[sid] || 0; const sys = estate[sid] || {};
-      return h("div", {class: "srcbox " + kOf(sid) + (st ? " " + st : "")},
-        h("div", {class: "n"}, n), h("div", {class: "t"}, (sys.name || sid).replace(/\s*\(.*\)$/, "")),
-        h("div", {class: "st"}, st === "down" ? "● Offline, data missing" : st === "stale" ? "● Offline, cached copy" : "● Live"));
+          p.birthDate ? h("span", {}, "DOB ", h("b", {}, p.birthDate), age != null ? " · " + age + " yrs" : "") : null,
+          addr.city ? h("span", {}, [addr.city, addr.country].filter(Boolean).join(", ")) : null)))),
+    h("div", {class: "srcs"}, ids.map(sid => {
+      const st = state[sid], sys = estate[sid] || {};
+      return h("div", {class: "sb " + kOf(sid) + (st ? " " + st : "")},
+        h("div", {class: "n"}, bySource[sid] || 0), h("div", {class: "t"}, (sys.name || sid).replace(/\s*\(.*\)$/, "")),
+        h("div", {class: "st"}, st === "down" ? "Offline · data missing" : st === "stale" ? "Offline · cached copy" : "Live"));
     })),
-    h("div", {class: "small", style: "margin-top:12px"}, Object.keys(bySource).filter(Boolean).length + " source systems contribute to this record. Demographics from ", srcBadge((p.meta || {}).source), ", matched on MRN."));
+    h("div", {class: "foot"}, Object.keys(bySource).filter(Boolean).length + " source systems contribute · demographics from ", srcBadge((p.meta || {}).source), " · matched on MRN"));
+
   let active = "All";
-  const filters = h("div", {class: "filters"});
+  const tabs = h("div", {class: "tabs"});
   const body = h("tbody", {});
   const draw = () => {
-    filters.replaceChildren(...["All", ...Object.keys(KIND).filter(k => rest.some(r => r.resourceType === k))].map(k => {
+    tabs.replaceChildren(...["All", ...Object.keys(KIND).filter(k => rest.some(r => r.resourceType === k))].map(k => {
       const n = k === "All" ? rest.length : rest.filter(r => r.resourceType === k).length;
-      const b = h("button", {class: k === active ? "on" : ""}, (KIND[k] || "All") + " · " + n);
+      const b = h("button", {class: k === active ? "on" : ""}, k === "All" ? "All records" : KIND[k], h("span", {class: "c"}, n));
       b.addEventListener("click", () => { active = k; draw(); }); return b; }));
     const rows = rest.filter(r => active === "All" || r.resourceType === active).map(r => ({r, v: row(r)})).sort((a, b) => String(b.v.when || "").localeCompare(String(a.v.when || "")));
     body.replaceChildren(...rows.map(({r, v}) => h("tr", {},
       h("td", {class: "when"}, day(v.when)), h("td", {class: "what"}, v.what),
-      h("td", {}, v.detail, v.flag ? h("span", {class: "flag" + (v.flag === "Low" ? " lo" : "")}, v.flag) : null, v.note ? h("span", {class: "note"}, "(" + v.note + ")") : null),
+      h("td", {class: "num"}, v.detail, v.flag ? h("span", {class: "flag" + (v.flag === "LOW" ? " lo" : "")}, v.flag) : null, v.note ? h("span", {class: "note"}, v.note) : null),
       h("td", {}, srcBadge((r.meta || {}).source)))));
     if (!rows.length) body.append(h("tr", {}, h("td", {colspan: "4", class: "empty"}, "No clinical records returned")));
   };
   draw();
-  if (ids.length) setLive(ids.length - ids.filter(sid => state[sid]).length, ids.length);
-  const anyDown = Object.values(state).includes("down");
-  const offline = Object.keys(state);
-  const warn = issues.length ? h("div", {class: "banner " + (anyDown ? "bad" : "warn")}, h("span", {class: "ico"}, "⚠"),
+  const offline = Object.keys(state), anyDown = Object.values(state).includes("down");
+  const warn = issues.length ? h("div", {class: "banner " + (anyDown ? "bad" : "warn"), html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>'},
     h("div", {}, h("b", {}, "Partial record: " + offline.join(", ") + (offline.length === 1 ? " is" : " are") + " offline"),
-      "Everything else is shown. " + issues.map(i => i.diagnostics).join(" · "))) : null;
-  box.replaceChildren(...[warn].filter(Boolean), head, filters, h("div", {class: "card tablecard"}, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Date"), h("th", {}, "Item"), h("th", {}, "Detail"), h("th", {}, "Source system"))), body)));
+      (anyDown ? "Data from the offline source is missing. " : "Showing the last good copy from the offline source. ") + "Everything else is live.",
+      h("div", {class: "small", style: "margin-top:4px;color:inherit;opacity:.8"}, issues.map(i => i.diagnostics).join(" · ")))) : null;
+  box.replaceChildren(...[warn].filter(Boolean), head,
+    h("div", {class: "panel"}, tabs, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Date"), h("th", {}, "Item"), h("th", {}, "Result / detail"), h("th", {}, "Source"))), body)));
 }
 
-// ---------------------------------------------------------------- tabs
+// ---------------------------------------------------------------- navigation
 function tab(name) {
   for (const t of ["estate", "patient"]) { $(t).hidden = t !== name; $("tab-" + t).classList.toggle("on", t === name); }
+  $("ptitle").textContent = name === "estate" ? "Overview" : "Patient records";
   if (name === "patient" && !patients.length) loadPatients().catch(e => { $("people").replaceChildren(h("li", {class: "small"}, String(e))); });
   if (name === "estate") loadEstate().catch(() => {});
 }
 $("tab-estate").addEventListener("click", () => tab("estate"));
 $("tab-patient").addEventListener("click", () => tab("patient"));
-loadEstate().catch(e => { $("systems").replaceChildren(h("div", {class: "card empty"}, String(e))); });
+loadEstate().catch(e => { $("systems").replaceChildren(h("div", {class: "empty"}, String(e))); });
 </script>
 </body>
 </html>
