@@ -6,6 +6,7 @@
     python -m fabric report [RUN_ID]          rebuild the HTML report for a run
     python -m fabric gateway                  serve the console and unified FHIR API on :8000
     python -m fabric check [--heal]           detect source drift; --heal re-integrates drifted systems
+    python -m fabric codes [--offline]        check that clinical codes are real (LOINC, RxNorm, SNOMED CT)
     python -m fabric handbuilt start|check ID time a hand-built adapter (the measured baseline)
 
 Common flags for run/demo:  --auto-approve  --stub  --no-cache  --reviewer NAME
@@ -59,6 +60,15 @@ def cmd_seed(args) -> None:
 
         dataset = generate(n_patients=args.patients)
     print("Mock systems built:", build_all(dataset))
+
+
+def cmd_codes(args) -> None:
+    from . import terminology
+
+    cfg = load_config()
+    ensure_mocks(cfg)
+    term = terminology.Terminology(server=args.server, offline=args.offline)
+    print(terminology.describe(terminology.check(cfg, term=term)))
 
 
 def _llm(args):
@@ -147,6 +157,11 @@ def main() -> None:
     parser = argparse.ArgumentParser(prog="python -m fabric", description=__doc__,
                                      formatter_class=argparse.RawDescriptionHelpFormatter)
     sub = parser.add_subparsers(dest="command", required=True)
+
+    codes = sub.add_parser("codes", help="check that emitted LOINC / RxNorm / SNOMED CT codes are real (advisory)")
+    codes.add_argument("--server", help="FHIR terminology server base URL (default: FABRIC_TX_SERVER or tx.fhir.org)")
+    codes.add_argument("--offline", action="store_true", help="use cached results only; no network")
+    codes.set_defaults(func=cmd_codes)
 
     seed = sub.add_parser("seed", help="build the mock source systems")
     seed.add_argument("--synthea", metavar="DIR", help="folder of Synthea FHIR R4 patient bundles to seed from")
