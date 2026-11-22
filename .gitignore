@@ -18,3 +18,7 @@ runs/20261113-175320/
 venv/
 .DS_Store
 *.egg-info/
+
+# Terminology check results (python -m fabric codes)
+generated/terminology.json
+generated/terminology-cache.json
