@@ -1,0 +1,49 @@
+name: cd
+# Manual only, so a push never deploys by surprise. Builds the gateway image, pushes it
+# to GitHub Container Registry and, if Azure credentials are configured, rolls it out to
+# an existing Azure Container App.
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_to_azure:
+        description: "Also deploy to Azure Container Apps (needs AZURE_CREDENTIALS, AZURE_RESOURCE_GROUP, AZURE_CONTAINERAPP)"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image: ${{ steps.meta.outputs.image }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install -r requirements.txt && python -m fabric seed && python -m pytest
+      - id: meta
+        run: echo "image=ghcr.io/${GITHUB_REPOSITORY,,}:${GITHUB_SHA::12}" >> "$GITHUB_OUTPUT"
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - run: docker build -t "${{ steps.meta.outputs.image }}" . && docker push "${{ steps.meta.outputs.image }}"
+
+  deploy:
+    needs: build
+    if: ${{ inputs.deploy_to_azure }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - run: >
+          az containerapp update
+          --name "${{ vars.AZURE_CONTAINERAPP }}"
+          --resource-group "${{ vars.AZURE_RESOURCE_GROUP }}"
+          --image "${{ needs.build.outputs.image }}"

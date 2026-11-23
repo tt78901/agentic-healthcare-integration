@@ -252,6 +252,19 @@ td.what{font-weight:550}
 .hdr.warn{background:var(--warnsoft);color:#7a4100}
 pre.json{margin:0;padding:16px 20px;max-height:calc(100vh - 420px);min-height:240px;overflow:auto;background:#0b1220;color:#cbd5e1;font:12.5px/1.55 var(--mono);border-radius:0 0 var(--r) var(--r);white-space:pre-wrap;word-break:break-word}
 pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pre.json .b{color:#f0abfc}
+.nbadge{margin-left:auto;background:#dc2626;color:#fff;border-radius:99px;font-size:11.5px;font-weight:700;padding:1px 8px;line-height:1.5}
+.bell{appearance:none;border:1px solid var(--line);background:#fff;border-radius:999px;width:38px;height:34px;display:grid;place-items:center;cursor:pointer;color:var(--ink2);position:relative}
+.bell svg{width:17px;height:17px}.bell:hover{background:#fafbfc}
+.bell.on{color:var(--bad);border-color:#f6c1c1;background:var(--badsoft);animation:shake .6s ease-in-out 2}
+@keyframes shake{25%{transform:rotate(-10deg)}75%{transform:rotate(10deg)}}
+.bbadge{position:absolute;top:-6px;right:-6px;background:#dc2626;color:#fff;border-radius:99px;font-size:11px;font-weight:700;min-width:18px;height:18px;display:grid;place-items:center;padding:0 5px;border:2px solid #fff}
+.sev{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:2px 8px;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em}
+.sev.critical{background:var(--badsoft);color:var(--bad)}.sev.warning{background:var(--warnsoft);color:var(--warn)}.sev.resolved{background:var(--oksoft);color:var(--ok)}
+.alrow{display:flex;gap:14px;align-items:flex-start;padding:14px 20px;border-bottom:1px solid var(--line2)}
+.alrow:last-child{border-bottom:0}
+.alrow .t{font-weight:600}.alrow .m{font-size:13.5px;color:var(--ink2);margin-top:2px}
+.alrow .w{margin-left:auto;font:12.5px var(--mono);color:var(--muted);white-space:nowrap}
+.banner .lnk{margin-left:auto;color:inherit;font-weight:600;white-space:nowrap;cursor:pointer;text-decoration:underline}
 .fhead{display:flex;align-items:flex-start;gap:16px;justify-content:space-between}
 .fhead .btn{text-decoration:none;flex:none;margin-top:2px}
 .framebox{overflow:hidden;padding:0}
@@ -269,6 +282,7 @@ pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pr
   <div class="nav">
     <button id="tab-estate" class="on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>Overview</button>
     <button id="tab-patient"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>Patient records</button>
+    <button id="tab-alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg>Alerts<span class="nbadge" id="alertcount" hidden>0</span></button>
   </div>
   <div class="sect">Evidence</div>
   <div class="nav">
@@ -290,6 +304,7 @@ pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pr
     <div class="crumb">Hospital estate<b id="ptitle">Overview</b></div>
     <div class="sp"></div>
     <span class="meta" id="checked"></span>
+    <button class="bell" id="bell" title="Alerts" aria-label="Alerts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/></svg><span class="bbadge" id="bellcount" hidden>0</span></button>
     <span class="status"><span class="pulse" id="pulse"></span><span id="livetext">Connecting…</span></span>
     <button class="btn pri" id="check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg><span>Check estate</span></button>
   </div>
@@ -297,6 +312,7 @@ pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pr
     <div id="stub" class="banner warn" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg><div><b>Stub adapters loaded</b>These are hand-written fixtures, not agent output.</div></div>
 
     <section id="estate">
+      <div id="alertbanner" class="banner bad" hidden></div>
       <h2 class="pt">Integration estate</h2>
       <p class="lead">Every connector below was built by AI agents, passed the same 14-check contract and was approved by a person before going live.</p>
       <div class="kpis" id="kpis"></div>
@@ -321,6 +337,14 @@ pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pr
         <div id="record"><div class="panel empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg><div>Select a patient to see one record assembled from every source system.</div></div></div>
       </div>
     </section>
+    <section id="alerts" hidden>
+      <h2 class="pt">Alerts</h2>
+      <p class="lead">The Operate stage tells people when something changes: a source going offline, a source's structure drifting, or a connector failing its contract. Each alert is raised once and clears itself when the condition ends.</p>
+      <div class="kpis" id="alertkpis"></div>
+      <div class="panel" style="margin-bottom:20px"><div class="ph"><h3>Active</h3><span class="sp"></span><span class="small" id="alertsched"></span></div><div id="alertactive"></div></div>
+      <div class="panel"><div class="ph"><h3>History</h3><span class="sp"></span><span class="small">generated/alerts.jsonl</span></div><div id="alerthist"></div></div>
+    </section>
+
     <section id="report" hidden>
       <div class="fhead"><div><h2 class="pt">Run report</h2><p class="lead">Evidence from agent run <span class="mono" id="rrun">…</span>: every stage, check, human decision and accuracy result, from the audit log.</p></div>
         <a class="btn" href="/report" target="_blank" rel="noopener">Open in new tab ↗</a></div>
@@ -504,9 +528,10 @@ async function loadEstate() {
   const times = vals.map(s => s.health && s.health.checked_at).filter(Boolean).sort();
   if (times.length) $("checked").textContent = "Checked " + times[times.length - 1].slice(0, 16).replace("T", " ") + " UTC";
 }
+$("bell").addEventListener("click", () => tab("alerts"));
 $("check").addEventListener("click", async () => {
   const b = $("check"), t = b.querySelector("span"); b.disabled = true; t.textContent = "Checking…";
-  try { await api("/check", {method: "POST"}); await loadEstate(); } catch (e) { $("checked").textContent = String(e); }
+  try { await api("/check", {method: "POST"}); await loadEstate(); await loadAlerts(); } catch (e) { $("checked").textContent = String(e); }
   b.disabled = false; t.textContent = "Check estate";
 });
 
@@ -723,9 +748,9 @@ $("resetdemo").addEventListener("click", async () => {
     const r = await fetch("/sources/reset", {method: "POST"}); if (!r.ok) throw new Error("HTTP " + r.status);
     for (const k of Object.keys(lastUpload)) delete lastUpload[k];
     redrawTopo();
-    toast("Demo data reset", "All four source systems rebuilt as they were; uploads removed.");
+    toast("Demo data reset", "All four source systems rebuilt as they were, uploads removed and every connector re-checked.");
     patients = []; if (!$("patient").hidden) { await loadPatients().catch(() => {}); if (currentPatient) await showRecord(currentPatient); }
-    loadEstate().catch(() => {});
+    loadEstate().catch(() => {}); loadAlerts().catch(() => {});
   } catch (e) { toast("Reset failed", String(e.message || e), true); }
   b.disabled = false; b.classList.remove("arm"); b.textContent = "Reset demo data";
 });
@@ -930,9 +955,51 @@ function showEndpoint(e) {
     meta, out);
 }
 
+// ---------------------------------------------------------------- alerts (Operate stage)
+let alertSig = null;
+const ago = iso => { const s = Math.max(0, (Date.now() - new Date(iso)) / 1000); return s < 60 ? Math.round(s) + "s ago" : s < 3600 ? Math.round(s / 60) + " min ago" : Math.round(s / 3600) + " h ago"; };
+const hhmm = iso => String(iso || "").slice(11, 19);
+async function loadAlerts() {
+  const d = await api("/alerts?limit=100");
+  const act = d.active || [], n = act.length;
+  for (const id of ["alertcount", "bellcount"]) { $(id).hidden = !n; $(id).textContent = n; }
+  $("bell").classList.toggle("on", n > 0);
+  const sig = act.map(a => a.id).join(",");
+  const changed = alertSig !== null && sig !== alertSig;
+  alertSig = sig;
+  // overview banner
+  const ban = $("alertbanner");
+  ban.hidden = !n;
+  if (n) ban.replaceChildren(h("span", {html: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 9v4M12 17h.01M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg>'}),
+    h("div", {}, h("b", {}, n + " active alert" + (n === 1 ? "" : "s") + ": " + act.map(a => a.system + " · " + a.title.toLowerCase()).join("; ")), act[0].message),
+    h("a", {class: "lnk", onclick: () => tab("alerts")}, "View alerts →"));
+  // alerts page
+  const sch = d.schedule || {};
+  $("alertsched").textContent = sch.every_minutes ? "Automatic checks every " + sch.every_minutes + " min" + (sch.last_run ? " · last " + ago(sch.last_run) : "") : "Automatic checks off · start with --check-every MIN";
+  const crit = act.filter(a => a.severity === "critical").length;
+  const resolved = (d.recent || []).filter(e => e.status === "resolved").length;
+  const kpi = (label, v, sub, cls) => h("div", {class: "panel kpi"}, h("div", {class: "h"}, label), h("div", {class: "v", style: cls || ""}, String(v)), h("div", {class: "s"}, sub));
+  $("alertkpis").replaceChildren(
+    kpi("Active alerts", n, n ? crit + " critical" : "All systems normal", n ? "color:var(--bad)" : "color:var(--ok)"),
+    kpi("Resolved", resolved, "Cleared automatically when the condition ended"),
+    kpi("Automatic checks", sch.every_minutes ? "Every " + sch.every_minutes + "m" : "Off", sch.every_minutes ? "Drift and contract re-checked on a schedule" : "Run: python -m fabric gateway --check-every 15"),
+    kpi("Notifications", d.webhook_configured ? "On" : "Console", d.webhook_configured ? "Posted to the Slack / Teams webhook" : "Set FABRIC_ALERT_WEBHOOK for Slack / Teams"));
+  const hist = d.recent || [];
+  const closed = new Set(hist.filter(e => e.status === "resolved").map(e => e.id));   // raised, since resolved: grey, not red
+  const sev = e => e.status === "resolved" ? ["resolved", "Resolved"] : closed.has(e.id) ? ["resolved", "Raised"] : [e.severity, e.severity];
+  const row = e => h("div", {class: "alrow"},
+    h("span", {class: "sev " + sev(e)[0]}, sev(e)[1]),
+    h("div", {}, h("div", {class: "t"}, e.title, " · ", srcBadge(e.system)), h("div", {class: "m"}, e.message)),
+    h("span", {class: "w", title: e.at}, hhmm(e.at) + " UTC · " + ago(e.at)));
+  $("alertactive").replaceChildren(...(n ? act.map(row) : [h("div", {class: "empty", style: "padding:28px"}, "No active alerts. Every source is responding and every connector passes its contract.")]));
+  $("alerthist").replaceChildren(...(hist.length ? hist.map(row) : [h("div", {class: "empty", style: "padding:28px"}, "No alerts yet.")]));
+  if (changed && !$("estate").hidden) loadEstate().catch(() => {});
+}
+setInterval(() => loadAlerts().catch(() => {}), 5000);
+
 // ---------------------------------------------------------------- navigation
-const PAGES = {estate: "Overview", patient: "Patient records", report: "Run report", api: "FHIR API"};
-const HASH = {estate: "overview", patient: "patients", report: "report", api: "api"};
+const PAGES = {estate: "Overview", patient: "Patient records", alerts: "Alerts", report: "Run report", api: "FHIR API"};
+const HASH = {estate: "overview", patient: "patients", alerts: "alerts", report: "report", api: "api"};
 function styleFrame(f) {
   try {   // same origin: blend the embedded page into the app
     const d = f.contentDocument; if (!d || d.getElementById("fabric-embed")) return;
@@ -952,12 +1019,14 @@ function tab(name, push) {
   if (f && !f.src) { f.addEventListener("load", () => styleFrame(f)); f.src = f.dataset.src; }
   if (name === "patient" && !patients.length) loadPatients().catch(e => { $("people").replaceChildren(h("li", {class: "small"}, String(e))); });
   if (name === "estate") loadEstate().catch(() => {});
+  if (name === "alerts") loadAlerts().catch(() => {});
 }
 for (const t of Object.keys(PAGES)) $("tab-" + t).addEventListener("click", () => tab(t));
 window.addEventListener("hashchange", () => tab(Object.keys(HASH).find(k => "#" + HASH[k] === location.hash) || "estate", false));
 const startPage = Object.keys(HASH).find(k => "#" + HASH[k] === location.hash);
 if (startPage && startPage !== "estate") tab(startPage, false);
 loadSources().finally(() => loadEstate().catch(e => { $("systems").replaceChildren(h("div", {class: "empty"}, String(e))); }));
+loadAlerts().catch(() => {});
 </script>
 </body>
 </html>

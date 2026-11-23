@@ -157,8 +157,11 @@ def cmd_gateway(args) -> None:
         print("Demo uploads OFF")
     else:
         print("Demo uploads ON: Upload buttons in the Overview topology (switch off with --no-demo-uploads)")
+    if args.check_every:
+        os.environ["FABRIC_CHECK_EVERY"] = str(args.check_every)  # read by the gateway at startup
+        print(f"Automatic estate checks every {args.check_every:g} min (alerts on drift or contract failure)")
     print(f"Console: http://127.0.0.1:{args.port}/console   FHIR API: http://127.0.0.1:{args.port}/docs")
-    uvicorn.run("fabric.gateway:app", host="127.0.0.1", port=args.port, log_level="warning")
+    uvicorn.run("fabric.gateway:app", host=args.host, port=args.port, log_level="warning")
 
 
 def main() -> None:
@@ -209,6 +212,9 @@ def main() -> None:
 
     gw = sub.add_parser("gateway", help="serve the unified FHIR API")
     gw.add_argument("--port", type=int, default=8000)
+    gw.add_argument("--host", default="127.0.0.1", help="interface to bind (0.0.0.0 inside a container)")
+    gw.add_argument("--check-every", type=float, metavar="MIN",
+                    help="re-check the estate automatically every MIN minutes and alert on changes")
     gw.add_argument("--no-demo-uploads", action="store_true",
                     help="hide the console's demo upload buttons and refuse uploads")
     gw.set_defaults(func=cmd_gateway)

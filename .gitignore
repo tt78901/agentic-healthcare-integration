@@ -8,6 +8,7 @@ runs/.mask_salt
 runs/**/resources.json
 baseline/*/_work/
 generated/status.json
+generated/alerts.jsonl
 
 # Earlier runs not part of the submission (stub smoke test, run before the API key was set)
 runs/20261113-175100/
