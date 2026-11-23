@@ -1,5 +1,12 @@
 name: ci
+# Continuous integration: every push (any branch) and every pull request installs the project,
+# builds the Synthea estate and runs the full test suite (validation contract, uploads and
+# quarantine, alerts, gateway resilience, privacy). A red check blocks a broken merge.
 on: [push, pull_request]
+
+permissions:
+  contents: read
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -8,8 +15,8 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+          cache: pip
       - run: pip install -r requirements.txt
       - run: python -m fabric seed
-      # Unit tests plus the full pipeline with the stub model, then the contract
-      # test of every promoted adapter in generated/ (if any are committed).
-      - run: python -m pytest
+      # tests/ plus the contract test of every promoted adapter in generated/ (see pytest.ini)
+      - run: python -m pytest -q

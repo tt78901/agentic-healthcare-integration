@@ -10,9 +10,11 @@ Run:  python -m fabric gateway   (http://127.0.0.1:8000, docs at /docs)
 """
 from __future__ import annotations
 
+import datetime as dt
 import importlib.util
 import json
 import logging
+import os
 import threading
 import time
 import uuid
@@ -24,6 +26,7 @@ from pathlib import Path
 from fastapi import FastAPI, HTTPException, Query, Request, Response
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 
+from .alerts import AlertManager
 from .audit import now
 from .config import GENERATED, RUNS, load_config
 from .resilience import CircuitBreaker, SingleFlight, TTLCache
@@ -58,6 +61,8 @@ _adapters: dict[str, object] = {}
 _adapter_lock = threading.Lock()
 _cache = TTLCache(CACHE_SECONDS, STALE_MAX_SECONDS)
 _flights = SingleFlight()
+_alerts = AlertManager(log_path=lambda: GENERATED / "alerts.jsonl")
+_schedule: dict = {"every_minutes": None, "last_run": None, "next_run": None, "last_result": None}
 _breakers: dict[str, CircuitBreaker] = {}
 _health: dict[str, dict] = {}
 _health_lock = threading.Lock()
@@ -142,18 +147,55 @@ def _fetch(system_id: str, resource_type: str) -> SourceResult:
         try:
             items = future.result(timeout=SOURCE_TIMEOUT)
         except FutureTimeout:
-            breaker.failure()
+            _breaker_failure(system_id, breaker, "Timeout")
             _set_health(system_id, status="down", last_error="Timeout", at=now())
             return _fallback(key, "timeout", f"no answer within {SOURCE_TIMEOUT:g}s")
         except Exception as exc:  # noqa: BLE001  (a source being down must not take the gateway down)
-            breaker.failure()
+            _breaker_failure(system_id, breaker, type(exc).__name__)
             _set_health(system_id, status="down", last_error=type(exc).__name__, at=now())
             return _fallback(key, "failed", f"{type(exc).__name__} after {RETRIES + 1} attempt(s)")
         ms = int((time.perf_counter() - started) * 1000)
         breaker.success()
+        _alerts.resolve(system_id, "circuit", f"{system_id} is responding again; circuit closed")
+        _recheck_after_recovery(system_id)
         _cache.put(key, items)
         _set_health(system_id, status="up", last_ok=now(), last_ms=ms)
         return SourceResult(system_id, resource_type, items, "fresh", ms=ms)
+
+
+_recheck_lock = threading.Lock()
+
+
+def _recheck_after_recovery(system_id: str) -> None:
+    """A source answered again. If its contract alert was raised only because it was unreachable,
+    re-check the estate in the background so that alert clears without waiting for the next check."""
+    if not any(a["system"] == system_id and a["kind"] == "contract" and a["message"].startswith("ProbeError")
+               for a in _alerts.active()):
+        return
+    if not _recheck_lock.acquire(blocking=False):
+        return
+
+    def run() -> None:
+        from .operate import check
+
+        try:
+            _alerts.from_statuses(check(_cfg, GENERATED))
+        except Exception as exc:  # noqa: BLE001  (a failed re-check must not affect serving)
+            log.info(json.dumps({"ts": now(), "recovery_check": "error", "error": type(exc).__name__}))
+        finally:
+            _recheck_lock.release()
+
+    threading.Thread(target=run, daemon=True, name="recovery-check").start()
+
+
+def _breaker_failure(system_id: str, breaker: CircuitBreaker, error: str) -> None:
+    """Record a failure; raise an alert the moment the circuit opens."""
+    breaker.failure()
+    snap = breaker.snapshot()
+    if snap["state"] == "open":
+        _alerts.raise_alert(system_id, "circuit", f"{snap['consecutive_failures']} consecutive failures (last: {error}). "
+                            f"Serving cached copies for up to {STALE_MAX_SECONDS // 60} min; retrying every "
+                            f"{BREAKER_COOLDOWN:g}s.")
 
 
 def _fallback(key: tuple, state: str, detail: str) -> SourceResult:
@@ -304,6 +346,7 @@ def run_check() -> dict:
     from .operate import check
 
     result = check(_cfg, GENERATED)
+    _alerts.from_statuses(result)
     with _adapter_lock:
         _adapters.clear()
         _breakers.clear()
@@ -404,8 +447,65 @@ def source_reset() -> dict:
     _uploads_on()
     message = uploads.reset()
     _last_upload.clear()
-    _cache.clear()
-    return {"reset": message}
+    result = run_check()   # sources are back as approved: re-check so stale alerts clear straight away
+    return {"reset": message, "healthy": sum(1 for st in result.values() if st.get("healthy")), "total": len(result)}
+
+
+@app.get("/alerts", summary="Active alerts, alert history and the automatic check schedule")
+def alerts(limit: int = Query(50, ge=1, le=500)) -> dict:
+    return {"active": _alerts.active(), "recent": _alerts.recent(limit), "schedule": dict(_schedule),
+            "webhook_configured": bool(_alerts.webhook)}
+
+
+def _scheduled_checks(every_minutes: float) -> None:
+    """Background estate check: observe only (no cache or breaker reset), then alert on changes."""
+    from .operate import check
+
+    while True:
+        _schedule["next_run"] = (dt.datetime.now(dt.timezone.utc) + dt.timedelta(minutes=every_minutes)).isoformat(timespec="seconds")
+        time.sleep(every_minutes * 60)
+        try:
+            result = check(_cfg, GENERATED)
+            _alerts.from_statuses(result)
+            _schedule["last_result"] = {sid: st["healthy"] for sid, st in result.items()}
+        except Exception as exc:  # noqa: BLE001  (a failed check must not kill the scheduler)
+            log.info(json.dumps({"ts": now(), "scheduled_check": "error", "error": type(exc).__name__}))
+        _schedule["last_run"] = now()
+
+
+def _start_scheduler() -> None:
+    every = os.environ.get("FABRIC_CHECK_EVERY")
+    if not every:
+        return
+    minutes = float(every)
+    if minutes <= 0:
+        return
+    _schedule["every_minutes"] = minutes
+    threading.Thread(target=_scheduled_checks, args=(minutes,), daemon=True, name="scheduled-check").start()
+
+
+app.router.on_startup.append(_start_scheduler)
+
+
+def _reverify_inherited_alerts() -> None:
+    """Alerts still open from a previous run may be out of date: re-check once in the background."""
+    if not _alerts.active() or not _recheck_lock.acquire(blocking=False):
+        return
+
+    def run() -> None:
+        from .operate import check
+
+        try:
+            _alerts.from_statuses(check(_cfg, GENERATED))
+        except Exception as exc:  # noqa: BLE001
+            log.info(json.dumps({"ts": now(), "startup_check": "error", "error": type(exc).__name__}))
+        finally:
+            _recheck_lock.release()
+
+    threading.Thread(target=run, daemon=True, name="startup-check").start()
+
+
+app.router.on_startup.append(_reverify_inherited_alerts)
 
 
 @app.get("/fhir/Patient/{mrn}/everything", summary="One patient's record across every source system")

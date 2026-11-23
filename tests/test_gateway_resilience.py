@@ -7,6 +7,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from fabric import gateway, pipeline
+from fabric.alerts import AlertManager
 from fabric.resilience import CircuitBreaker, TTLCache
 from fabric.stub import StubLLM
 
@@ -23,10 +24,11 @@ def promoted(cfg, tmp_path_factory):
 
 
 @pytest.fixture()
-def client(promoted, monkeypatch):
+def client(promoted, monkeypatch, tmp_path):
     monkeypatch.setattr(gateway, "GENERATED", promoted)
     monkeypatch.setattr(gateway, "BACKOFF_SECONDS", 0.01)
     monkeypatch.setattr(gateway, "_cache", TTLCache(gateway.CACHE_SECONDS, gateway.STALE_MAX_SECONDS))
+    monkeypatch.setattr(gateway, "_alerts", AlertManager(tmp_path / "alerts.jsonl", webhook=""))
     gateway._adapters.clear()
     gateway._breakers.clear()
     gateway._health.clear()
@@ -145,3 +147,19 @@ def test_breaker_half_open_allows_one_probe():
     assert b.allow()
     b.success()
     assert b.state == "closed" and b.allow()
+
+
+def test_open_circuit_raises_one_alert_and_recovery_resolves_it(client, monkeypatch):
+    gateway._cache.clear()
+    real = gateway._adapter("lab-sql").fetch
+    _break("lab-sql", monkeypatch)
+    for _ in range(gateway.BREAKER_THRESHOLD + 2):                      # stays down: still exactly one alert
+        gateway._fetch("lab-sql", "Observation")
+    body = client.get("/alerts").json()
+    assert [(a["system"], a["kind"], a["severity"]) for a in body["active"]] == [("lab-sql", "circuit", "critical")]
+    assert sum(1 for e in body["recent"] if e["status"] == "open") == 1
+    monkeypatch.setattr(gateway._adapter("lab-sql"), "fetch", real)        # source comes back
+    gateway._breakers["lab-sql"].opened_at -= gateway.BREAKER_COOLDOWN   # cooldown elapsed: one probe allowed
+    assert gateway._fetch("lab-sql", "Observation").state == "fresh"
+    body = client.get("/alerts").json()
+    assert body["active"] == [] and body["recent"][0]["status"] == "resolved"

@@ -142,6 +142,29 @@ The report compares time to a validated adapter, validation runs needed, checks 
 value accuracy. If you did not work in one sitting, pass `--minutes` with your active time; the report says
 which kind of timing was used.
 
+## Alerts and CI/CD
+
+**Alerts** (`fabric/alerts.py`, console page *Alerts*). The fabric tells a person when something changes:
+
+| Alert | Severity | Raised when | Clears when |
+|---|---|---|---|
+| circuit | critical | a source fails repeatedly and the gateway stops calling it | the source answers again |
+| drift | warning | a source's structure no longer matches what was approved | the structure matches again |
+| contract | critical | a live connector fails the 14-check contract | it passes again |
+
+Each alert is raised once per incident and clears itself. The history is kept in `generated/alerts.jsonl`. Set
+`FABRIC_ALERT_WEBHOOK` to a Slack or Microsoft Teams incoming-webhook URL to be notified there too.
+`python -m fabric gateway --check-every 15` re-checks the whole estate every 15 minutes, so drift is caught
+without anyone clicking *Check estate*.
+
+**CI** (`.github/workflows/ci.yml`): every push and every pull request installs the project, builds the Synthea
+estate and runs the full test suite, including the contract test of each promoted connector.
+
+**CD** (`.github/workflows/cd.yml`, run manually): runs the tests, builds the container image (`Dockerfile`),
+pushes it to GitHub Container Registry and, optionally, deploys it to Azure Container Apps (needs the
+`AZURE_CREDENTIALS` secret and the `AZURE_RESOURCE_GROUP` / `AZURE_CONTAINERAPP` variables). Locally:
+`docker build -t fabric . && docker run -p 8000:8000 fabric`.
+
 ## Synthea data
 
 The four mock systems are seeded from **Synthea** (https://synthea.mitre.org): 40 synthetic patients
@@ -225,11 +248,16 @@ tests/                pytest suite (runs without a model)
 
 ## AI tools used
 
-Declared as the hackathon rules require. Edit this section so it is accurate for your team.
+Declared as the hackathon rules require.
 
-- The code in this repository was written with Claude (Anthropic) as a coding assistant, directed and reviewed by
-  the team.
-- At runtime the Discover, Design and Generate agents call the model configured in `.env`. The model used for the
-  submitted run is recorded in `runs/<run_id>/summary.json` and at the top of the report.
-- The hand-built baseline adapters in `baseline/` were written without AI assistance.
-- No existing code was reused. Open-source dependencies are listed in `requirements.txt`.
+- **Code:** written with Claude (Anthropic) as a coding assistant, directed and reviewed by the team
+  (Tarun Teja Magendran and Vishal Krish).
+- **Runtime agents:** the Discover, Design and Generate agents call Google Gemini (`gemini-3.6-flash`) through its
+  OpenAI-compatible API. The model used for each run is recorded in `runs/<run_id>/summary.json` and at the top of
+  its report. The connectors in `generated/` come from run `20261123-000225`, on the Synthea estate.
+- **No AI at runtime:** the gateway, the upload validation and quarantine, drift detection and the 14-check contract
+  are deterministic code. No model is called on the data path.
+- **Baseline:** no hand-built baseline has been measured yet. The 40-hour figure in the reports is labelled as an
+  assumption; `python -m fabric handbuilt` is the harness for measuring one.
+- **Data:** Synthea synthetic patients only; no real or personal data.
+- **Existing code:** none reused. Open-source dependencies are listed in `requirements.txt`.

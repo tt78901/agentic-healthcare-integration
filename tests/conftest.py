@@ -21,3 +21,12 @@ def cfg():
     config = load_config()
     ensure_mocks(config)
     return config
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _isolated_alerts(tmp_path_factory):
+    """Tests never write to the live generated/alerts.jsonl or post to a real webhook."""
+    from fabric import gateway
+    from fabric.alerts import AlertManager
+
+    gateway._alerts = AlertManager(tmp_path_factory.mktemp("alerts") / "alerts.jsonl", webhook="")
