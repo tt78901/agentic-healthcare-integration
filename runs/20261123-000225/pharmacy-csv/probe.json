@@ -1,0 +1,125 @@
+{
+ "kind": "delimited_files",
+ "access": "read-only folder of delimited text files",
+ "file_pattern": "rx_export_*.csv",
+ "files_and_row_counts": {
+  "rx_export_20261029.csv": 38,
+  "rx_export_20261030.csv": 38,
+  "rx_export_20261031.csv": 45
+ },
+ "delimiter": "|",
+ "header": [
+  "RX_NO",
+  "MRN",
+  "DRUG_DESC",
+  "RXNORM_CD",
+  "SIG_TXT",
+  "QTY",
+  "START_DT",
+  "STAT"
+ ],
+ "total_rows": 121,
+ "field_statistics": {
+  "RX_NO": {
+   "present_in": 121,
+   "of": 121,
+   "distinct": 116,
+   "format": "text (max length 9)",
+   "sample_values": "masked"
+  },
+  "MRN": {
+   "present_in": 121,
+   "of": 121,
+   "distinct": 26,
+   "format": "integer stored as text",
+   "sample_values": "masked"
+  },
+  "DRUG_DESC": {
+   "present_in": 121,
+   "of": 121,
+   "distinct": 40,
+   "format": "text (max length 269)",
+   "sample_values": "masked"
+  },
+  "RXNORM_CD": {
+   "present_in": 121,
+   "of": 121,
+   "distinct": 39,
+   "format": "integer stored as text"
+  },
+  "SIG_TXT": {
+   "present_in": 121,
+   "of": 121,
+   "distinct": 8,
+   "format": "text (max length 101)",
+   "values": [
+    "Every four hours (qualifier value)",
+    "Every four to six hours (qualifier value)",
+    "Every seventy two hours (qualifier value)",
+    "Every six hours (qualifier value)",
+    "Every twelve hours as required (qualifier value)",
+    "Take as directed",
+    "Take as needed.",
+    "Take at regular intervals. Complete the prescribed course unless otherwise directed (qualifier value)"
+   ]
+  },
+  "QTY": {
+   "present_in": 121,
+   "of": 121,
+   "distinct": 1,
+   "format": "integer stored as text",
+   "values": [
+    "30"
+   ]
+  },
+  "START_DT": {
+   "present_in": 121,
+   "of": 121,
+   "distinct": 66,
+   "format": "date DD/MM/YYYY",
+   "sample_values": "date-shifted"
+  },
+  "STAT": {
+   "present_in": 121,
+   "of": 121,
+   "distinct": 2,
+   "format": "text (max length 1)",
+   "values": [
+    "A",
+    "C"
+   ]
+  }
+ },
+ "sample_rows_masked": [
+  {
+   "RX_NO": "NU0062790",
+   "MRN": "7114274",
+   "DRUG_DESC": "Cocqbxmnoqmyzssjjpw 96 UH Ykra Phnwbx",
+   "RXNORM_CD": "310798",
+   "SIG_TXT": "Take as directed",
+   "QTY": "30",
+   "START_DT": "09/10/2024",
+   "STAT": "A"
+  },
+  {
+   "RX_NO": "CN3605969",
+   "MRN": "7114274",
+   "DRUG_DESC": "dsAKHJXgbo 3.8 IS Iydn Ioratm",
+   "RXNORM_CD": "308136",
+   "SIG_TXT": "Take as directed",
+   "QTY": "30",
+   "START_DT": "09/10/2024",
+   "STAT": "A"
+  },
+  {
+   "RX_NO": "EZ6672050",
+   "MRN": "7114274",
+   "DRUG_DESC": "Cocqbxmnoqmyzssjjpw 96 UH Ykra Phnwbx",
+   "RXNORM_CD": "310798",
+   "SIG_TXT": "Take as directed",
+   "QTY": "30",
+   "START_DT": "15/10/2025",
+   "STAT": "A"
+  }
+ ]
+}

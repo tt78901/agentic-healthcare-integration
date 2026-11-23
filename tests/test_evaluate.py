@@ -45,7 +45,8 @@ def test_unmapped_field_lowers_coverage_not_accuracy(cfg, tmp_path):
     ev = evaluate("pharmacy-csv", _run(cfg, "pharmacy-csv", dropped, tmp_path),
                   load_truth(system(cfg, "pharmacy-csv")), cfg["settings"]["mrn_system"])
     assert ev["accuracy"] == 1.0 and ev["coverage"] < 1.0
-    assert ev["fields"]["MedicationRequest.dosage"]["absent"] == 60
+    dosage = ev["fields"]["MedicationRequest.dosage"]
+    assert dosage["absent"] == ev["records"]["matched"] and dosage["correct"] == 0
 
 
 def test_agents_never_see_the_ground_truth(cfg):

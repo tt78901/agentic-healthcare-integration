@@ -1,0 +1,108 @@
+{
+ "system_id": "pharmacy-csv",
+ "pattern": "file_drop_ingest",
+ "pattern_rationale": "The pharmacy system drops periodic flat files matching rx_export_*.csv. Reading the exports, deduplicating re-exported records across daily files (latest file wins), and translating to FHIR matches the file_drop_ingest pattern.",
+ "alternatives_considered": [
+  {
+   "pattern": "api_facade",
+   "why_not": "The system does not expose an HTTP API; it only produces nightly CSV drops."
+  },
+  {
+   "pattern": "database_polling",
+   "why_not": "Direct read-only SQL database access is not provided; data is only available via file drops."
+  },
+  {
+   "pattern": "message_feed_ingest",
+   "why_not": "The source system does not push event feeds (such as HL7 v2 messages) in real-time."
+  }
+ ],
+ "sync": {
+  "mode": "scheduled_poll",
+  "detail": "Nightly batch polling of configured folder for rx_export_*.csv files"
+ },
+ "resources": [
+  {
+   "resource_type": "MedicationRequest",
+   "source_entity": "Prescription",
+   "id_source_field": "RX_NO",
+   "count_basis": {
+    "entity": "rx_export_*.csv",
+    "distinct_key": "RX_NO"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "RX_NO",
+     "transform": "Format as string: 'pharmacy-csv-' + RX_NO, replacing any disallowed characters with '-'"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "N/A",
+     "transform": "Set constant string 'urn:system:pharmacy-csv'"
+    },
+    {
+     "fhir": "status",
+     "source": "STAT",
+     "transform": "Map code: 'A' -> 'active', 'C' -> 'completed', 'S' -> 'stopped'"
+    },
+    {
+     "fhir": "intent",
+     "source": "N/A",
+     "transform": "Set constant string 'order'"
+    },
+    {
+     "fhir": "medicationCodeableConcept.coding[0].system",
+     "source": "N/A",
+     "transform": "Set constant string 'http://www.nlm.nih.gov/research/umls/rxnorm'"
+    },
+    {
+     "fhir": "medicationCodeableConcept.coding[0].code",
+     "source": "RXNORM_CD",
+     "transform": "Cast string to clean RxNorm code representation"
+    },
+    {
+     "fhir": "medicationCodeableConcept.coding[0].display",
+     "source": "DRUG_DESC",
+     "transform": "Pass through string description"
+    },
+    {
+     "fhir": "subject.identifier.system",
+     "source": "N/A",
+     "transform": "Set constant string 'http://hospital.example.org/mrn'"
+    },
+    {
+     "fhir": "subject.identifier.value",
+     "source": "MRN",
+     "transform": "Pass through string MRN"
+    },
+    {
+     "fhir": "authoredOn",
+     "source": "START_DT",
+     "transform": "Parse DD/MM/YYYY date format and convert to YYYY-MM-DD"
+    },
+    {
+     "fhir": "dosageInstruction[0].text",
+     "source": "SIG_TXT",
+     "transform": "Pass through instruction text"
+    },
+    {
+     "fhir": "dispenseRequest.quantity.value",
+     "source": "QTY",
+     "transform": "Parse string to numeric integer"
+    }
+   ],
+   "merge_rule": "Latest export file wins by RX_NO; re-exported RX_NO records update/overwrite existing MedicationRequest resource.",
+   "expected_count": 116
+  }
+ ],
+ "risks": [
+  "Unmapped or unexpected STAT codes in future exports will fail status mapping if not handled.",
+  "START_DT lacks time and timezone information, so authoredOn date reflects date-only precision.",
+  "Overlapping daily exports might arrive out of order if file timestamps or naming order is corrupted."
+ ],
+ "human_review_points": [
+  "Confirm that STAT code mapping ('A' -> 'active', 'C' -> 'completed', 'S' -> 'stopped') matches all clinical status definitions in production.",
+  "Verify whether QTY string parsing reliably produces valid numeric quantities for all prescriptions.",
+  "Confirm file processing sequence and archive strategy after ingestion."
+ ]
+}

@@ -1,0 +1,211 @@
+{
+ "system_id": "adt-feed",
+ "pattern": "message_feed_ingest",
+ "pattern_rationale": "The ADT feed produces HL7 v2 event messages (ADT^A01, ADT^A03, ADT^A04) dropped as files representing discrete real-time registration, admission, and discharge business events. Standard message ingestion allows parsing HL7 v2 segments and updating Patient and Encounter resources statefully.",
+ "alternatives_considered": [
+  {
+   "pattern": "file_drop_ingest",
+   "why_not": "While files are placed on disk, they contain individual HL7 v2 event messages rather than full state bulk data exports. Treating them as incremental message events with state merge is more appropriate."
+  },
+  {
+   "pattern": "database_polling",
+   "why_not": "No direct database access is provided; data is emitted via HL7 v2 file-based message streams."
+  },
+  {
+   "pattern": "api_facade",
+   "why_not": "The source system does not expose a real-time REST/HTTP API for querying."
+  }
+ ],
+ "sync": {
+  "mode": "event_driven",
+  "detail": "Monitors directory configured in runtime config['path'] for incoming HL7 v2 message files (*.hl7 / *.vo0)."
+ },
+ "resources": [
+  {
+   "resource_type": "Patient",
+   "source_entity": "PID",
+   "id_source_field": "PID.3.1",
+   "count_basis": {
+    "entity": "messages",
+    "distinct_key": "PID.3.1"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "PID.3.1",
+     "transform": "Format string as 'adt-feed-' + PID.3.1, replacing characters outside [A-Za-z0-9-.] with '-'"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "static",
+     "transform": "Set static string 'urn:system:adt-feed'"
+    },
+    {
+     "fhir": "identifier[0].system",
+     "source": "static",
+     "transform": "Set static string 'http://hospital.example.org/mrn'"
+    },
+    {
+     "fhir": "identifier[0].value",
+     "source": "PID.3.1",
+     "transform": "Pass through verbatim string representation of MRN"
+    },
+    {
+     "fhir": "identifier[0].assigner.display",
+     "source": "PID.3.4",
+     "transform": "Pass through assigning authority string if present"
+    },
+    {
+     "fhir": "identifier[0].type.coding[0].code",
+     "source": "PID.3.5",
+     "transform": "Pass through code string if present"
+    },
+    {
+     "fhir": "name[0].family",
+     "source": "PID.5.1",
+     "transform": "Pass through string if present"
+    },
+    {
+     "fhir": "name[0].given[0]",
+     "source": "PID.5.2",
+     "transform": "Pass through string inside array if present"
+    },
+    {
+     "fhir": "gender",
+     "source": "PID.8",
+     "transform": "Map codes: 'M' -> 'male', 'F' -> 'female', default to 'unknown'"
+    },
+    {
+     "fhir": "birthDate",
+     "source": "PID.7",
+     "transform": "Parse YYYYMMDD and format as YYYY-MM-DD"
+    },
+    {
+     "fhir": "telecom[0].system",
+     "source": "static",
+     "transform": "Set static string 'phone'"
+    },
+    {
+     "fhir": "telecom[0].value",
+     "source": "PID.13",
+     "transform": "Pass through string if present"
+    },
+    {
+     "fhir": "address[0].line[0]",
+     "source": "PID.11.1",
+     "transform": "Pass through street address string inside array if present"
+    },
+    {
+     "fhir": "address[0].city",
+     "source": "PID.11.3",
+     "transform": "Pass through city string if present"
+    },
+    {
+     "fhir": "address[0].state",
+     "source": "PID.11.5",
+     "transform": "Pass through state code string if present"
+    },
+    {
+     "fhir": "address[0].country",
+     "source": "PID.11.6",
+     "transform": "Pass through country code string if present"
+    }
+   ],
+   "merge_rule": "Merge latest demographic updates from PID segments by Patient MRN (PID.3.1) across incoming ADT messages.",
+   "expected_count": 35
+  },
+  {
+   "resource_type": "Encounter",
+   "source_entity": "PV1, PV2, MSH, EVN",
+   "id_source_field": "PV1.19",
+   "count_basis": {
+    "entity": "messages",
+    "distinct_key": "PV1.19"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "PV1.19",
+     "transform": "Format string as 'adt-feed-' + PV1.19, replacing characters outside [A-Za-z0-9-.] with '-'"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "static",
+     "transform": "Set static string 'urn:system:adt-feed'"
+    },
+    {
+     "fhir": "status",
+     "source": "PV1.45, MSH.9.2",
+     "transform": "If PV1.45 present or MSH.9.2 == 'A03' set 'finished'; else set 'in-progress'"
+    },
+    {
+     "fhir": "class.system",
+     "source": "static",
+     "transform": "Set static string 'http://terminology.hl7.org/CodeSystem/v3-ActCode'"
+    },
+    {
+     "fhir": "class.code",
+     "source": "PV1.2",
+     "transform": "Map codes: 'E' -> 'EMER', 'I' -> 'IMP', 'O' -> 'AMB'"
+    },
+    {
+     "fhir": "subject.identifier.system",
+     "source": "static",
+     "transform": "Set static string 'http://hospital.example.org/mrn'"
+    },
+    {
+     "fhir": "subject.identifier.value",
+     "source": "PID.3.1",
+     "transform": "Pass through MRN string"
+    },
+    {
+     "fhir": "period.start",
+     "source": "PV1.44",
+     "transform": "Parse YYYYMMDDHHMMSS as UTC per standard rules and format as YYYY-MM-DDThh:mm:ssZ"
+    },
+    {
+     "fhir": "period.end",
+     "source": "PV1.45",
+     "transform": "If present, parse YYYYMMDDHHMMSS as UTC and format as YYYY-MM-DDThh:mm:ssZ; omit if empty"
+    },
+    {
+     "fhir": "location[0].location.display",
+     "source": "PV1.3.1",
+     "transform": "Pass through assigned point of care string if present"
+    },
+    {
+     "fhir": "participant[0].individual.identifier.system",
+     "source": "static",
+     "transform": "Set static string 'http://hospital.example.org/provider-id'"
+    },
+    {
+     "fhir": "participant[0].individual.identifier.value",
+     "source": "PV1.7.1",
+     "transform": "Pass through attending provider ID if present"
+    },
+    {
+     "fhir": "participant[0].individual.display",
+     "source": "PV1.7.2, PV1.7.3",
+     "transform": "Combine surname (PV1.7.2) and given name (PV1.7.3) as 'Given Family' string if present"
+    },
+    {
+     "fhir": "reasonCode[0].text",
+     "source": "PV2.3.2",
+     "transform": "Pass through chief complaint description text if present"
+    }
+   ],
+   "merge_rule": "Update single Encounter record per visit number (PV1.19) as state transitions occur (e.g. A01 admission setting period.start, A03 discharge populating period.end and status).",
+   "expected_count": 250
+  }
+ ],
+ "risks": [
+  "Timestamps lacking explicit offset information are parsed as UTC, which may differ from the hospital local timezone if offset assumption is incorrect.",
+  "File extension mismatch (`.vo0` files in discovery vs `*.hl7` configuration) could cause message files to be skipped if file watcher pattern is too strict.",
+  "Unannounced non-standard code values in PV1.2 or PID.8 could lead to unmapped or invalid FHIR output."
+ ],
+ "human_review_points": [
+  "Verify whether non-standard file extensions (such as `.vo0`) should be included in the ingest directory file glob configuration.",
+  "Confirm local timezone policy for converting un-offset source timestamps (YYYYMMDDHHMMSS) to ISO 8601 UTC string format.",
+  "Confirm if visit number (PV1.19) is strictly unique across all emergency, outpatient, and inpatient visits over time."
+ ]
+}

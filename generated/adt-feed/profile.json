@@ -1,99 +1,99 @@
 {
  "system_id": "adt-feed",
- "summary": "Patient Administration System (PAS) HL7 v2.5 file feed providing real-time patient demographics and admission, discharge, and registration (ADT) events. Contains demographic details, encounter classification, care location, attending physician identifiers, and event timestamps.",
+ "summary": "This Patient Administration System (PAS) feeds HL7 v2.5 ADT message files representing patient registration, admission, and discharge events for General Hospital. It contains core patient demographic records (PID) and visit/encounter details (PV1/PV2) across emergency, inpatient, and outpatient patient classes.",
  "access": {
   "mechanism": "hl7v2_message_files",
-  "notes": "Read-only file directory containing individual *.hl7 files terminated with carriage return (\\r). Messages cover ADT^A01 (Admit), ADT^A03 (Discharge), and ADT^A04 (Register) events."
+  "notes": "Read-only file directory containing single HL7 v2 message per file. Messages use carriage return (\\r) segment terminators and span ADT^A01, ADT^A03, and ADT^A04 event types."
  },
  "entities": [
   {
    "name": "Patient",
    "source": "PID",
-   "description": "Demographic record representing a patient registered within the PAS system.",
+   "description": "Patient master demographic record contained in the PID segment of ADT messages.",
    "primary_key": "PID.3.1",
    "patient_key": "PID.3.1",
    "fields": [
     {
      "name": "PID.3.1",
      "format": "integer stored as text",
-     "meaning": "Patient Medical Record Number (MRN)",
+     "meaning": "Medical Record Number (MRN)",
      "phi": true,
      "fhir_candidate": "Patient.identifier.value"
     },
     {
      "name": "PID.3.4",
-     "format": "text",
-     "meaning": "Assigning authority for the MRN",
+     "format": "text (max length 7)",
+     "meaning": "Assigning authority",
      "phi": false,
      "fhir_candidate": "Patient.identifier.assigner.display"
     },
     {
      "name": "PID.3.5",
-     "format": "text",
-     "meaning": "Identifier type code (MR)",
+     "format": "text (max length 2)",
+     "meaning": "Identifier type code",
      "phi": false,
      "fhir_candidate": "Patient.identifier.type.coding.code"
     },
     {
      "name": "PID.5.1",
-     "format": "text",
+     "format": "text (max length 13)",
      "meaning": "Patient family name (surname)",
      "phi": true,
      "fhir_candidate": "Patient.name.family"
     },
     {
      "name": "PID.5.2",
-     "format": "text",
-     "meaning": "Patient given name (first name)",
+     "format": "text (max length 9)",
+     "meaning": "Patient given name",
      "phi": true,
      "fhir_candidate": "Patient.name.given"
     },
     {
      "name": "PID.7",
      "format": "date YYYYMMDD",
-     "meaning": "Patient date of birth",
+     "meaning": "Date of birth",
      "phi": true,
      "fhir_candidate": "Patient.birthDate"
     },
     {
      "name": "PID.8",
-     "format": "text",
+     "format": "text (max length 1)",
      "meaning": "Administrative sex",
      "phi": false,
      "fhir_candidate": "Patient.gender"
     },
     {
      "name": "PID.11.1",
-     "format": "text",
+     "format": "text (max length 30)",
      "meaning": "Street address",
      "phi": true,
      "fhir_candidate": "Patient.address.line"
     },
     {
      "name": "PID.11.3",
-     "format": "text",
-     "meaning": "City or town",
+     "format": "text (max length 16)",
+     "meaning": "City",
      "phi": true,
      "fhir_candidate": "Patient.address.city"
     },
     {
      "name": "PID.11.5",
-     "format": "text",
-     "meaning": "Postal code",
+     "format": "text (max length 8)",
+     "meaning": "State or region code",
      "phi": true,
-     "fhir_candidate": "Patient.address.postalCode"
+     "fhir_candidate": "Patient.address.state"
     },
     {
      "name": "PID.11.6",
-     "format": "text",
-     "meaning": "Country code (IE)",
+     "format": "text (max length 2)",
+     "meaning": "Country code",
      "phi": false,
      "fhir_candidate": "Patient.address.country"
     },
     {
      "name": "PID.13",
-     "format": "text",
-     "meaning": "Primary contact phone number",
+     "format": "text (max length 12)",
+     "meaning": "Primary phone number",
      "phi": true,
      "fhir_candidate": "Patient.telecom.value"
     }
@@ -101,79 +101,100 @@
   },
   {
    "name": "Encounter",
-   "source": "PV1, PV2",
-   "description": "Patient visit or hospital encounter record detailing class, care location, attending physician, admit/discharge timestamps, and admit reason.",
+   "source": "PV1, PV2, MSH, EVN",
+   "description": "Patient visit or encounter record capturing admission, location, attending provider, and discharge details.",
    "primary_key": "PV1.19",
    "patient_key": "PID.3.1",
    "fields": [
     {
-     "name": "PV1.19",
-     "format": "text",
-     "meaning": "Visit number or encounter identifier",
-     "phi": true,
-     "fhir_candidate": "Encounter.identifier.value"
+     "name": "MSH.7",
+     "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+     "meaning": "Message creation timestamp",
+     "phi": false,
+     "fhir_candidate": "MessageHeader.timestamp"
+    },
+    {
+     "name": "MSH.9.2",
+     "format": "text (max length 3)",
+     "meaning": "HL7 ADT trigger event code",
+     "phi": false,
+     "fhir_candidate": "MessageHeader.eventCoding.code"
+    },
+    {
+     "name": "MSH.10",
+     "format": "text (max length 11)",
+     "meaning": "Message control ID",
+     "phi": false,
+     "fhir_candidate": "MessageHeader.id"
+    },
+    {
+     "name": "EVN.2",
+     "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+     "meaning": "Recorded event timestamp",
+     "phi": false,
+     "fhir_candidate": null
     },
     {
      "name": "PV1.2",
-     "format": "text",
-     "meaning": "Patient class (Emergency, Inpatient, Outpatient)",
+     "format": "text (max length 1)",
+     "meaning": "Patient class code",
      "phi": false,
-     "fhir_candidate": "Encounter.class"
+     "fhir_candidate": "Encounter.class.code"
     },
     {
      "name": "PV1.3.1",
-     "format": "text",
-     "meaning": "Assigned point of care / ward / clinic",
+     "format": "text (max length 4)",
+     "meaning": "Assigned point of care / department",
      "phi": false,
      "fhir_candidate": "Encounter.location.location.display"
     },
     {
-     "name": "PV1.3.4",
-     "format": "text",
-     "meaning": "Facility identifier",
-     "phi": false,
-     "fhir_candidate": "Encounter.serviceProvider.display"
-    },
-    {
      "name": "PV1.7.1",
-     "format": "text",
-     "meaning": "Attending doctor staff identifier",
+     "format": "text (max length 5)",
+     "meaning": "Attending provider identifier",
      "phi": true,
      "fhir_candidate": "Encounter.participant.individual.identifier.value"
     },
     {
      "name": "PV1.7.2",
-     "format": "text",
-     "meaning": "Attending doctor family name",
+     "format": "text (max length 10)",
+     "meaning": "Attending provider family name",
      "phi": true,
-     "fhir_candidate": "Encounter.participant.individual.name.family"
+     "fhir_candidate": "Encounter.participant.individual.display"
     },
     {
      "name": "PV1.7.3",
-     "format": "text",
-     "meaning": "Attending doctor given name",
+     "format": "text (max length 11)",
+     "meaning": "Attending provider given name",
      "phi": true,
-     "fhir_candidate": "Encounter.participant.individual.name.given"
+     "fhir_candidate": "Encounter.participant.individual.display"
+    },
+    {
+     "name": "PV1.19",
+     "format": "text (max length 8)",
+     "meaning": "Visit number / Account number",
+     "phi": true,
+     "fhir_candidate": "Encounter.identifier.value"
     },
     {
      "name": "PV1.44",
-     "format": "datetime YYYYMMDDHHMMSS",
-     "meaning": "Admit / registration date and time",
-     "phi": true,
+     "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+     "meaning": "Admit / Visit start date time",
+     "phi": false,
      "fhir_candidate": "Encounter.period.start"
     },
     {
      "name": "PV1.45",
-     "format": "datetime YYYYMMDDHHMMSS",
-     "meaning": "Discharge / visit end date and time",
-     "phi": true,
+     "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+     "meaning": "Discharge / Visit end date time",
+     "phi": false,
      "fhir_candidate": "Encounter.period.end"
     },
     {
      "name": "PV2.3.2",
-     "format": "text",
-     "meaning": "Admit reason description",
-     "phi": true,
+     "format": "text (max length 55)",
+     "meaning": "Admit reason / Chief complaint description",
+     "phi": false,
      "fhir_candidate": "Encounter.reasonCode.text"
     }
    ]
@@ -185,11 +206,11 @@
  "cross_system_keys": [
   {
    "field": "PID.3.1",
-   "meaning": "Hospital Enterprise Medical Record Number (MRN) used across enterprise clinical platforms."
+   "meaning": "Enterprise Medical Record Number (MRN)"
   },
   {
    "field": "PV1.19",
-   "meaning": "Unique visit / encounter number shared with lab, radiology, and billing systems."
+   "meaning": "Hospital Visit/Account identifier used across clinical systems"
   }
  ],
  "code_systems": [
@@ -211,28 +232,23 @@
    }
   },
   {
-   "field": "PV1.3.1",
+   "field": "MSH.9.2",
    "system": "local",
    "value_map": {
-    "CARD3": "Cardiology Ward 3",
-    "CLINIC3": "Outpatient Clinic 3",
-    "ED": "Emergency Department",
-    "MED1": "Medical Ward 1",
-    "OPD1": "Outpatient Department 1",
-    "OPD2": "Outpatient Department 2",
-    "SURG2": "Surgical Ward 2"
+    "A01": "Admit / retain patient",
+    "A03": "Discharge / end visit",
+    "A04": "Register a patient"
    }
   }
  ],
  "data_quality_notes": [
-  "All message and encounter timestamps (MSH.7, EVN.2, PV1.44, PV1.45) lack timezone offsets (YYYYMMDDHHMMSS format).",
-  "PV1.45 (Discharge Date/Time) is absent in 15 of 176 records, corresponding to active admissions or outpatient registrations.",
-  "File extension is .qd6 in discovery output example while system metadata pattern is *.hl7, requiring confirmation of actual file naming convention."
+  "Timestamps in MSH.7, EVN.2, PV1.44, and PV1.45 lack ISO 8601 timezone offsets (formatted as YYYYMMDDHHMMSS).",
+  "PV1.45 (Discharge DateTime) is missing in 23 of 273 records, representing open/active admissions or registrations prior to discharge.",
+  "File naming in discovery sample (`.vo0`) differs from configured directory pattern (`*.hl7`)."
  ],
  "open_questions": [
-  "Should integration assume Europe/Dublin timezone for all naive timestamps based on Country Code 'IE' in PID.11.6?",
-  "Will files be consumed via real-time directory polling (e.g. MLLP vs file watcher), and should processed files be deleted or moved?",
-  "What is the expected file naming convention (.hl7 vs .qd6 extension)?",
-  "Is there a mechanism to handle out-of-order ADT messages if files are written concurrently?"
+  "What specific local timezone should be assumed when parsing YYYYMMDDHHMMSS timestamps?",
+  "Should file acquisition pattern be adjusted to process `.vo0` or other custom extensions in addition to `*.hl7`?",
+  "Is PV1.19 guaranteed to be unique per encounter across all care settings and historical years?"
  ]
 }

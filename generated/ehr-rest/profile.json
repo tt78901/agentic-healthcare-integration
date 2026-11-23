@@ -1,43 +1,43 @@
 {
  "system_id": "ehr-rest",
- "summary": "MediCore EHR is a REST API providing access to patient demographic profiles and problem list conditions. It supports paged retrieval of patient records and associated clinical diagnoses coded in SNOMED CT.",
+ "summary": "MediCore EHR API (v2.3.1) provides REST endpoints for patient demographics and problem list conditions. It holds core patient profiles alongside clinical problem list entries coded in SNOMED CT.",
  "access": {
   "mechanism": "rest_api",
-  "notes": "Requires HTTP header authentication via X-API-Key. Endpoints use page-based pagination ('page' and 'pageSize' query parameters with default page size of 25 and max 100)."
+  "notes": "Requires HTTP header X-API-Key for authentication. Supports page-based pagination (page, pageSize) with payload items nested under the 'data' key and metadata under 'paging'."
  },
  "entities": [
   {
    "name": "Patient",
    "source": "/api/v2/patients",
-   "description": "Demographic record for a patient including address and contact information.",
+   "description": "Patient demographic record containing identifier, contact information, and address.",
    "primary_key": "patientId",
    "patient_key": "mrn",
    "fields": [
     {
      "name": "patientId",
      "format": "text (max length 8)",
-     "meaning": "Internal unique identifier for the patient in MediCore EHR",
+     "meaning": "Internal unique identifier for the patient",
      "phi": true,
-     "fhir_candidate": "Patient.identifier"
+     "fhir_candidate": "Patient.identifier.value"
     },
     {
      "name": "mrn",
      "format": "integer stored as text",
-     "meaning": "Medical Record Number used across health system facilities",
+     "meaning": "Medical Record Number",
      "phi": true,
-     "fhir_candidate": "Patient.identifier"
+     "fhir_candidate": "Patient.identifier.value"
     },
     {
      "name": "name.first",
-     "format": "text (max length 7)",
-     "meaning": "Patient's given name",
+     "format": "text (max length 9)",
+     "meaning": "Patient given name",
      "phi": true,
      "fhir_candidate": "Patient.name.given"
     },
     {
      "name": "name.last",
-     "format": "text (max length 10)",
-     "meaning": "Patient's family name",
+     "format": "text (max length 13)",
+     "meaning": "Patient family name",
      "phi": true,
      "fhir_candidate": "Patient.name.family"
     },
@@ -51,56 +51,56 @@
     {
      "name": "sex",
      "format": "text (max length 1)",
-     "meaning": "Administrative sex (F = Female, M = Male)",
+     "meaning": "Administrative sex code (F/M)",
      "phi": false,
      "fhir_candidate": "Patient.gender"
     },
     {
      "name": "contact.phone",
-     "format": "text (max length 16)",
+     "format": "text (max length 12)",
      "meaning": "Primary contact telephone number",
      "phi": true,
-     "fhir_candidate": "Patient.telecom"
+     "fhir_candidate": "Patient.telecom.value"
     },
     {
      "name": "contact.email",
      "format": "always empty",
      "meaning": "Patient email address (currently unpopulated)",
      "phi": true,
-     "fhir_candidate": "Patient.telecom"
+     "fhir_candidate": "Patient.telecom.value"
     },
     {
      "name": "address.line1",
-     "format": "text (max length 17)",
+     "format": "text (max length 30)",
      "meaning": "Street address line 1",
      "phi": true,
      "fhir_candidate": "Patient.address.line"
     },
     {
      "name": "address.city",
-     "format": "text (max length 9)",
-     "meaning": "City or municipality",
+     "format": "text (max length 16)",
+     "meaning": "City of residence",
      "phi": true,
      "fhir_candidate": "Patient.address.city"
     },
     {
      "name": "address.postCode",
      "format": "text (max length 8)",
-     "meaning": "Postal code or Eircode",
+     "meaning": "Postal or zip code",
      "phi": true,
      "fhir_candidate": "Patient.address.postalCode"
     },
     {
      "name": "address.country",
      "format": "text (max length 2)",
-     "meaning": "ISO two-letter country code",
+     "meaning": "Country code (e.g. US)",
      "phi": false,
      "fhir_candidate": "Patient.address.country"
     },
     {
      "name": "active",
      "format": "boolean",
-     "meaning": "Flag indicating if the patient record is currently active",
+     "meaning": "Indicates whether the patient record is active",
      "phi": false,
      "fhir_candidate": "Patient.active"
     }
@@ -109,65 +109,65 @@
   {
    "name": "Condition",
    "source": "/api/v2/conditions",
-   "description": "Problem list entry detailing a clinical condition or diagnosis associated with a patient.",
+   "description": "Problem list item associated with a patient, capturing clinical diagnosis code, onset date, and state.",
    "primary_key": "conditionId",
-   "patient_key": "mrn",
+   "patient_key": "patientId",
    "fields": [
     {
      "name": "conditionId",
      "format": "text (max length 7)",
-     "meaning": "Unique identifier for the problem list condition record",
+     "meaning": "Unique condition record identifier",
      "phi": false,
-     "fhir_candidate": "Condition.identifier"
+     "fhir_candidate": "Condition.identifier.value"
     },
     {
      "name": "patientId",
      "format": "text (max length 8)",
-     "meaning": "Internal MediCore patient ID reference",
+     "meaning": "Reference identifier for patient",
      "phi": true,
-     "fhir_candidate": "Condition.subject"
+     "fhir_candidate": "Condition.subject.reference"
     },
     {
      "name": "mrn",
      "format": "integer stored as text",
-     "meaning": "Patient Medical Record Number reference",
+     "meaning": "Medical Record Number reference",
      "phi": true,
-     "fhir_candidate": "Condition.subject"
+     "fhir_candidate": "Condition.subject.identifier.value"
     },
     {
      "name": "code.system",
      "format": "text (max length 6)",
-     "meaning": "Coding system name (SNOMED)",
+     "meaning": "Terminology code system identifier",
      "phi": false,
      "fhir_candidate": "Condition.code.coding.system"
     },
     {
      "name": "code.value",
      "format": "integer stored as text",
-     "meaning": "SNOMED CT concept code identifying the diagnosis",
+     "meaning": "Clinical terminology concept code",
      "phi": false,
      "fhir_candidate": "Condition.code.coding.code"
     },
     {
      "name": "code.text",
-     "format": "text (max length 32)",
-     "meaning": "Human-readable clinical description of the condition",
+     "format": "text (max length 76)",
+     "meaning": "Display text describing the condition",
      "phi": false,
      "fhir_candidate": "Condition.code.coding.display"
     },
     {
      "name": "onsetDate",
      "format": "date YYYY-MM-DD",
-     "meaning": "Date when the condition onset was documented or occurred",
-     "phi": false,
+     "meaning": "Date when the condition was first recorded or began",
+     "phi": true,
      "fhir_candidate": "Condition.onsetDateTime"
     },
     {
      "name": "state",
      "format": "text (max length 1)",
-     "meaning": "Clinical status code (A = Active, R = Resolved)",
+     "meaning": "Clinical status code of condition",
      "phi": false,
-     "fhir_candidate": "Condition.clinicalStatus"
+     "fhir_candidate": "Condition.clinicalStatus.coding.code"
     }
    ]
   }
@@ -179,29 +179,26 @@
  "cross_system_keys": [
   {
    "field": "mrn",
-   "meaning": "Hospital-wide Medical Record Number linking patients across EHR, LAB, and PAS systems."
+   "meaning": "Enterprise Medical Record Number linking patient records across hospital systems"
   },
   {
    "field": "patientId",
-   "meaning": "MediCore internal patient identifier shared between patient demographic and clinical condition endpoints."
+   "meaning": "Internal EHR patient reference identifier"
   }
  ],
  "code_systems": [
   {
+   "field": "sex",
+   "system": "local",
+   "value_map": {
+    "F": "Female",
+    "M": "Male"
+   }
+  },
+  {
    "field": "code.value",
    "system": "SNOMED CT",
-   "value_map": {
-    "13645005": "Chronic obstructive lung disease",
-    "195967001": "Asthma",
-    "235595009": "Gastroesophageal reflux disease",
-    "35489007": "Depressive disorder",
-    "38341003": "Hypertensive disorder",
-    "40930008": "Hypothyroidism",
-    "44054006": "Diabetes mellitus type 2",
-    "49436004": "Atrial fibrillation",
-    "55822004": "Hyperlipidemia",
-    "69896004": "Rheumatoid arthritis"
-   }
+   "value_map": {}
   },
   {
    "field": "state",
@@ -213,13 +210,13 @@
   }
  ],
  "data_quality_notes": [
-  "Date format inconsistency: Patient dob uses US format MM/DD/YYYY, whereas Condition onsetDate uses ISO format YYYY-MM-DD.",
-  "The contact.email field is present in 0 of 40 sampled records (100% null).",
-  "Single-letter state codes ('A', 'R') require mapping to FHIR ConditionClinicalStatusCodes terminology ('active', 'resolved')."
+  "Date formatting is inconsistent across endpoints: Patient.dob uses 'MM/DD/YYYY' while Condition.onsetDate uses ISO 'YYYY-MM-DD'.",
+  "contact.email is present in 0 of 40 records (always null).",
+  "2 out of 40 patients currently have no recorded conditions in the problem list."
  ],
  "open_questions": [
-  "Are incremental filtering parameters (such as modifiedSince) available for /api/v2/patients and /api/v2/conditions to support delta syncs?",
-  "Does /api/v2/conditions support filtering directly by patientId or mrn query parameters?",
-  "Is the email field expected to be populated in future updates or should downstream pipelines treat contact email as optional/unavailable?"
+  "Confirm if condition state code 'R' stands for Resolved or Remission in local EHR usage.",
+  "Verify whether contact.email is expected to be populated in future updates or should be omitted from transformations.",
+  "Determine whether patientId or mrn should serve as the canonical patient identifier for integration mapping."
  ]
 }

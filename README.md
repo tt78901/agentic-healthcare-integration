@@ -142,17 +142,26 @@ The report compares time to a validated adapter, validation runs needed, checks 
 value accuracy. If you did not work in one sitting, pass `--minutes` with your active time; the report says
 which kind of timing was used.
 
-## Using Synthea data
+## Synthea data
 
-The mock systems are seeded by a built-in generator, so the project runs with no downloads. To seed them from
-Synthea instead, download or generate a Synthea FHIR R4 export (https://synthea.mitre.org/downloads) and run:
+The four mock systems are seeded from **Synthea** (https://synthea.mitre.org): 40 synthetic patients
+(seed 20261113, Massachusetts, reference date 2026-11-22). The loaded estate is committed as
+`mock_systems/synthea_estate.json`, so it rebuilds with no Java and no 200 MB export:
 
 ```bash
-python -m fabric seed --synthea path/to/synthea/output/fhir --patients 40
+python -m fabric seed                                         # the Synthea estate (default)
+python -m fabric seed --synthea path/to/output/fhir           # from a fresh Synthea export
+python -m fabric seed --synthea DIR --save-estate             # ...and make it the new default
 ```
 
-The loader is tested against a miniature bundle in Synthea's shape (`tests/test_synthea.py`). It has not yet been
-run against a full Synthea export.
+The loader (`mock_systems/synthea.py`) writes each Synthea patient into all four legacy systems in their own
+formats. It keeps disorders (not Synthea's social "findings") on the problem list, stores one unit per lab
+test as the lab's reference table does, and writes postcodes as text ("MA 01450"), as the hospital systems store them.
+
+The connectors were built and approved by the agent pipeline in run 20261113-175528, on an earlier estate from a
+Python generator (since replaced by Synthea).
+Re-seeded with Synthea, the same connectors, unchanged, pass the 14-check contract with no drift and
+12,914 / 12,914 values correct against Synthea's answer key (`python -m fabric check`).
 
 ## Responsible AI safeguards
 
@@ -193,7 +202,7 @@ run against a full Synthea export.
 
 ```
 systems.yaml          the estate: where each system lives (all a human provides)
-mock_systems/         synthetic dataset, Synthea loader, builders for the four systems, mock EHR API, drift scenarios
+mock_systems/         Synthea loader + committed Synthea estate, builders for the four systems, mock EHR API, drift scenarios
 fabric/
   probes.py           discovery tools (read-only) and the independent record counter
   privacy.py          PHI guard: masking, date shifting, error scrubbing

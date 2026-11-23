@@ -1,0 +1,148 @@
+openapi: 3.0.3
+info:
+  title: 'MediCore EHR (REST API): FHIR facade'
+  version: 0.1.0
+  description: 'Integration pattern: api_facade. MediCore EHR exposes a functional REST API (v2.3.1) with JSON pagination.
+    An API facade allows querying data on demand and transforming responses into FHIR R4 resources without replicating
+    storage.'
+paths:
+  /fhir/Patient:
+    get:
+      summary: Patient resources sourced from MediCore EHR (REST API)
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. ehr-rest.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: Patient
+      x-merge-rule: none
+      x-field-map:
+      - fhir: id
+        source: patientId
+        transform: 'Prefix with system identifier: ''ehr-rest-'' + patientId'
+      - fhir: meta.source
+        source: N/A
+        transform: 'Static value: ''urn:system:ehr-rest'''
+      - fhir: identifier[0]
+        source: mrn
+        transform: 'Construct object: {''system'': ''http://hospital.example.org/mrn'', ''value'': str(mrn)}'
+      - fhir: active
+        source: active
+        transform: Pass through boolean value
+      - fhir: name[0].given[0]
+        source: name.first
+        transform: Pass through string if non-empty
+      - fhir: name[0].family
+        source: name.last
+        transform: Pass through string if non-empty
+      - fhir: birthDate
+        source: dob
+        transform: Parse date format MM/DD/YYYY and format as YYYY-MM-DD
+      - fhir: gender
+        source: sex
+        transform: 'Map codes: ''M'' -> ''male'', ''F'' -> ''female'', default -> ''unknown'''
+      - fhir: telecom[0]
+        source: contact.phone
+        transform: 'Construct object if non-empty: {''system'': ''phone'', ''value'': contact.phone, ''use'': ''home''}'
+      - fhir: address[0].line[0]
+        source: address.line1
+        transform: Pass through string if non-empty
+      - fhir: address[0].city
+        source: address.city
+        transform: Pass through string if non-empty
+      - fhir: address[0].postalCode
+        source: address.postCode
+        transform: Pass through string if non-empty
+      - fhir: address[0].country
+        source: address.country
+        transform: Pass through string if non-empty
+  /fhir/Condition:
+    get:
+      summary: Condition resources sourced from MediCore EHR (REST API)
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. ehr-rest.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: Condition
+      x-merge-rule: none
+      x-field-map:
+      - fhir: id
+        source: conditionId
+        transform: 'Prefix with system identifier: ''ehr-rest-'' + conditionId'
+      - fhir: meta.source
+        source: N/A
+        transform: 'Static value: ''urn:system:ehr-rest'''
+      - fhir: clinicalStatus
+        source: state
+        transform: 'Map codes: ''A'' -> {''coding'': [{''system'': ''http://terminology.hl7.org/CodeSystem/condition-clinical'',
+          ''code'': ''active''}]}, ''R'' -> {''coding'': [{''system'': ''http://terminology.hl7.org/CodeSystem/condition-clinical'',
+          ''code'': ''resolved''}]}'
+      - fhir: code.coding[0].system
+        source: code.system
+        transform: 'Static mapping to SNOMED URI: ''http://snomed.info/sct'''
+      - fhir: code.coding[0].code
+        source: code.value
+        transform: Convert integer to string code representation
+      - fhir: code.coding[0].display
+        source: code.text
+        transform: Pass through display text if non-empty
+      - fhir: subject
+        source: mrn
+        transform: 'Construct logical patient reference: {''identifier'': {''system'': ''http://hospital.example.org/mrn'',
+          ''value'': str(mrn)}}'
+      - fhir: onsetDateTime
+        source: onsetDate
+        transform: Pass through ISO date string YYYY-MM-DD
+components:
+  schemas:
+    Bundle:
+      type: object
+      description: FHIR R4 Bundle (type searchset)
+      externalDocs:
+        url: https://hl7.org/fhir/R4/bundle.html
+      properties:
+        resourceType:
+          type: string
+          enum:
+          - Bundle
+        type:
+          type: string
+          enum:
+          - searchset
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object

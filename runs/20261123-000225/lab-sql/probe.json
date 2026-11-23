@@ -1,0 +1,403 @@
+{
+ "kind": "sqlite",
+ "access": "read-only SQL (SQLite dialect)",
+ "tables": [
+  {
+   "table": "PT_MSTR",
+   "row_count": 23,
+   "columns": [
+    {
+     "name": "PT_ID",
+     "declared_type": "INTEGER",
+     "not_null": false,
+     "primary_key": true
+    },
+    {
+     "name": "MRN_NO",
+     "declared_type": "TEXT",
+     "not_null": true,
+     "primary_key": false
+    },
+    {
+     "name": "LNAME",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "FNAME",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "DOB_DT",
+     "declared_type": "INTEGER",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "SEX_CD",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    }
+   ],
+   "foreign_keys": [],
+   "field_statistics": {
+    "PT_ID": {
+     "present_in": 23,
+     "of": 23,
+     "distinct": 23,
+     "format": "integer",
+     "sample_values": "masked"
+    },
+    "MRN_NO": {
+     "present_in": 23,
+     "of": 23,
+     "distinct": 23,
+     "format": "integer stored as text",
+     "sample_values": "masked"
+    },
+    "LNAME": {
+     "present_in": 23,
+     "of": 23,
+     "distinct": 21,
+     "format": "text (max length 10)",
+     "sample_values": "masked"
+    },
+    "FNAME": {
+     "present_in": 23,
+     "of": 23,
+     "distinct": 23,
+     "format": "text (max length 9)",
+     "sample_values": "masked"
+    },
+    "DOB_DT": {
+     "present_in": 23,
+     "of": 23,
+     "distinct": 23,
+     "format": "date YYYYMMDD stored as integer",
+     "sample_values": "date-shifted"
+    },
+    "SEX_CD": {
+     "present_in": 23,
+     "of": 23,
+     "distinct": 2,
+     "format": "text (max length 1)",
+     "values": [
+      "F",
+      "M"
+     ]
+    }
+   },
+   "sample_rows_masked": [
+    {
+     "PT_ID": 6449,
+     "MRN_NO": "7114274",
+     "LNAME": "PDCPNQLF",
+     "FNAME": "TNGIBQA",
+     "DOB_DT": 19710818,
+     "SEX_CD": "M"
+    },
+    {
+     "PT_ID": 7143,
+     "MRN_NO": "5855963",
+     "LNAME": "MHOIXZML",
+     "FNAME": "FVCKNN",
+     "DOB_DT": 19661228,
+     "SEX_CD": "F"
+    },
+    {
+     "PT_ID": 2079,
+     "MRN_NO": "8910158",
+     "LNAME": "VEJLVPT",
+     "FNAME": "CHQVOAC",
+     "DOB_DT": 19550329,
+     "SEX_CD": "M"
+    }
+   ]
+  },
+  {
+   "table": "TEST_REF",
+   "row_count": 63,
+   "columns": [
+    {
+     "name": "TEST_CD",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": true
+    },
+    {
+     "name": "LOINC_CD",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "TEST_NM",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "UOM",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "REF_LO",
+     "declared_type": "REAL",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "REF_HI",
+     "declared_type": "REAL",
+     "not_null": false,
+     "primary_key": false
+    }
+   ],
+   "foreign_keys": [],
+   "field_statistics": {
+    "TEST_CD": {
+     "present_in": 63,
+     "of": 63,
+     "distinct": 63,
+     "format": "text (max length 5)",
+     "sample_values": "masked"
+    },
+    "LOINC_CD": {
+     "present_in": 63,
+     "of": 63,
+     "distinct": 63,
+     "format": "text (max length 7)",
+     "sample_values": "masked"
+    },
+    "TEST_NM": {
+     "present_in": 63,
+     "of": 63,
+     "distinct": 63,
+     "format": "text (max length 109)",
+     "sample_values": "masked"
+    },
+    "UOM": {
+     "present_in": 63,
+     "of": 63,
+     "distinct": 14,
+     "format": "text (max length 9)",
+     "values": [
+      "%",
+      "10*3/uL",
+      "10*6/uL",
+      "U/L",
+      "fL",
+      "g/dL",
+      "kU/L",
+      "mL/min",
+      "mg/dL",
+      "mg/g",
+      "mmol/L",
+      "pH",
+      "pg",
+      "{nominal}"
+     ]
+    },
+    "REF_LO": {
+     "present_in": 12,
+     "of": 63,
+     "distinct": 10,
+     "format": "decimal",
+     "sample_values": "masked"
+    },
+    "REF_HI": {
+     "present_in": 12,
+     "of": 63,
+     "distinct": 12,
+     "format": "decimal",
+     "sample_values": "masked"
+    }
+   },
+   "sample_rows_masked": [
+    {
+     "TEST_CD": "CBF6R",
+     "LOINC_CD": "8540-1",
+     "TEST_NM": "Tupfrzmqys L8i/Lpcmgnopzt.carhh wj Jrfcz",
+     "UOM": "%",
+     "REF_LO": 4.8,
+     "REF_HI": 7.2
+    },
+    {
+     "TEST_CD": "D5867",
+     "LOINC_CD": "5175-4",
+     "TEST_NM": "Jdijwgp [Dlbm/anweag] sv Lzhtl",
+     "UOM": "mg/dL",
+     "REF_LO": null,
+     "REF_HI": null
+    },
+    {
+     "TEST_CD": "K3633",
+     "LOINC_CD": "5986-1",
+     "TEST_NM": "Byoj nxxullot [Dlqi/roxvwq] td Vdett",
+     "UOM": "mg/dL",
+     "REF_LO": null,
+     "REF_HI": null
+    }
+   ]
+  },
+  {
+   "table": "LAB_RSLT",
+   "row_count": 1215,
+   "columns": [
+    {
+     "name": "RSLT_ID",
+     "declared_type": "INTEGER",
+     "not_null": false,
+     "primary_key": true
+    },
+    {
+     "name": "PT_ID",
+     "declared_type": "INTEGER",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "TEST_CD",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "RSLT_VAL",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "ABN_FLG",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "RSLT_STAT",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "COLL_DTTM",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    },
+    {
+     "name": "RSLT_DTTM",
+     "declared_type": "TEXT",
+     "not_null": false,
+     "primary_key": false
+    }
+   ],
+   "foreign_keys": [
+    "LAB_RSLT.TEST_CD -> TEST_REF.TEST_CD",
+    "LAB_RSLT.PT_ID -> PT_MSTR.PT_ID"
+   ],
+   "field_statistics": {
+    "RSLT_ID": {
+     "present_in": 1215,
+     "of": 1215,
+     "distinct": 1215,
+     "format": "integer",
+     "sample_values": "masked"
+    },
+    "PT_ID": {
+     "present_in": 1215,
+     "of": 1215,
+     "distinct": 23,
+     "format": "integer",
+     "sample_values": "masked"
+    },
+    "TEST_CD": {
+     "present_in": 1215,
+     "of": 1215,
+     "distinct": 63,
+     "format": "text (max length 5)"
+    },
+    "RSLT_VAL": {
+     "present_in": 1215,
+     "of": 1215,
+     "distinct": 1065,
+     "format": "decimal stored as text",
+     "sample_values": "masked"
+    },
+    "ABN_FLG": {
+     "present_in": 1215,
+     "of": 1215,
+     "distinct": 3,
+     "format": "text (max length 1)",
+     "values": [
+      "H",
+      "L",
+      "N"
+     ]
+    },
+    "RSLT_STAT": {
+     "present_in": 1215,
+     "of": 1215,
+     "distinct": 1,
+     "format": "text (max length 1)",
+     "values": [
+      "F"
+     ]
+    },
+    "COLL_DTTM": {
+     "present_in": 1215,
+     "of": 1215,
+     "distinct": 67,
+     "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+     "sample_values": "date-shifted"
+    },
+    "RSLT_DTTM": {
+     "present_in": 1215,
+     "of": 1215,
+     "distinct": 67,
+     "format": "datetime YYYYMMDDHHMMSS (no timezone)",
+     "sample_values": "date-shifted"
+    }
+   },
+   "sample_rows_masked": [
+    {
+     "RSLT_ID": 3,
+     "PT_ID": 6449,
+     "TEST_CD": "HBA1C",
+     "RSLT_VAL": "2.08",
+     "ABN_FLG": "H",
+     "RSLT_STAT": "F",
+     "COLL_DTTM": "20241009111218",
+     "RSLT_DTTM": "20241009111218"
+    },
+    {
+     "RSLT_ID": 9,
+     "PT_ID": 6449,
+     "TEST_CD": "T0001",
+     "RSLT_VAL": "25.20",
+     "ABN_FLG": "N",
+     "RSLT_STAT": "F",
+     "COLL_DTTM": "20241009111218",
+     "RSLT_DTTM": "20241009111218"
+    },
+    {
+     "RSLT_ID": 5,
+     "PT_ID": 6449,
+     "TEST_CD": "T0002",
+     "RSLT_VAL": "38.29",
+     "ABN_FLG": "N",
+     "RSLT_STAT": "F",
+     "COLL_DTTM": "20241009111218",
+     "RSLT_DTTM": "20241009111218"
+    }
+   ]
+  }
+ ]
+}

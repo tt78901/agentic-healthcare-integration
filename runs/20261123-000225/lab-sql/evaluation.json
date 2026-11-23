@@ -1,0 +1,76 @@
+{
+ "records": {
+  "expected": 1238,
+  "matched": 1238,
+  "missing": 0,
+  "unexpected": 0
+ },
+ "fields": {
+  "Patient.mrn": {
+   "correct": 23,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.family": {
+   "correct": 23,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.given": {
+   "correct": 23,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.birthDate": {
+   "correct": 23,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.gender": {
+   "correct": 23,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Observation.mrn": {
+   "correct": 1215,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Observation.code": {
+   "correct": 1215,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Observation.value": {
+   "correct": 1215,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Observation.unit": {
+   "correct": 1215,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Observation.effective": {
+   "correct": 1215,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Observation.status": {
+   "correct": 1215,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Observation.interpretation": {
+   "correct": 1215,
+   "wrong": 0,
+   "absent": 0
+  }
+ },
+ "values_correct": 8620,
+ "values_wrong": 0,
+ "values_absent": 0,
+ "accuracy": 1.0,
+ "coverage": 1.0,
+ "clean": true
+}

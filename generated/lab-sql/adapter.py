@@ -1,76 +1,99 @@
 import pathlib
 import re
 import sqlite3
+from typing import Any, Dict, List, Optional
 
 SYSTEM_ID = "lab-sql"
 SUPPORTED = ["Patient", "Observation"]
 
 
-def _clean_id(raw_id: str) -> str:
-    cleaned = re.sub(r'[^A-Za-z0-9.-]', '-', raw_id)
+def _clean_id(val: Any) -> str:
+    s = str(val) if val is not None else ""
+    cleaned = re.sub(r"[^A-Za-z0-9\-\.]", "-", s)
     return cleaned[:64]
 
 
-def _fetch_patients(conn: sqlite3.Connection) -> list[dict]:
-    cursor = conn.cursor()
-    cursor.execute("SELECT PT_ID, MRN_NO, LNAME, FNAME, DOB_DT, SEX_CD FROM PT_MSTR")
-    rows = cursor.fetchall()
-    results = []
+def _format_date(val: Any) -> Optional[str]:
+    if val is None:
+        return None
+    s = str(val).strip()
+    if len(s) == 8 and s.isdigit():
+        return f"{s[0:4]}-{s[4:6]}-{s[6:8]}"
+    return None
 
-    sex_map = {"M": "male", "F": "female"}
 
+def _format_datetime(val: Any) -> Optional[str]:
+    if val is None:
+        return None
+    s = str(val).strip()
+    if len(s) == 14 and s.isdigit():
+        return f"{s[0:4]}-{s[4:6]}-{s[6:8]}T{s[8:10]}:{s[10:12]}:{s[12:14]}Z"
+    return None
+
+
+def _fetch_patients(conn: sqlite3.Connection) -> List[Dict[str, Any]]:
+    cur = conn.cursor()
+    cur.execute("SELECT PT_ID, MRN_NO, LNAME, FNAME, DOB_DT, SEX_CD FROM PT_MSTR")
+    rows = cur.fetchall()
+
+    patients_by_id: Dict[str, Dict[str, Any]] = {}
     for row in rows:
         pt_id = row["PT_ID"]
-        mrn_no = row["MRN_NO"]
-        lname = row["LNAME"]
-        fname = row["FNAME"]
-        dob_dt = row["DOB_DT"]
-        sex_cd = row["SEX_CD"]
+        if pt_id is None:
+            continue
 
-        patient_id = _clean_id(f"{SYSTEM_ID}-{pt_id}")
-
-        resource = {
+        res_id = _clean_id(f"lab-sql-{pt_id}")
+        res: Dict[str, Any] = {
             "resourceType": "Patient",
-            "id": patient_id,
-            "meta": {"source": f"urn:system:{SYSTEM_ID}"}
+            "id": res_id,
+            "meta": {"source": f"urn:system:{SYSTEM_ID}"},
         }
 
-        if mrn_no:
-            resource["identifier"] = [
+        mrn = row["MRN_NO"]
+        if mrn is not None and str(mrn).strip():
+            res["identifier"] = [
                 {
                     "system": "http://hospital.example.org/mrn",
-                    "value": str(mrn_no)
+                    "value": str(mrn).strip(),
                 }
             ]
 
-        name_entry = {}
-        if lname:
-            name_entry["family"] = str(lname)
-        if fname:
-            name_entry["given"] = [str(fname)]
-        if name_entry:
-            resource["name"] = [name_entry]
+        lname = row["LNAME"]
+        fname = row["FNAME"]
+        family = str(lname).strip() if lname is not None and str(lname).strip() else None
+        given = [str(fname).strip()] if fname is not None and str(fname).strip() else []
 
-        if sex_cd:
-            resource["gender"] = sex_map.get(str(sex_cd).strip().upper(), "unknown")
+        name_obj: Dict[str, Any] = {}
+        if family:
+            name_obj["family"] = family
+        if given:
+            name_obj["given"] = given
+        if name_obj:
+            res["name"] = [name_obj]
+
+        sex = row["SEX_CD"]
+        if sex is not None and str(sex).strip():
+            sex_str = str(sex).strip().upper()
+            sex_map = {"M": "male", "F": "female"}
+            res["gender"] = sex_map.get(sex_str, "unknown")
         else:
-            resource["gender"] = "unknown"
+            res["gender"] = "unknown"
 
-        if dob_dt is not None:
-            dob_str = str(dob_dt).strip()
-            if len(dob_str) == 8 and dob_str.isdigit():
-                resource["birthDate"] = f"{dob_str[0:4]}-{dob_str[4:6]}-{dob_str[6:8]}"
+        birth_date = _format_date(row["DOB_DT"])
+        if birth_date:
+            res["birthDate"] = birth_date
 
-        results.append(resource)
+        patients_by_id[res_id] = res
 
-    results.sort(key=lambda x: x["id"])
+    results = list(patients_by_id.values())
+    results.sort(key=lambda r: r["id"])
     return results
 
 
-def _fetch_observations(conn: sqlite3.Connection) -> list[dict]:
-    cursor = conn.cursor()
-    query = """
-    SELECT 
+def _fetch_observations(conn: sqlite3.Connection) -> List[Dict[str, Any]]:
+    cur = conn.cursor()
+    sql = """
+    SELECT
         r.RSLT_ID,
         r.PT_ID,
         r.TEST_CD,
@@ -79,128 +102,115 @@ def _fetch_observations(conn: sqlite3.Connection) -> list[dict]:
         r.RSLT_STAT,
         r.COLL_DTTM,
         r.RSLT_DTTM,
-        p.MRN_NO,
         t.LOINC_CD,
         t.TEST_NM,
-        t.UOM
+        t.UOM,
+        p.MRN_NO
     FROM LAB_RSLT r
-    LEFT JOIN PT_MSTR p ON r.PT_ID = p.PT_ID
     LEFT JOIN TEST_REF t ON r.TEST_CD = t.TEST_CD
+    LEFT JOIN PT_MSTR p ON r.PT_ID = p.PT_ID
     """
-    cursor.execute(query)
-    rows = cursor.fetchall()
-    results = []
+    cur.execute(sql)
+    rows = cur.fetchall()
 
-    stat_map = {
-        "F": "final",
-        "C": "corrected",
-        "P": "preliminary"
-    }
-
+    obs_by_id: Dict[str, Dict[str, Any]] = {}
     for row in rows:
         rslt_id = row["RSLT_ID"]
-        rslt_val = row["RSLT_VAL"]
-        abn_flg = row["ABN_FLG"]
-        rslt_stat = row["RSLT_STAT"]
-        coll_dttm = row["COLL_DTTM"]
-        mrn_no = row["MRN_NO"]
-        loinc_cd = row["LOINC_CD"]
-        test_cd = row["TEST_CD"]
-        test_nm = row["TEST_NM"]
-        uom = row["UOM"]
+        if rslt_id is None:
+            continue
 
-        obs_id = _clean_id(f"{SYSTEM_ID}-{rslt_id}")
-        status = stat_map.get(str(rslt_stat or "").strip().upper(), "unknown")
-
-        resource = {
+        res_id = _clean_id(f"lab-sql-{rslt_id}")
+        res: Dict[str, Any] = {
             "resourceType": "Observation",
-            "id": obs_id,
+            "id": res_id,
             "meta": {"source": f"urn:system:{SYSTEM_ID}"},
-            "status": status,
-            "category": [
-                {
-                    "coding": [
-                        {
-                            "system": "http://terminology.hl7.org/CodeSystem/observation-category",
-                            "code": "laboratory"
-                        }
-                    ]
-                }
-            ]
         }
 
-        coding_obj = {}
-        if loinc_cd:
-            coding_obj["system"] = "http://loinc.org"
-            coding_obj["code"] = str(loinc_cd)
-        elif test_cd:
-            coding_obj["code"] = str(test_cd)
+        stat_val = row["RSLT_STAT"]
+        stat_str = str(stat_val).strip().upper() if stat_val is not None else ""
+        stat_map = {"F": "final", "P": "preliminary", "C": "corrected"}
+        res["status"] = stat_map.get(stat_str, "registered")
 
-        if test_nm:
-            coding_obj["display"] = str(test_nm)
+        res["category"] = [
+            {
+                "coding": [
+                    {
+                        "system": "http://terminology.hl7.org/CodeSystem/observation-category",
+                        "code": "laboratory",
+                    }
+                ]
+            }
+        ]
 
-        if coding_obj:
-            resource["code"] = {"coding": [coding_obj]}
+        loinc = row["LOINC_CD"]
+        test_nm = row["TEST_NM"]
+        coding_obj: Dict[str, str] = {"system": "http://loinc.org"}
+        if loinc is not None and str(loinc).strip():
+            coding_obj["code"] = str(loinc).strip()
+        if test_nm is not None and str(test_nm).strip():
+            coding_obj["display"] = str(test_nm).strip()
 
-        if mrn_no:
-            resource["subject"] = {
+        if "code" in coding_obj or "display" in coding_obj:
+            res["code"] = {"coding": [coding_obj]}
+
+        mrn = row["MRN_NO"]
+        if mrn is not None and str(mrn).strip():
+            res["subject"] = {
                 "identifier": {
                     "system": "http://hospital.example.org/mrn",
-                    "value": str(mrn_no)
+                    "value": str(mrn).strip(),
                 }
             }
 
-        if coll_dttm:
-            dttm_str = str(coll_dttm).strip()
-            if len(dttm_str) == 14 and dttm_str.isdigit():
-                resource["effectiveDateTime"] = f"{dttm_str[0:4]}-{dttm_str[4:6]}-{dttm_str[6:8]}T{dttm_str[8:10]}:{dttm_str[10:12]}:{dttm_str[12:14]}Z"
-            elif len(dttm_str) == 8 and dttm_str.isdigit():
-                resource["effectiveDateTime"] = f"{dttm_str[0:4]}-{dttm_str[4:6]}-{dttm_str[6:8]}"
+        eff_dt = _format_datetime(row["COLL_DTTM"])
+        if eff_dt:
+            res["effectiveDateTime"] = eff_dt
 
+        rslt_val = row["RSLT_VAL"]
         if rslt_val is not None:
             val_str = str(rslt_val).strip()
-            if val_str:
-                try:
-                    num_val = float(val_str)
-                    if num_val.is_integer():
-                        num_val = int(num_val)
-                    vq = {"value": num_val}
-                    if uom:
-                        vq["unit"] = str(uom)
-                        vq["system"] = "http://unitsofmeasure.org"
-                        vq["code"] = str(uom)
-                    resource["valueQuantity"] = vq
-                except ValueError:
-                    resource["valueString"] = val_str
+            try:
+                val_num = float(val_str)
+                vq: Dict[str, Any] = {"value": val_num}
+                uom = row["UOM"]
+                if uom is not None and str(uom).strip():
+                    uom_str = str(uom).strip()
+                    vq["unit"] = uom_str
+                    vq["system"] = "http://unitsofmeasure.org"
+                    vq["code"] = uom_str
+                res["valueQuantity"] = vq
+            except ValueError:
+                pass
 
-        if abn_flg:
-            clean_flg = str(abn_flg).strip().upper()
-            if clean_flg in ("H", "L", "N"):
-                resource["interpretation"] = [
+        abn_flg = row["ABN_FLG"]
+        if abn_flg is not None:
+            abn_str = str(abn_flg).strip().upper()
+            if abn_str in ("H", "L", "N"):
+                res["interpretation"] = [
                     {
                         "coding": [
                             {
                                 "system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation",
-                                "code": clean_flg
+                                "code": abn_str,
                             }
                         ]
                     }
                 ]
 
-        results.append(resource)
+        obs_by_id[res_id] = res
 
-    results.sort(key=lambda x: x["id"])
+    results = list(obs_by_id.values())
+    results.sort(key=lambda r: r["id"])
     return results
 
 
 def fetch(resource_type: str, config: dict) -> list[dict]:
+    """Return ALL resources of that type as FHIR R4 JSON dicts, sorted by id.
+    Raise ValueError for a resource type not in SUPPORTED."""
     if resource_type not in SUPPORTED:
-        raise ValueError("Unsupported resource type")
+        raise ValueError(f"Unsupported resource type: {resource_type}")
 
-    db_path = config.get("path")
-    if not db_path:
-        return []
-
+    db_path = config["path"]
     uri = pathlib.Path(db_path).as_uri() + "?mode=ro"
     conn = sqlite3.connect(uri, uri=True)
     conn.row_factory = sqlite3.Row
@@ -210,5 +220,7 @@ def fetch(resource_type: str, config: dict) -> list[dict]:
             return _fetch_patients(conn)
         elif resource_type == "Observation":
             return _fetch_observations(conn)
+        else:
+            raise ValueError(f"Unsupported resource type: {resource_type}")
     finally:
         conn.close()

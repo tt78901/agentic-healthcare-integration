@@ -1,7 +1,7 @@
 {
  "ehr-rest": {
-  "run_id": "20261113-175528",
-  "promoted_at": "2026-11-13T18:16:43+00:00",
+  "run_id": "20261123-000225",
+  "promoted_at": "2026-11-23T00:15:21+00:00",
   "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
   "stub": false,
   "pattern": "api_facade",
@@ -11,16 +11,16 @@
   ],
   "counts": {
    "Patient": 40,
-   "Condition": 49
+   "Condition": 437
   },
-  "repair_rounds": 0,
+  "repair_rounds": 1,
   "accuracy": 1.0,
   "coverage": 1.0,
   "approved_by": "reviewer"
  },
  "lab-sql": {
-  "run_id": "20261113-175528",
-  "promoted_at": "2026-11-13T18:16:43+00:00",
+  "run_id": "20261123-000225",
+  "promoted_at": "2026-11-23T00:15:21+00:00",
   "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
   "stub": false,
   "pattern": "database_polling",
@@ -29,8 +29,8 @@
    "Patient"
   ],
   "counts": {
-   "Patient": 36,
-   "Observation": 342
+   "Patient": 23,
+   "Observation": 1215
   },
   "repair_rounds": 0,
   "accuracy": 1.0,
@@ -38,8 +38,8 @@
   "approved_by": "reviewer"
  },
  "adt-feed": {
-  "run_id": "20261113-175528",
-  "promoted_at": "2026-11-13T18:16:43+00:00",
+  "run_id": "20261123-000225",
+  "promoted_at": "2026-11-23T00:15:21+00:00",
   "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
   "stub": false,
   "pattern": "message_feed_ingest",
@@ -48,8 +48,8 @@
    "Patient"
   ],
   "counts": {
-   "Patient": 40,
-   "Encounter": 163
+   "Patient": 35,
+   "Encounter": 250
   },
   "repair_rounds": 1,
   "accuracy": 1.0,
@@ -57,8 +57,8 @@
   "approved_by": "reviewer"
  },
  "pharmacy-csv": {
-  "run_id": "20261113-175528",
-  "promoted_at": "2026-11-13T18:16:43+00:00",
+  "run_id": "20261123-000225",
+  "promoted_at": "2026-11-23T00:15:21+00:00",
   "model": "gemini-3.6-flash via generativelanguage.googleapis.com",
   "stub": false,
   "pattern": "file_drop_ingest",
@@ -66,7 +66,7 @@
    "MedicationRequest"
   ],
   "counts": {
-   "MedicationRequest": 60
+   "MedicationRequest": 116
   },
   "repair_rounds": 0,
   "accuracy": 1.0,

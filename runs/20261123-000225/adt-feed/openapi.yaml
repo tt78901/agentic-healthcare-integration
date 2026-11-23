@@ -1,0 +1,175 @@
+openapi: 3.0.3
+info:
+  title: 'Patient administration HL7 v2 feed: FHIR facade'
+  version: 0.1.0
+  description: 'Integration pattern: message_feed_ingest. The ADT feed produces HL7 v2 event messages (ADT^A01,
+    ADT^A03, ADT^A04) dropped as files representing discrete real-time registration, admission, and discharge business
+    events. Standard message ingestion allows parsing HL7 v2 segments and updating Patient and Encounter resources
+    statefully.'
+paths:
+  /fhir/Patient:
+    get:
+      summary: Patient resources sourced from Patient administration HL7 v2 feed
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. adt-feed.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: PID
+      x-merge-rule: Merge latest demographic updates from PID segments by Patient MRN (PID.3.1) across incoming
+        ADT messages.
+      x-field-map:
+      - fhir: id
+        source: PID.3.1
+        transform: Format string as 'adt-feed-' + PID.3.1, replacing characters outside [A-Za-z0-9-.] with '-'
+      - fhir: meta.source
+        source: static
+        transform: Set static string 'urn:system:adt-feed'
+      - fhir: identifier[0].system
+        source: static
+        transform: Set static string 'http://hospital.example.org/mrn'
+      - fhir: identifier[0].value
+        source: PID.3.1
+        transform: Pass through verbatim string representation of MRN
+      - fhir: identifier[0].assigner.display
+        source: PID.3.4
+        transform: Pass through assigning authority string if present
+      - fhir: identifier[0].type.coding[0].code
+        source: PID.3.5
+        transform: Pass through code string if present
+      - fhir: name[0].family
+        source: PID.5.1
+        transform: Pass through string if present
+      - fhir: name[0].given[0]
+        source: PID.5.2
+        transform: Pass through string inside array if present
+      - fhir: gender
+        source: PID.8
+        transform: 'Map codes: ''M'' -> ''male'', ''F'' -> ''female'', default to ''unknown'''
+      - fhir: birthDate
+        source: PID.7
+        transform: Parse YYYYMMDD and format as YYYY-MM-DD
+      - fhir: telecom[0].system
+        source: static
+        transform: Set static string 'phone'
+      - fhir: telecom[0].value
+        source: PID.13
+        transform: Pass through string if present
+      - fhir: address[0].line[0]
+        source: PID.11.1
+        transform: Pass through street address string inside array if present
+      - fhir: address[0].city
+        source: PID.11.3
+        transform: Pass through city string if present
+      - fhir: address[0].state
+        source: PID.11.5
+        transform: Pass through state code string if present
+      - fhir: address[0].country
+        source: PID.11.6
+        transform: Pass through country code string if present
+  /fhir/Encounter:
+    get:
+      summary: Encounter resources sourced from Patient administration HL7 v2 feed
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. adt-feed.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: PV1, PV2, MSH, EVN
+      x-merge-rule: Update single Encounter record per visit number (PV1.19) as state transitions occur (e.g. A01
+        admission setting period.start, A03 discharge populating period.end and status).
+      x-field-map:
+      - fhir: id
+        source: PV1.19
+        transform: Format string as 'adt-feed-' + PV1.19, replacing characters outside [A-Za-z0-9-.] with '-'
+      - fhir: meta.source
+        source: static
+        transform: Set static string 'urn:system:adt-feed'
+      - fhir: status
+        source: PV1.45, MSH.9.2
+        transform: If PV1.45 present or MSH.9.2 == 'A03' set 'finished'; else set 'in-progress'
+      - fhir: class.system
+        source: static
+        transform: Set static string 'http://terminology.hl7.org/CodeSystem/v3-ActCode'
+      - fhir: class.code
+        source: PV1.2
+        transform: 'Map codes: ''E'' -> ''EMER'', ''I'' -> ''IMP'', ''O'' -> ''AMB'''
+      - fhir: subject.identifier.system
+        source: static
+        transform: Set static string 'http://hospital.example.org/mrn'
+      - fhir: subject.identifier.value
+        source: PID.3.1
+        transform: Pass through MRN string
+      - fhir: period.start
+        source: PV1.44
+        transform: Parse YYYYMMDDHHMMSS as UTC per standard rules and format as YYYY-MM-DDThh:mm:ssZ
+      - fhir: period.end
+        source: PV1.45
+        transform: If present, parse YYYYMMDDHHMMSS as UTC and format as YYYY-MM-DDThh:mm:ssZ; omit if empty
+      - fhir: location[0].location.display
+        source: PV1.3.1
+        transform: Pass through assigned point of care string if present
+      - fhir: participant[0].individual.identifier.system
+        source: static
+        transform: Set static string 'http://hospital.example.org/provider-id'
+      - fhir: participant[0].individual.identifier.value
+        source: PV1.7.1
+        transform: Pass through attending provider ID if present
+      - fhir: participant[0].individual.display
+        source: PV1.7.2, PV1.7.3
+        transform: Combine surname (PV1.7.2) and given name (PV1.7.3) as 'Given Family' string if present
+      - fhir: reasonCode[0].text
+        source: PV2.3.2
+        transform: Pass through chief complaint description text if present
+components:
+  schemas:
+    Bundle:
+      type: object
+      description: FHIR R4 Bundle (type searchset)
+      externalDocs:
+        url: https://hl7.org/fhir/R4/bundle.html
+      properties:
+        resourceType:
+          type: string
+          enum:
+          - Bundle
+        type:
+          type: string
+          enum:
+          - searchset
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object

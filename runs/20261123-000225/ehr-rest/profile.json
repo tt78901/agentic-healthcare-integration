@@ -1,0 +1,222 @@
+{
+ "system_id": "ehr-rest",
+ "summary": "MediCore EHR API (v2.3.1) provides REST endpoints for patient demographics and problem list conditions. It holds core patient profiles alongside clinical problem list entries coded in SNOMED CT.",
+ "access": {
+  "mechanism": "rest_api",
+  "notes": "Requires HTTP header X-API-Key for authentication. Supports page-based pagination (page, pageSize) with payload items nested under the 'data' key and metadata under 'paging'."
+ },
+ "entities": [
+  {
+   "name": "Patient",
+   "source": "/api/v2/patients",
+   "description": "Patient demographic record containing identifier, contact information, and address.",
+   "primary_key": "patientId",
+   "patient_key": "mrn",
+   "fields": [
+    {
+     "name": "patientId",
+     "format": "text (max length 8)",
+     "meaning": "Internal unique identifier for the patient",
+     "phi": true,
+     "fhir_candidate": "Patient.identifier.value"
+    },
+    {
+     "name": "mrn",
+     "format": "integer stored as text",
+     "meaning": "Medical Record Number",
+     "phi": true,
+     "fhir_candidate": "Patient.identifier.value"
+    },
+    {
+     "name": "name.first",
+     "format": "text (max length 9)",
+     "meaning": "Patient given name",
+     "phi": true,
+     "fhir_candidate": "Patient.name.given"
+    },
+    {
+     "name": "name.last",
+     "format": "text (max length 13)",
+     "meaning": "Patient family name",
+     "phi": true,
+     "fhir_candidate": "Patient.name.family"
+    },
+    {
+     "name": "dob",
+     "format": "date MM/DD/YYYY",
+     "meaning": "Patient date of birth",
+     "phi": true,
+     "fhir_candidate": "Patient.birthDate"
+    },
+    {
+     "name": "sex",
+     "format": "text (max length 1)",
+     "meaning": "Administrative sex code (F/M)",
+     "phi": false,
+     "fhir_candidate": "Patient.gender"
+    },
+    {
+     "name": "contact.phone",
+     "format": "text (max length 12)",
+     "meaning": "Primary contact telephone number",
+     "phi": true,
+     "fhir_candidate": "Patient.telecom.value"
+    },
+    {
+     "name": "contact.email",
+     "format": "always empty",
+     "meaning": "Patient email address (currently unpopulated)",
+     "phi": true,
+     "fhir_candidate": "Patient.telecom.value"
+    },
+    {
+     "name": "address.line1",
+     "format": "text (max length 30)",
+     "meaning": "Street address line 1",
+     "phi": true,
+     "fhir_candidate": "Patient.address.line"
+    },
+    {
+     "name": "address.city",
+     "format": "text (max length 16)",
+     "meaning": "City of residence",
+     "phi": true,
+     "fhir_candidate": "Patient.address.city"
+    },
+    {
+     "name": "address.postCode",
+     "format": "text (max length 8)",
+     "meaning": "Postal or zip code",
+     "phi": true,
+     "fhir_candidate": "Patient.address.postalCode"
+    },
+    {
+     "name": "address.country",
+     "format": "text (max length 2)",
+     "meaning": "Country code (e.g. US)",
+     "phi": false,
+     "fhir_candidate": "Patient.address.country"
+    },
+    {
+     "name": "active",
+     "format": "boolean",
+     "meaning": "Indicates whether the patient record is active",
+     "phi": false,
+     "fhir_candidate": "Patient.active"
+    }
+   ]
+  },
+  {
+   "name": "Condition",
+   "source": "/api/v2/conditions",
+   "description": "Problem list item associated with a patient, capturing clinical diagnosis code, onset date, and state.",
+   "primary_key": "conditionId",
+   "patient_key": "patientId",
+   "fields": [
+    {
+     "name": "conditionId",
+     "format": "text (max length 7)",
+     "meaning": "Unique condition record identifier",
+     "phi": false,
+     "fhir_candidate": "Condition.identifier.value"
+    },
+    {
+     "name": "patientId",
+     "format": "text (max length 8)",
+     "meaning": "Reference identifier for patient",
+     "phi": true,
+     "fhir_candidate": "Condition.subject.reference"
+    },
+    {
+     "name": "mrn",
+     "format": "integer stored as text",
+     "meaning": "Medical Record Number reference",
+     "phi": true,
+     "fhir_candidate": "Condition.subject.identifier.value"
+    },
+    {
+     "name": "code.system",
+     "format": "text (max length 6)",
+     "meaning": "Terminology code system identifier",
+     "phi": false,
+     "fhir_candidate": "Condition.code.coding.system"
+    },
+    {
+     "name": "code.value",
+     "format": "integer stored as text",
+     "meaning": "Clinical terminology concept code",
+     "phi": false,
+     "fhir_candidate": "Condition.code.coding.code"
+    },
+    {
+     "name": "code.text",
+     "format": "text (max length 76)",
+     "meaning": "Display text describing the condition",
+     "phi": false,
+     "fhir_candidate": "Condition.code.coding.display"
+    },
+    {
+     "name": "onsetDate",
+     "format": "date YYYY-MM-DD",
+     "meaning": "Date when the condition was first recorded or began",
+     "phi": true,
+     "fhir_candidate": "Condition.onsetDateTime"
+    },
+    {
+     "name": "state",
+     "format": "text (max length 1)",
+     "meaning": "Clinical status code of condition",
+     "phi": false,
+     "fhir_candidate": "Condition.clinicalStatus.coding.code"
+    }
+   ]
+  }
+ ],
+ "relationships": [
+  "Condition.patientId -> Patient.patientId",
+  "Condition.mrn -> Patient.mrn"
+ ],
+ "cross_system_keys": [
+  {
+   "field": "mrn",
+   "meaning": "Enterprise Medical Record Number linking patient records across hospital systems"
+  },
+  {
+   "field": "patientId",
+   "meaning": "Internal EHR patient reference identifier"
+  }
+ ],
+ "code_systems": [
+  {
+   "field": "sex",
+   "system": "local",
+   "value_map": {
+    "F": "Female",
+    "M": "Male"
+   }
+  },
+  {
+   "field": "code.value",
+   "system": "SNOMED CT",
+   "value_map": {}
+  },
+  {
+   "field": "state",
+   "system": "local",
+   "value_map": {
+    "A": "Active",
+    "R": "Resolved"
+   }
+  }
+ ],
+ "data_quality_notes": [
+  "Date formatting is inconsistent across endpoints: Patient.dob uses 'MM/DD/YYYY' while Condition.onsetDate uses ISO 'YYYY-MM-DD'.",
+  "contact.email is present in 0 of 40 records (always null).",
+  "2 out of 40 patients currently have no recorded conditions in the problem list."
+ ],
+ "open_questions": [
+  "Confirm if condition state code 'R' stands for Resolved or Remission in local EHR usage.",
+  "Verify whether contact.email is expected to be populated in future updates or should be omitted from transformations.",
+  "Determine whether patientId or mrn should serve as the canonical patient identifier for integration mapping."
+ ]
+}

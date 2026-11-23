@@ -93,16 +93,68 @@ h2.pt{font-size:22px;letter-spacing:-.015em;margin:0}
 .flow.ok{stroke:#5eead4}
 .flow.ok.anim{stroke:var(--brand);stroke-dasharray:6 8;animation:dash 1.1s linear infinite}
 .flow.bad{stroke:var(--bad);stroke-dasharray:3 6;opacity:.8}
+.flow.blocked{stroke:#f2b1b1;stroke-dasharray:2 7;stroke-linecap:round}
+.flow.checking{stroke:var(--warn);stroke-dasharray:6 8;animation:dash .6s linear infinite}
+.gate circle{fill:#fff;stroke:var(--bad);stroke-width:1.8}.gate path{stroke:var(--bad);stroke-width:2;stroke-linecap:round}
+.gate.run circle{stroke:var(--warn)}.gate.run text{fill:var(--warn)}
+.gate.warn circle{stroke:#ea580c}.gate.warn text{fill:#ea580c}
 @keyframes dash{to{stroke-dashoffset:-14}}
+.upbtn{cursor:pointer}.upbtn rect{fill:#e6f6f4;stroke:#99d9d0;stroke-width:1}.upbtn text{fill:#0f766e}
+.upbtn:hover rect,.upbtn:focus rect{fill:#ccefea;stroke:#0d9488}.upbtn:focus{outline:none}
+.upex text{fill:#64748b;text-decoration:underline}.upex:hover text{fill:#0b1220}
+.vbadge{cursor:pointer}.vbadge:focus{outline:none}.vbadge:hover rect,.vbadge:focus rect{filter:brightness(.95)}
+.vbadge.ok rect{fill:#e7f7f0;stroke:#9ad9bf}.vbadge.ok text{fill:#047857}
+.vbadge.bad rect{fill:#fdeeee;stroke:#f2b1b1}.vbadge.bad text{fill:#b91c1c}
+.vbadge.run rect{fill:#fff6e8;stroke:#f6d29b}.vbadge.run text{fill:#92400e}
+.vbadge.warn rect{fill:#fff6e8;stroke:#f2c27b}.vbadge.warn text{fill:#9a3412}
+.node.flash-ok>rect:first-child{stroke:#059669;stroke-width:2;animation:flash 1.2s ease-out 2}
+.node.flash-bad>rect:first-child{stroke:#dc2626;stroke-width:2;animation:flash 1.2s ease-out 2}
+@keyframes flash{0%{stroke-opacity:1}50%{stroke-opacity:.25}100%{stroke-opacity:1}}
+.vmodal{position:fixed;inset:0;z-index:60;background:rgba(11,18,32,.45);display:flex;align-items:flex-start;justify-content:center;padding:3vh 16px;overflow-y:auto}
+.vmodal[hidden]{display:none}
+.vcard{background:#fff;border-radius:14px;width:min(640px,100%);box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+.vhead{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--line)}
+.vhead h3{margin:0;font-size:15px}.vx{border:0;background:none;font-size:22px;line-height:1;cursor:pointer;color:#64748b}
+.verdict{display:flex;gap:12px;align-items:center;padding:14px 18px}
+.verdict .ic{flex:none;width:36px;height:36px;border-radius:50%;display:grid;place-items:center;color:#fff;font-size:20px;font-weight:700}
+.verdict.ok{background:var(--oksoft)}.verdict.ok .ic{background:var(--ok)}
+.verdict.bad{background:var(--badsoft)}.verdict.bad .ic{background:var(--bad)}
+.verdict.warn{background:var(--warnsoft)}.verdict.warn .ic{background:var(--warn)}
+.vq{margin:12px 18px 2px;padding:10px 14px 6px;background:var(--warnsoft);border:1px solid #f6d29b;border-radius:10px}
+.vq h4{margin:0 0 6px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#9a3412}
+.vq ol{margin:0 0 6px 18px;padding:0}.vq li{font-size:13px;margin:0 0 7px;color:#0b1220}
+.vq li b{display:block}.vq li span{display:block;font-size:12px;color:#7c2d12;word-break:break-word}
+.vacc{list-style:none;margin:0 0 8px;padding:0;font-size:12.5px;color:#334155}.vacc li{padding:2px 0}.vacc li::before{content:"✓ ";color:var(--ok);font-weight:700}
+.verdict b{display:block;font-size:15px}.verdict span{font-size:13px;color:#334155}
+.vmeta{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 18px;font-size:12.5px;color:#64748b;border-bottom:1px solid var(--line)}
+.vmeta b{color:#0b1220;font-weight:600}
+.vsec{padding:12px 18px 4px}.vsec h4{margin:0 0 6px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#64748b}
+.vlist{list-style:none;margin:0 0 8px;padding:0}
+.vlist li{display:flex;gap:10px;padding:3px 0;font-size:13px;border-bottom:1px dashed #eef2f6}
+.vlist li:last-child{border-bottom:0}
+.vlist .st{flex:none;width:18px;text-align:center;font-weight:700}
+.vlist .p .st{color:var(--ok)}.vlist .f .st{color:var(--bad)}.vlist .s .st{color:#94a3b8}
+.vlist .d{display:block;font-size:12px;color:#64748b;margin-top:1px;word-break:break-word}.vlist .f .d{color:#b91c1c}
+.vgrp{font-size:11.5px;color:#94a3b8;margin:6px 0 0}
+.vfail{margin:12px 18px 2px;padding:10px 14px 6px;background:var(--badsoft);border:1px solid #f2b1b1;border-radius:10px}
+.vfail h4{margin:0 0 6px;font-size:12px;letter-spacing:.04em;text-transform:uppercase;color:#b91c1c}
+.vfail ol{margin:0 0 6px 18px;padding:0}.vfail li{font-size:13px;margin:0 0 6px;color:#0b1220}
+.vfail li b{display:block}.vfail li span{display:block;font-size:12px;color:#7f1d1d;word-break:break-word}
+.vfail .next{font-size:12px;color:#7f1d1d;border-top:1px dashed #f2b1b1;padding-top:6px;margin-top:2px}
+.vfoot{display:flex;gap:10px;justify-content:space-between;align-items:center;padding:12px 18px;border-top:1px solid var(--line);background:#f8fafc;font-size:12px;color:#64748b}
 .legend{display:flex;gap:18px;padding:0 20px 16px;font-size:12.5px;color:var(--muted)}
 .legend span{display:inline-flex;align-items:center;gap:7px}
 .legend i{width:18px;height:0;border-top:2.2px dashed var(--brand);display:inline-block}
 .legend i.b{border-top-color:var(--bad);border-top-style:dotted}
+.legend i.x{border-top-color:#f2b1b1;border-top-style:dotted;position:relative}
+.legend i.x::after{content:"✗";position:absolute;left:5px;top:-9px;font-size:10px;font-style:normal;color:var(--bad);font-weight:700}
 
 /* ---------- systems table ---------- */
 table{border-collapse:collapse;width:100%;font-size:14px}
 th,td{text-align:left;padding:13px 20px;border-bottom:1px solid var(--line2);vertical-align:middle}
 th{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:600;background:#fafbfc}
+th.sortable{cursor:pointer;user-select:none;white-space:nowrap}th.sortable:hover{color:var(--ink)}
+th.sortable .arrow{margin-left:6px;font-size:10px;opacity:.45}th.sortable.on{color:var(--ink)}th.sortable.on .arrow{opacity:1;color:var(--brand2)}
 tbody tr:hover td{background:#fafcfd}
 tbody tr:last-child td{border-bottom:0}
 .sysn{display:flex;align-items:center;gap:12px}
@@ -153,6 +205,16 @@ li.on .av{background:var(--brand);color:#fff}
 .sb .t{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .sb .st{font-size:12px;font-weight:600;margin-top:3px;color:var(--ok);display:flex;align-items:center;gap:5px}
 .sb .st::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.upl{display:flex;gap:6px;align-items:center;margin-top:9px;flex-wrap:wrap}
+.upl label{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:600;color:var(--brand2);background:var(--brandsoft);border:1px solid #bfe7e2;border-radius:6px;padding:3px 8px;cursor:pointer}
+.upl label:hover{background:#d7f0ec}.upl label.busy{opacity:.6;cursor:progress}
+.upl label svg{width:13px;height:13px}.upl input{display:none}
+.upl a{font-size:12px;color:var(--muted);text-decoration:underline;text-underline-offset:2px}.upl a:hover{color:var(--ink)}
+.resetbtn{margin-top:10px;appearance:none;background:transparent;border:1px solid #2a3d55;color:#c9d5e2;border-radius:6px;padding:5px 10px;font-size:12px;cursor:pointer;width:100%}
+.resetbtn:hover{background:#13273d}.resetbtn.arm{border-color:#dc2626;color:#fca5a5}
+.toast{position:fixed;right:24px;bottom:24px;z-index:50;max-width:420px;background:#0b1220;color:#e2e8f0;border-radius:10px;padding:12px 16px;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);border-left:4px solid var(--brand)}
+.toast b{color:#fff;display:block;margin-bottom:2px}
+.toast .tlink{color:#5eead4;font-weight:600;cursor:pointer;text-decoration:underline;text-underline-offset:2px}.toast.bad{border-left-color:var(--bad)}
 .sb.down{background:var(--badsoft)}.sb.down .st{color:var(--bad)}.sb.down::before{background:var(--bad)}
 .sb.stale{background:var(--warnsoft)}.sb.stale .st{color:var(--warn)}.sb.stale::before{background:var(--warn)}
 .foot{padding:10px 24px;border-top:1px solid var(--line2);font-size:12.5px;color:var(--muted);background:#fafbfc;border-radius:0 0 var(--r) var(--r)}
@@ -216,8 +278,10 @@ pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pr
   <div class="sfoot">
     <div class="env">● SYNTHETIC DATA</div>
     <div>Model <b id="meta">…</b></div>
+    <div id="datasrc" hidden>Data <b></b></div>
     <div>Run <b id="runid">…</b></div>
     <div style="margin-top:8px">Team <b>Datarex</b> · EXL × UCD 2026</div>
+    <button class="resetbtn" id="resetdemo" hidden>Reset demo data</button>
   </div>
 </aside>
 
@@ -239,7 +303,7 @@ pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pr
       <div class="panel" style="margin-bottom:20px">
         <div class="ph"><h3>Live topology</h3><span class="small">Source systems → integration fabric → one FHIR R4 API</span></div>
         <div class="topo" id="topo"></div>
-        <div class="legend"><span><i></i>Live, data flowing</span><span><i class="b"></i>Offline, circuit open</span></div>
+        <div class="legend"><span><i></i>Live, data flowing</span><span><i class="b"></i>Offline, circuit open</span><span><i class="x"></i>Upload rejected, flow blocked</span><span><b style="color:#ea580c">!</b> Some records quarantined</span></div>
       </div>
       <div class="panel">
         <div class="ph"><h3>Connectors</h3><span class="sp"></span><span class="small" id="sub">Re-probes every source and re-runs the validation contract on demand.</span></div>
@@ -274,6 +338,7 @@ pre.json .k{color:#7dd3fc}pre.json .s{color:#86efac}pre.json .n{color:#fbbf24}pr
   </main>
 </div>
 
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
 <script>
 const $ = id => document.getElementById(id);
 function h(tag, attrs, ...kids) {
@@ -320,19 +385,41 @@ function drawTopo(systems, override) {
   const y = i => 10 + i * rowH + (H - 20 - n * rowH) / 2;
   const sw = 290, cx = 415, cw = 220, ch = 104, ax = 735, aw = 255;
   let s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Topology of source systems feeding the integration fabric">';
+  let sMarks = "";
   ids.forEach((id, i) => {
     const down = override ? !!override[id] : isDown(systems[id]);
     const sy = y(i) + 23, x1 = 10 + sw;
-    s += '<path class="flow ' + (down ? 'bad' : 'ok anim') + '" d="M' + x1 + ' ' + sy + ' C ' + (x1 + 60) + ' ' + sy + ', ' + (cx - 60) + ' ' + mid + ', ' + cx + ' ' + mid + '"/>';
+    const st = flowState(id), cls = down ? 'bad' : st === 'blocked' ? 'blocked' : st === 'checking' ? 'checking' : 'ok anim';
+    if (!down && st === 'partial') {   // the good records flowed; an amber gate marks the ones held back
+      const gx = x1 + 26;
+      sMarks += '<g class="gate warn"><title>Partly accepted: records that passed are live; the quarantined ones never reached the fabric.</title>' +
+        '<circle cx="' + gx + '" cy="' + sy + '" r="8"/><text x="' + gx + '" y="' + (sy + 4) + '" text-anchor="middle" font-size="11" font-weight="800">!</text></g>';
+    }
+    s += '<path class="flow ' + cls + '" d="M' + x1 + ' ' + sy + ' C ' + (x1 + 60) + ' ' + sy + ', ' + (cx - 60) + ' ' + mid + ', ' + cx + ' ' + mid + '"/>';
+    if (!down && st === 'blocked') {   // a closed gate where the system's line leaves its box: the rejected data did not flow
+      const gx = x1 + 26;
+      s += '<g class="gate"><title>Upload rejected by validation: it never reached the fabric. The source was rolled back; its previous, validated data is still served.</title>' +
+        '<circle cx="' + gx + '" cy="' + sy + '" r="8"/><path d="M' + (gx - 3.2) + ' ' + (sy - 3.2) + ' L' + (gx + 3.2) + ' ' + (sy + 3.2) + ' M' + (gx + 3.2) + ' ' + (sy - 3.2) + ' L' + (gx - 3.2) + ' ' + (sy + 3.2) + '"/></g>';
+    }
   });
   s += '<path class="flow ok anim" d="M' + (cx + cw) + ' ' + mid + ' L ' + ax + ' ' + mid + '"/>';
+  s += sMarks;
   ids.forEach((id, i) => {
     const sys = systems[id], down = override ? !!override[id] : isDown(sys), c = COL[i > 3 ? 4 : i], yy = y(i);
-    s += '<g class="node"><rect x="10" y="' + yy + '" width="' + sw + '" height="46" rx="10" style="' + (down ? 'stroke:#f6c1c1;fill:#fdeeee' : '') + '"/>' +
+    const fl = flashing[id] ? " flash-" + flashing[id] : "";
+    s += '<g class="node' + fl + '"><rect x="10" y="' + yy + '" width="' + sw + '" height="46" rx="10" style="' + (down ? 'stroke:#f6c1c1;fill:#fdeeee' : '') + '"/>' +
       '<rect x="10" y="' + (yy + 10) + '" width="3" height="26" rx="1.5" style="fill:' + (down ? '#dc2626' : c) + ';stroke:none"/>' +
       '<text x="26" y="' + (yy + 20) + '" font-size="13" font-weight="600" fill="#0b1220">' + esc((sys.name || id).replace(/\s*\(.*\)$/, "").replace("Patient administration ", "Admissions ")) + '</text>' +
-      '<text x="26" y="' + (yy + 36) + '" font-size="11.5" fill="' + (down ? '#dc2626' : '#64748b') + '">' + esc(down ? "Offline · circuit open" : (KINDS[sys.kind] || sys.kind)) + '</text>' +
-      '<circle cx="' + (sw - 6) + '" cy="' + (yy + 23) + '" r="4" fill="' + (down ? '#dc2626' : '#059669') + '"/></g>';
+      (!down && badgeFor(id) ? badgeFor(id).svg(yy) :
+      '<text x="26" y="' + (yy + 36) + '" font-size="11.5" fill="' + (down ? '#dc2626' : '#64748b') + '">' + esc(down ? "Offline · circuit open" : (KINDS[sys.kind] || sys.kind)) + '</text>') +
+      '<circle cx="' + (sw - 6) + '" cy="' + (yy + 23) + '" r="4" fill="' + (down ? '#dc2626' : '#059669') + '"/>' +
+      (uploadsOn ? '<g class="upbtn" data-sid="' + esc(id) + '" role="button" tabindex="0" aria-label="Upload new data to ' + esc(sys.name || id) + '">' +
+        '<title>New data arrives in this source system</title>' +
+        '<rect x="200" y="' + (yy + 7) + '" width="64" height="19" rx="5"/>' +
+        '<text x="232" y="' + (yy + 20.5) + '" text-anchor="middle" font-size="10.5" font-weight="700">⤒ Upload</text></g>' +
+        '<a class="upex" href="/sources/' + encodeURIComponent(id) + '/template?mrn=' + DEMO_MRN + '"><title>Download a ready-to-upload example (for the demo patient)</title>' +
+        '<text x="232" y="' + (yy + 39) + '" text-anchor="middle" font-size="9.5">Example</text></a>' : '') +
+      '</g>';
   });
   s += '<g><rect x="' + cx + '" y="' + (mid - ch / 2) + '" width="' + cw + '" height="' + ch + '" rx="14" fill="#0a1422"/>' +
     '<text x="' + (cx + cw / 2) + '" y="' + (mid - 14) + '" text-anchor="middle" font-size="15" font-weight="700" fill="#fff">Integration Fabric</text>' +
@@ -344,6 +431,14 @@ function drawTopo(systems, override) {
     '<text x="' + (ax + 16) + '" y="' + (mid + 25) + '" font-size="11.5" fill="#64748b">One record per patient</text></g>';
   s += '</svg>';
   $("topo").innerHTML = s;
+  for (const g of $("topo").querySelectorAll(".vbadge")) {
+    g.addEventListener("click", () => openReport(g.dataset.sid));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openReport(g.dataset.sid); } });
+  }
+  for (const g of $("topo").querySelectorAll(".upbtn")) {
+    g.addEventListener("click", () => pickFile(g.dataset.sid));
+    g.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); pickFile(g.dataset.sid); } });
+  }
 }
 
 // ---------------------------------------------------------------- estate
@@ -360,7 +455,8 @@ async function loadEstate() {
 
   const live = vals.filter(s => !isDown(s)).length;
   const passing = vals.filter(s => !s.health || s.health.healthy !== false).length;
-  const records = vals.reduce((a, s) => a + Object.values(s.counts || {}).reduce((x, y) => x + y, 0), 0);
+  const liveCounts = s => ((s.health || {}).counts) || s.counts || {};   // latest check if there is one, else promotion
+  const records = vals.reduce((a, s) => a + Object.values(liveCounts(s)).reduce((x, y) => x + y, 0), 0);
   let correct = 0, total = 0;
   for (const s of vals) for (const t of Object.values(((s.health || {}).evaluation || {}).fields || {})) { correct += t.correct || 0; total += (t.correct || 0) + (t.wrong || 0) + (t.absent || 0); }
   const repairs = vals.reduce((a, s) => a + (s.repair_rounds || 0), 0);
@@ -383,7 +479,7 @@ async function loadEstate() {
       : h("span", {class: "pill bad"}, hs.drift ? "Source drifted" : "Contract failing");
     const lv = s.live || {};
     const latency = lv.status === "up" && lv.last_ms != null ? Math.round(lv.last_ms) + " ms" : lv.status === "down" ? (lv.last_error || "error") : "–";
-    const counts = Object.entries(s.counts || {}).map(([k, v]) => fmt(v) + " " + k).join(" · ");
+    const counts = Object.entries(liveCounts(s)).map(([k, v]) => fmt(v) + " " + k).join(" · ");
     const first = h("td", {}, h("div", {class: "sysn " + kOf(id)}, h("span", {class: "sic", html: ICONS[s.kind] || ICONS.http}), h("div", {}, h("b", {}, s.name || id), h("span", {}, KINDS[s.kind] || s.kind || ""))));
     if (hs && !hs.healthy) {
       const d = hs.drift || {};
@@ -414,6 +510,226 @@ $("check").addEventListener("click", async () => {
   b.disabled = false; t.textContent = "Check estate";
 });
 
+// ---------------------------------------------------------------- demo uploads (on by default; off with --no-demo-uploads)
+let uploadsOn = false, currentPatient = null, toastTimer = null;
+function toast(title, msg, bad, action, opts) {
+  opts = opts || {};
+  const t = $("toast"); t.className = "toast" + (bad ? " bad" : "");
+  t.replaceChildren(h("b", {}, title), msg || "", opts.extra || "",
+    action ? h("div", {style: "margin-top:8px"}, h("a", {class: "tlink", onclick: () => { t.hidden = true; action.run(); }}, action.label)) : "");
+  t.hidden = false;
+  clearTimeout(toastTimer);
+  if (!opts.sticky) toastTimer = setTimeout(() => { t.hidden = true; }, opts.ms || (bad ? 14000 : action ? 12000 : 5000));
+}
+let DEMO_MRN = "";   // the demo patient (first in the EHR: the most complete record); set from /sources
+async function openPatient(mrn) {
+  tab("patient");
+  if (!patients.length) await loadPatients().catch(() => {});
+  const p = patients.find(x => mrnOf(x) === mrn);
+  if (p) { currentPatient = p; drawPeople(); await showRecord(p); }
+}
+async function loadSources() {
+  try {
+    const d = await api("/sources"); uploadsOn = !!d.uploads; DEMO_MRN = d.demo_mrn || DEMO_MRN;
+    if (d.data_source) { $("datasrc").querySelector("b").textContent = d.data_source; $("datasrc").hidden = false; }
+    for (const [sid, x] of Object.entries(d.systems || {})) { if (x.last_upload) lastUpload[sid] = x.last_upload; else delete lastUpload[sid]; }
+  } catch (e) { uploadsOn = false; }
+  $("resetdemo").hidden = !uploadsOn;
+}
+const filePicker = h("input", {type: "file", hidden: "", "aria-hidden": "true"});
+document.body.append(filePicker);
+function pickFile(sid) {
+  filePicker.value = "";
+  filePicker.onchange = () => { if (filePicker.files[0]) doUpload(sid, filePicker.files[0]); };
+  filePicker.click();
+}
+function driftLines(d) {
+  if (!d) return [];
+  return [...(d.added || []).map(f => "new field " + f), ...(d.removed || []).map(f => "field gone: " + f),
+          ...(d.changed || []).map(c => c.field + ": was " + c.was + ", now " + c.now)];
+}
+// Validation outcome per system: drives the badge in the topology box and the report.
+const lastUpload = {}, validating = {}, flashing = {};
+function flowState(sid) {   // checking while an upload is validated; blocked after a rejected upload, until the next accepted one
+  if (validating[sid]) return "checking";
+  const u = lastUpload[sid];
+  if (!u || u.outcome === "accepted") return "ok";
+  return u.outcome === "partial" ? "partial" : "blocked";
+}
+function badgeFor(sid) {
+  let cls, label;
+  if (validating[sid]) { cls = "run"; label = "⟳ Validating…"; }
+  else {
+    const u = lastUpload[sid]; if (!u) return null;
+    const v = u.validation || {};
+    if (u.outcome === "accepted") { cls = "ok"; label = "✓ Validation passed " + v.checks_passed + "/" + v.checks_total; }
+    else if (u.outcome === "partial") {
+      const r = u.records || {}, q = (r.quarantined || []).length;
+      cls = "warn"; label = "! " + (r.accepted || []).length + "/" + (r.total || 0) + " kept · " + q + " quarantined";
+    }
+    else if (u.outcome === "rolled_back") {
+      cls = "bad";
+      label = v.error ? "✗ Check could not run" : "✗ " + (v.checks_passed || 0) + "/" + (v.checks_total || 14) + " checks" + (v.drift ? " · drift" : "");
+    }
+    else { cls = "bad"; label = "✗ Rejected: wrong format"; }
+  }
+  const w = Math.max(96, label.length * 5.75 + 20);
+  return {svg: yy => '<g class="vbadge ' + cls + '" data-sid="' + esc(sid) + '" role="button" tabindex="0" aria-label="' + esc(label) + ': open the validation report">' +
+    '<title>Open the validation report</title><rect x="22" y="' + (yy + 26) + '" width="' + w + '" height="16" rx="8" stroke-width="1"/>' +
+    '<text x="' + (22 + w / 2) + '" y="' + (yy + 37.5) + '" text-anchor="middle" font-size="10.5" font-weight="700">' + esc(label) + '</text></g>'};
+}
+function redrawTopo() { if (Object.keys(estate).length) drawTopo(estate); }
+function driftLines(d) {
+  if (!d) return [];
+  return [...(d.added || []).map(f => "New field: " + f), ...(d.removed || []).map(f => "Field gone: " + f),
+          ...(d.changed || []).map(c => c.field + ": was " + c.was + ", now " + c.now)];
+}
+const GROUPS = [["static", "Static safety"], ["contract", "Contract"], ["runtime", "Runtime"], ["fhir", "FHIR R4"], ["reconcile", "Reconciliation"]];
+const vmodal = h("div", {class: "vmodal", hidden: "", role: "dialog", "aria-modal": "true", "aria-label": "Upload validation report"});
+document.body.append(vmodal);
+vmodal.addEventListener("click", e => { if (e.target === vmodal) vmodal.hidden = true; });
+document.addEventListener("keydown", e => { if (e.key === "Escape") vmodal.hidden = true; });
+function failSummary(v) {
+  const checks = v.checks || [], failed = checks.filter(c => c.status === "fail").length, skipped = checks.filter(c => c.status === "skip").length;
+  const changed = driftLines(v.drift).length, bits = [];
+  if (failed) bits.push(failed + " failed");
+  if (skipped) bits.push(skipped + " not run");
+  if (changed) bits.push(changed + " field" + (changed === 1 ? "" : "s") + " changed in the source structure");
+  return (v.checks_passed || 0) + " of " + (v.checks_total || 14) + " checks passed" + (bits.length ? " · " + bits.join(" · ") : "") + ".";
+}
+function recordReasons(q) {
+  if (q.format) return [q.format + " (format check: nothing written)"];
+  const out = [];
+  if (q.error) out.push("The checks could not run: " + q.error);
+  for (const c of (q.failed || [])) out.push("✗ " + c.title + ": " + String(c.detail || "").slice(0, 220));
+  for (const x of driftLines(q.drift)) out.push("≠ Source structure changed: " + x);
+  if (!out.length) out.push("Did not pass validation");
+  return out;
+}
+function quarantineBox(rec, heading) {
+  return h("div", {class: "vq"}, h("h4", {}, heading + " (" + (rec.quarantined || []).length + ")"),
+    h("ol", {}, (rec.quarantined || []).map(q => h("li", {}, h("b", {}, q.record), ...recordReasons(q).map(r => h("span", {}, r))))));
+}
+function whatFailed(u) {
+  const v = u.validation, items = [];
+  if (!v) items.push(["Not this system's format, so nothing was written", u.detail]);
+  else {
+    if (v.error) items.push(["The checks could not run", v.error]);
+    for (const c of (v.checks || []).filter(c => c.status === "fail")) items.push(["✗ " + c.title + "  (" + c.id + ")", String(c.detail || "").slice(0, 400)]);
+    const skipped = (v.checks || []).filter(c => c.status === "skip");
+    if (skipped.length) items.push(["– " + skipped.length + " check" + (skipped.length === 1 ? "" : "s") + " not run", "Skipped because an earlier check failed: " + skipped.map(c => c.title).join("; ")]);
+    for (const x of driftLines(v.drift)) items.push(["≠ Source structure changed (drift check)", x + ". The approved connector was not built for this structure."]);
+  }
+  return h("div", {class: "vfail"}, h("h4", {}, "What didn't pass" + (v ? " · " + failSummary(v).replace(/\.$/, "") : "")),
+    h("ol", {}, items.map(([t, d]) => h("li", {}, h("b", {}, t), d ? h("span", {}, d) : ""))),
+    h("div", {class: "next"}, v ? "What happened: the upload was rolled back byte for byte. The system keeps serving its previous, validated data, and no change reached the FHIR API."
+                                : "What happened: the file was refused before anything was written. Send it in this system's own format (use the Example link)."));
+}
+function openReport(sid) {
+  const u = lastUpload[sid]; if (!u) return;
+  const name = (estate[sid] || {}).name || sid, v = u.validation;
+  const ok = u.outcome === "accepted", partial = u.outcome === "partial", rec = u.records || {};
+  const title = partial ? "Partly accepted: " + (rec.accepted || []).length + " of " + rec.total + " records live, " +
+      (rec.quarantined || []).length + " quarantined" : ok ? "Validation passed: data accepted" : u.outcome === "rolled_back" ? "Validation failed: upload rolled back" : "Rejected before writing: not this system's format";
+  const sub = partial ? "The whole file failed, so each record was validated on its own with the same drift check and 14 checks. " +
+      "Every record that passed is live in the FHIR API; quarantined records were never written." : ok ? v.checks_passed + "/" + v.checks_total + " contract checks passed and the source structure matches what was approved. The data is live in the FHIR API."
+    : u.outcome === "rolled_back" ? failSummary(v) + " The upload was rolled back: the source system is back exactly as it was."
+    : "Nothing was written, so validation did not need to run. " + u.detail;
+  const parts = [
+    h("div", {class: "vhead"}, h("h3", {}, "Upload validation · " + name), h("button", {class: "vx", "aria-label": "Close", onclick: () => { vmodal.hidden = true; }}, "×")),
+    h("div", {class: "verdict " + (partial ? "warn" : ok ? "ok" : "bad")}, h("div", {class: "ic"}, partial ? "!" : ok ? "✓" : "✗"), h("div", {}, h("b", {}, title), h("span", {}, sub))),
+    h("div", {class: "vmeta"}, u.file ? h("span", {}, "File ", h("b", {}, u.file)) : "",
+      ok || partial ? h("span", {}, "Added ", h("b", {}, partial ? (rec.accepted || []).length + " record(s)" : u.detail)) : "",
+      v ? h("span", {}, "Checked in ", h("b", {}, v.seconds + " s")) : "",
+      v ? h("span", {}, "FHIR resources re-generated ", h("b", {}, String(v.resources))) : "",
+      h("span", {}, "At ", h("b", {}, new Date(u.at).toLocaleTimeString())))];
+  if (partial) parts.push(quarantineBox(rec, "Quarantined records · not written"),
+    h("div", {class: "vsec"}, h("h4", {}, "Accepted records · live now"), h("ul", {class: "vacc"}, (rec.accepted || []).map(x => h("li", {}, x)))));
+  else if (!ok) parts.push(whatFailed(u));
+  if (!ok && !partial && rec.quarantined && rec.quarantined.length) parts.push(quarantineBox(rec, "Each record on its own · none passed"));
+  if (v) {
+    const dl = driftLines(v.drift);
+    parts.push(h("div", {class: "vsec"}, h("h4", {}, "Drift check: source structure vs approved fingerprint"),
+      h("ul", {class: "vlist"}, dl.length ? dl.map(x => h("li", {class: "f"}, h("span", {class: "st"}, "✗"), h("span", {}, x)))
+        : h("li", {class: "p"}, h("span", {class: "st"}, "✓"), h("span", {}, "Structure matches what was approved at promotion")))));
+    const checks = v.checks || [];
+    if (v.error) parts.push(h("div", {class: "vsec"}, h("ul", {class: "vlist"}, h("li", {class: "f"}, h("span", {class: "st"}, "✗"), h("span", {}, v.error)))));
+    if (checks.length) {
+      const sec = h("div", {class: "vsec"}, h("h4", {}, "Validation contract: " + v.checks_passed + "/" + v.checks_total + " checks on the AI-built connector"));
+      for (const [pre, label] of GROUPS) {
+        const g = checks.filter(c => c.id.startsWith(pre + ".")); if (!g.length) continue;
+        sec.append(h("div", {class: "vgrp"}, label),
+          h("ul", {class: "vlist"}, g.map(c => {
+            const k = c.status === "pass" ? "p" : c.status === "fail" ? "f" : "s";
+            return h("li", {class: k}, h("span", {class: "st"}, k === "p" ? "✓" : k === "f" ? "✗" : "–"),
+              h("span", {}, c.title, c.detail ? h("span", {class: "d"}, String(c.detail).slice(0, 300)) : ""));
+          })));
+      }
+      parts.push(sec);
+    }
+  }
+  parts.push(h("div", {class: "vfoot"}, h("span", {}, "Deterministic checks, the same contract that gated the AI-built connector. No AI model runs during an upload."),
+    ok || partial ? h("button", {class: "btn pri", onclick: () => { vmodal.hidden = true; openPatient(DEMO_MRN); }}, "Open patient record") : ""));
+  vmodal.replaceChildren(h("div", {class: "vcard"}, ...parts));
+  vmodal.hidden = false;
+  const x = vmodal.querySelector(".vx"); if (x) x.focus();
+}
+async function doUpload(sid, f) {
+  const name = (estate[sid] || {}).name || sid;
+  validating[sid] = true; delete flashing[sid]; redrawTopo();
+  toast("Uploading and validating…", f.name + " → " + name + ". Drift check + 14-check contract; kept only if everything passes.", false, null, {sticky: true});
+  let d = {};
+  try {
+    const r = await fetch("/sources/" + encodeURIComponent(sid) + "/upload",
+      {method: "POST", body: await f.arrayBuffer(), headers: {"X-Filename": encodeURIComponent(f.name)}});
+    d = await r.json().catch(() => ({}));
+    if (d && d.outcome) { if (d.file) { try { d.file = decodeURIComponent(d.file); } catch (e) {} } lastUpload[sid] = d; }
+    else throw new Error(d.detail || ("HTTP " + r.status));
+  } catch (e) {
+    delete validating[sid]; redrawTopo();
+    toast("Upload failed", String(e.message || e), true); return;
+  }
+  delete validating[sid];
+  const ok = d.outcome === "accepted";
+  flashing[sid] = ok ? "ok" : "bad"; redrawTopo();
+  setTimeout(() => { delete flashing[sid]; redrawTopo(); }, 2600);
+  const report = {label: "See the validation report →", run: () => openReport(sid)};
+  if (d.outcome === "partial") {
+    patients = []; loadEstate().catch(() => {});
+    const r = d.records || {};
+    flashing[sid] = "ok"; redrawTopo();
+    toast("! Partly accepted: " + (r.accepted || []).length + " of " + r.total + " records live", (r.quarantined || []).length +
+      " quarantined and never written. The report lists each one and why.", false, report, {ms: 12000});
+    openReport(sid);
+    return;
+  }
+  if (ok) {
+    patients = []; loadEstate().catch(() => {});
+    const v = d.validation;
+    toast("✓ Validation passed: " + v.checks_passed + "/" + v.checks_total + " checks, no drift", d.detail + ". Live in the FHIR API.", false, report);
+  } else if (d.outcome === "rolled_back") {
+    toast("✗ Validation failed: " + failSummary(d.validation || {}), "Upload rolled back. The report shows what didn't pass.", true, report);
+    openReport(sid);
+  } else {
+    toast("✗ Rejected: not this system's format", d.detail + " Nothing was written.", true, report);
+    openReport(sid);
+  }
+}
+$("resetdemo").addEventListener("click", async () => {
+  const b = $("resetdemo");
+  if (!b.classList.contains("arm")) { b.classList.add("arm"); b.textContent = "Click again to reset"; setTimeout(() => { b.classList.remove("arm"); b.textContent = "Reset demo data"; }, 4000); return; }
+  b.disabled = true; b.textContent = "Resetting…";
+  try {
+    const r = await fetch("/sources/reset", {method: "POST"}); if (!r.ok) throw new Error("HTTP " + r.status);
+    for (const k of Object.keys(lastUpload)) delete lastUpload[k];
+    redrawTopo();
+    toast("Demo data reset", "All four source systems rebuilt as they were; uploads removed.");
+    patients = []; if (!$("patient").hidden) { await loadPatients().catch(() => {}); if (currentPatient) await showRecord(currentPatient); }
+    loadEstate().catch(() => {});
+  } catch (e) { toast("Reset failed", String(e.message || e), true); }
+  b.disabled = false; b.classList.remove("arm"); b.textContent = "Reset demo data";
+});
+
 // ---------------------------------------------------------------- patient record
 let patients = [];
 const nameOf = p => { const n = (p.name || [{}])[0]; return [(n.given || []).join(" "), n.family].filter(Boolean).join(" ") || "(no name)"; };
@@ -432,7 +748,7 @@ function drawPeople() {
   for (const p of patients) {
     if (q && !(nameOf(p).toLowerCase().includes(q) || String(mrnOf(p)).includes(q))) continue;
     shown++;
-    const li = h("li", {tabindex: "0"}, h("span", {class: "av"}, initials(p)), h("div", {}, h("div", {class: "nm"}, nameOf(p)), h("div", {class: "mr"}, "MRN " + mrnOf(p))));
+    const li = h("li", {tabindex: "0", class: currentPatient && mrnOf(currentPatient) === mrnOf(p) ? "on" : ""}, h("span", {class: "av"}, initials(p)), h("div", {}, h("div", {class: "nm"}, nameOf(p)), h("div", {class: "mr"}, "MRN " + mrnOf(p))));
     const open = () => { for (const x of list.children) x.classList.remove("on"); li.classList.add("on"); showRecord(p); };
     li.addEventListener("click", open); li.addEventListener("keydown", e => { if (e.key === "Enter") open(); });
     list.append(li);
@@ -460,6 +776,7 @@ function row(r) {
   return {when: "", what: r.resourceType, detail: ""};
 }
 async function showRecord(p) {
+  currentPatient = p;
   const box = $("record"); box.replaceChildren(h("div", {class: "panel empty"}, "Assembling record from every source…"));
   const bundle = await api("/fhir/Patient/" + encodeURIComponent(mrnOf(p)) + "/everything");
   const outcomes = (bundle.entry || []).filter(e => e.search && e.search.mode === "outcome").map(e => e.resource);
@@ -490,15 +807,38 @@ async function showRecord(p) {
     })),
     h("div", {class: "foot"}, Object.keys(bySource).filter(Boolean).length + " source systems contribute · demographics from ", srcBadge((p.meta || {}).source), " · matched on MRN"));
 
-  let active = "All";
+  const kinds = Object.keys(KIND).filter(k => rest.some(r => r.resourceType === k));
+  let active = kinds[0] || null;
   const tabs = h("div", {class: "tabs"});
   const body = h("tbody", {});
+  // sortable columns: click a header to sort, click again to reverse
+  const COLS = [["when", "Date"], ["what", "Item"], ["detail", "Result / detail"], ["source", "Source"]];
+  let sortKey = "when", sortDir = -1;                       // newest first by default
+  const sortRow = h("tr", {});
+  const sortVal = ({r, v}, k) => {
+    if (k === "when") return String(v.when || "");
+    if (k === "source") return String((r.meta || {}).source || "");
+    if (k === "detail") { const q = (r.valueQuantity || {}).value; return typeof q === "number" ? q : String(v.detail || "").toLowerCase(); }
+    return String(v.what || "").toLowerCase();
+  };
+  const cmp = (a, b) => {
+    const x = sortVal(a, sortKey), y = sortVal(b, sortKey);
+    const c = typeof x === "number" && typeof y === "number" ? x - y : String(x).localeCompare(String(y), undefined, {numeric: true});
+    return c * sortDir || String(b.v.when || "").localeCompare(String(a.v.when || ""));
+  };
   const draw = () => {
-    tabs.replaceChildren(...["All", ...Object.keys(KIND).filter(k => rest.some(r => r.resourceType === k))].map(k => {
-      const n = k === "All" ? rest.length : rest.filter(r => r.resourceType === k).length;
-      const b = h("button", {class: k === active ? "on" : ""}, k === "All" ? "All records" : KIND[k], h("span", {class: "c"}, n));
+    sortRow.replaceChildren(...COLS.map(([k, label]) => {
+      const on = k === sortKey;
+      const th = h("th", {class: "sortable" + (on ? " on" : ""), tabindex: "0", "aria-sort": on ? (sortDir < 0 ? "descending" : "ascending") : "none",
+        title: "Sort by " + label.toLowerCase()}, label, h("span", {class: "arrow"}, on ? (sortDir < 0 ? "▼" : "▲") : "↕"));
+      const go = () => { if (sortKey === k) sortDir = -sortDir; else { sortKey = k; sortDir = k === "when" ? -1 : 1; } draw(); };
+      th.addEventListener("click", go); th.addEventListener("keydown", e => { if (e.key === "Enter") go(); });
+      return th; }));
+    tabs.replaceChildren(...kinds.map(k => {
+      const n = rest.filter(r => r.resourceType === k).length;
+      const b = h("button", {class: k === active ? "on" : ""}, KIND[k], h("span", {class: "c"}, n));
       b.addEventListener("click", () => { active = k; draw(); }); return b; }));
-    const rows = rest.filter(r => active === "All" || r.resourceType === active).map(r => ({r, v: row(r)})).sort((a, b) => String(b.v.when || "").localeCompare(String(a.v.when || "")));
+    const rows = rest.filter(r => r.resourceType === active).map(r => ({r, v: row(r)})).sort(cmp);
     body.replaceChildren(...rows.map(({r, v}) => h("tr", {},
       h("td", {class: "when"}, day(v.when)), h("td", {class: "what"}, v.what),
       h("td", {class: "num"}, v.detail, v.flag ? h("span", {class: "flag" + (v.flag === "LOW" ? " lo" : "")}, v.flag) : null, v.note ? h("span", {class: "note"}, v.note) : null),
@@ -512,7 +852,7 @@ async function showRecord(p) {
       (anyDown ? "Data from the offline source is missing. " : "Showing the last good copy from the offline source. ") + "Everything else is live.",
       h("div", {class: "small", style: "margin-top:4px;color:inherit;opacity:.8"}, issues.map(i => i.diagnostics).join(" · ")))) : null;
   box.replaceChildren(...[warn].filter(Boolean), head,
-    h("div", {class: "panel"}, tabs, h("table", {}, h("thead", {}, h("tr", {}, h("th", {}, "Date"), h("th", {}, "Item"), h("th", {}, "Result / detail"), h("th", {}, "Source"))), body)));
+    h("div", {class: "panel"}, tabs, h("table", {}, h("thead", {}, sortRow), body)));
 }
 
 // ---------------------------------------------------------------- API explorer (offline, uses /openapi.json)
@@ -538,7 +878,7 @@ async function loadApi() {
 }
 function showEndpoint(e) {
   const box = $("tryit"), inputs = {};
-  const firstMrn = patients.length ? mrnOf(patients.find(p => nameOf(p) === "Aoife Walsh") || patients[0]) : "";
+  const firstMrn = DEMO_MRN || (patients.length ? mrnOf(patients[0]) : "");
   const params = (e.op.parameters || []).map(prm => {
     let field;
     if (prm.name === "resource_type") field = h("select", {}, ...["Patient", "Encounter", "Observation", "Condition", "MedicationRequest"].map(v => h("option", {}, v)));
@@ -617,7 +957,7 @@ for (const t of Object.keys(PAGES)) $("tab-" + t).addEventListener("click", () =
 window.addEventListener("hashchange", () => tab(Object.keys(HASH).find(k => "#" + HASH[k] === location.hash) || "estate", false));
 const startPage = Object.keys(HASH).find(k => "#" + HASH[k] === location.hash);
 if (startPage && startPage !== "estate") tab(startPage, false);
-loadEstate().catch(e => { $("systems").replaceChildren(h("div", {class: "empty"}, String(e))); });
+loadSources().finally(() => loadEstate().catch(e => { $("systems").replaceChildren(h("div", {class: "empty"}, String(e))); }));
 </script>
 </body>
 </html>

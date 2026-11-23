@@ -2,9 +2,9 @@ openapi: 3.0.3
 info:
   title: 'MediCore EHR (REST API): FHIR facade'
   version: 0.1.0
-  description: 'Integration pattern: api_facade. MediCore EHR provides a structured REST API over HTTP with JSON
-    endpoints for patients and conditions. Wrapping it with an API facade translates records on demand without duplicating
-    data storage.'
+  description: 'Integration pattern: api_facade. MediCore EHR exposes a functional REST API (v2.3.1) with JSON pagination.
+    An API facade allows querying data on demand and transforming responses into FHIR R4 resources without replicating
+    storage.'
 paths:
   /fhir/Patient:
     get:
@@ -36,42 +36,41 @@ paths:
         source: patientId
         transform: 'Prefix with system identifier: ''ehr-rest-'' + patientId'
       - fhir: meta.source
-        source: patientId
-        transform: Set constant string 'urn:system:ehr-rest'
-      - fhir: active
-        source: active
-        transform: Pass-through boolean value
+        source: N/A
+        transform: 'Static value: ''urn:system:ehr-rest'''
       - fhir: identifier[0]
         source: mrn
-        transform: 'Construct identifier object: {''system'': ''http://hospital.example.org/mrn'', ''value'': mrn}'
-      - fhir: name[0].family
-        source: name.last
-        transform: Direct string assignment
+        transform: 'Construct object: {''system'': ''http://hospital.example.org/mrn'', ''value'': str(mrn)}'
+      - fhir: active
+        source: active
+        transform: Pass through boolean value
       - fhir: name[0].given[0]
         source: name.first
-        transform: Wrap string in list as given name
-      - fhir: gender
-        source: sex
-        transform: 'Code mapping: ''M'' -> ''male'', ''F'' -> ''female'', default to ''unknown'''
+        transform: Pass through string if non-empty
+      - fhir: name[0].family
+        source: name.last
+        transform: Pass through string if non-empty
       - fhir: birthDate
         source: dob
-        transform: Convert date format from MM/DD/YYYY to YYYY-MM-DD
+        transform: Parse date format MM/DD/YYYY and format as YYYY-MM-DD
+      - fhir: gender
+        source: sex
+        transform: 'Map codes: ''M'' -> ''male'', ''F'' -> ''female'', default -> ''unknown'''
       - fhir: telecom[0]
         source: contact.phone
-        transform: 'Map non-empty phone to object: {''system'': ''phone'', ''value'': contact.phone}. Omit empty
-          contact.email.'
+        transform: 'Construct object if non-empty: {''system'': ''phone'', ''value'': contact.phone, ''use'': ''home''}'
       - fhir: address[0].line[0]
         source: address.line1
-        transform: Wrap line1 in array if present
+        transform: Pass through string if non-empty
       - fhir: address[0].city
         source: address.city
-        transform: Direct string assignment
+        transform: Pass through string if non-empty
       - fhir: address[0].postalCode
         source: address.postCode
-        transform: Direct string assignment
+        transform: Pass through string if non-empty
       - fhir: address[0].country
         source: address.country
-        transform: Direct string assignment
+        transform: Pass through string if non-empty
   /fhir/Condition:
     get:
       summary: Condition resources sourced from MediCore EHR (REST API)
@@ -102,24 +101,29 @@ paths:
         source: conditionId
         transform: 'Prefix with system identifier: ''ehr-rest-'' + conditionId'
       - fhir: meta.source
-        source: conditionId
-        transform: Set constant string 'urn:system:ehr-rest'
+        source: N/A
+        transform: 'Static value: ''urn:system:ehr-rest'''
       - fhir: clinicalStatus
         source: state
-        transform: 'Map ''A'' -> {''coding'': [{''system'': ''http://terminology.hl7.org/CodeSystem/condition-clinical'',
+        transform: 'Map codes: ''A'' -> {''coding'': [{''system'': ''http://terminology.hl7.org/CodeSystem/condition-clinical'',
           ''code'': ''active''}]}, ''R'' -> {''coding'': [{''system'': ''http://terminology.hl7.org/CodeSystem/condition-clinical'',
           ''code'': ''resolved''}]}'
-      - fhir: code
+      - fhir: code.coding[0].system
+        source: code.system
+        transform: 'Static mapping to SNOMED URI: ''http://snomed.info/sct'''
+      - fhir: code.coding[0].code
         source: code.value
-        transform: 'Construct CodeableConcept using SNOMED URI: {''coding'': [{''system'': ''http://snomed.info/sct'',
-          ''code'': code.value, ''display'': code.text}]}'
+        transform: Convert integer to string code representation
+      - fhir: code.coding[0].display
+        source: code.text
+        transform: Pass through display text if non-empty
       - fhir: subject
         source: mrn
         transform: 'Construct logical patient reference: {''identifier'': {''system'': ''http://hospital.example.org/mrn'',
-          ''value'': mrn}}'
+          ''value'': str(mrn)}}'
       - fhir: onsetDateTime
         source: onsetDate
-        transform: Direct string mapping (already YYYY-MM-DD standard date)
+        transform: Pass through ISO date string YYYY-MM-DD
 components:
   schemas:
     Bundle:

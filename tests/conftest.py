@@ -15,9 +15,9 @@ def cfg():
 
     if not (ROOT / "mock_systems" / "_data").exists():
         from mock_systems.build import build_all
-        from mock_systems.dataset import generate
+        from mock_systems.synthea import load_estate
 
-        build_all(generate())
+        build_all(load_estate())
     config = load_config()
     ensure_mocks(config)
     return config
