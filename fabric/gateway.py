@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query, Request, Response
-from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 
 from .audit import now
 from .config import GENERATED, RUNS, load_config
@@ -309,6 +309,103 @@ def run_check() -> dict:
         _breakers.clear()
     _cache.clear()
     return result
+
+
+# ---------------------------------------------------------------- demo uploads (switch off with --no-demo-uploads)
+
+ACCEPTS = {"http": "JSON patients or conditions", "sqlite": "CSV lab results",
+           "hl7v2_files": "HL7 v2 ADT messages", "delimited_files": "pipe-delimited export"}
+
+
+_last_upload: dict[str, dict] = {}   # system id -> outcome of its most recent upload (for the console badge)
+
+
+def _remember(system_id: str, outcome: dict) -> dict:
+    _last_upload[system_id] = {"at": now(), "system": system_id, **outcome}
+    return _last_upload[system_id]
+
+
+def _uploads_on() -> None:
+    from . import uploads
+
+    if not uploads.enabled():
+        raise HTTPException(status_code=403, detail="Demo uploads are switched off (gateway started with --no-demo-uploads)")
+
+
+@app.get("/sources", summary="Source systems that accept demo uploads, and what each accepts")
+def sources() -> dict:
+    from . import uploads
+
+    registry = _registry()
+    return {"uploads": uploads.enabled(), "demo_mrn": uploads.demo_mrn(), "data_source": uploads.data_source(),
+            "systems": {sid: {"name": s.get("name"), "kind": s["kind"], "accepts": ACCEPTS.get(s["kind"], ""),
+                              "last_upload": _last_upload.get(sid)}
+                        for sid, s in _systems.items() if sid in registry}}
+
+
+@app.get("/sources/{system_id}/template", summary="A ready-to-upload example for one source system")
+def source_template(system_id: str, mrn: str | None = None) -> Response:
+    from . import uploads
+
+    _uploads_on()
+    if system_id not in _systems:
+        raise HTTPException(status_code=404, detail="Unknown system")
+    name, content = uploads.template(_systems[system_id], mrn)
+    return Response(content, media_type="text/plain; charset=utf-8",
+                    headers={"Content-Disposition": f'attachment; filename="{name}"'})
+
+
+@app.post("/sources/{system_id}/upload", summary="Demo: new data arrives in one source system, is validated, bad records quarantined")
+async def source_upload(system_id: str, request: Request) -> Response:
+    """Write the upload, re-run drift detection and the 14-check contract on that system's
+    promoted connector, and keep the data only if everything passes. If a multi-record file
+    fails, each record is validated on its own: passing records are kept, failing ones are
+    quarantined (never written) and reported."""
+    from starlette.concurrency import run_in_threadpool
+
+    from . import uploads
+    from .operate import check_system
+
+    _uploads_on()
+    if system_id not in _systems or system_id not in _registry():
+        raise HTTPException(status_code=404, detail="Unknown or unpromoted system")
+    body = await request.body()
+
+    def verify(system: dict) -> dict:
+        return check_system(system, _mrn_system, GENERATED / system["id"], with_truth=False)
+
+    filename = request.headers.get("X-Filename", "")[:200]
+    try:
+        result = await run_in_threadpool(uploads.ingest_with_quarantine, _systems[system_id], body, verify)
+    except uploads.ValidationFailed as exc:
+        _cache.clear()
+        log.info(json.dumps({"ts": now(), "upload": system_id, "result": "rolled_back",
+                             "failed": [f["id"] for f in exc.validation["failed"]],
+                             "drift": bool(exc.validation["drift"])}))
+        out = _remember(system_id, {"outcome": "rolled_back", "file": filename, "detail": str(exc),
+                                    "validation": exc.validation, "records": getattr(exc, "records", None)})
+        return JSONResponse(status_code=422, content=out)
+    except uploads.UploadError as exc:
+        out = _remember(system_id, {"outcome": "format_rejected", "file": filename, "detail": str(exc),
+                                    "validation": None, "records": getattr(exc, "records", None)})
+        return JSONResponse(status_code=422, content=out)
+    _cache.clear()   # the next read goes to the source and sees the new data
+    v = result["validation"]
+    log.info(json.dumps({"ts": now(), "upload": system_id, "result": result["outcome"], "added": result["added"],
+                         "checks": f"{v['checks_passed']}/{v['checks_total']}",
+                         "quarantined": len((result.get("records") or {}).get("quarantined", []))}))
+    return JSONResponse(content=_remember(system_id, {"file": filename, **result}))
+
+
+@app.post("/sources/reset", summary="Demo: rebuild all four source systems as they were (removes uploads)")
+def source_reset() -> dict:
+    from . import uploads
+
+    _uploads_on()
+    message = uploads.reset()
+    _last_upload.clear()
+    _cache.clear()
+    return {"reset": message}
 
 
 @app.get("/fhir/Patient/{mrn}/everything", summary="One patient's record across every source system")

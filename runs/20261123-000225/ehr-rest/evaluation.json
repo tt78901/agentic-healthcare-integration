@@ -1,0 +1,76 @@
+{
+ "records": {
+  "expected": 477,
+  "matched": 477,
+  "missing": 0,
+  "unexpected": 0
+ },
+ "fields": {
+  "Patient.mrn": {
+   "correct": 40,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.family": {
+   "correct": 40,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.given": {
+   "correct": 40,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.birthDate": {
+   "correct": 40,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.gender": {
+   "correct": 40,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.phone": {
+   "correct": 40,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.city": {
+   "correct": 40,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.postalCode": {
+   "correct": 40,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Condition.mrn": {
+   "correct": 437,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Condition.code": {
+   "correct": 437,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Condition.clinicalStatus": {
+   "correct": 437,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Condition.onset": {
+   "correct": 437,
+   "wrong": 0,
+   "absent": 0
+  }
+ },
+ "values_correct": 2068,
+ "values_wrong": 0,
+ "values_absent": 0,
+ "accuracy": 1.0,
+ "coverage": 1.0,
+ "clean": true
+}

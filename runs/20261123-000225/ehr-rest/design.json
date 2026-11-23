@@ -1,0 +1,164 @@
+{
+ "system_id": "ehr-rest",
+ "pattern": "api_facade",
+ "pattern_rationale": "MediCore EHR exposes a functional REST API (v2.3.1) with JSON pagination. An API facade allows querying data on demand and transforming responses into FHIR R4 resources without replicating storage.",
+ "alternatives_considered": [
+  {
+   "pattern": "database_polling",
+   "why_not": "Direct database access is unnecessary and unsupported; the system provides a structured HTTP REST API."
+  },
+  {
+   "pattern": "message_feed_ingest",
+   "why_not": "MediCore EHR does not publish an asynchronous event message feed (e.g., HL7 v2 or webhooks)."
+  },
+  {
+   "pattern": "file_drop_ingest",
+   "why_not": "No regular batch export files are produced by this system."
+  }
+ ],
+ "sync": {
+  "mode": "on_demand",
+  "detail": "Pass-through queries initiated on HTTP request, calling underlying /api/v2 endpoints with X-API-Key authentication."
+ },
+ "resources": [
+  {
+   "resource_type": "Patient",
+   "source_entity": "Patient",
+   "id_source_field": "patientId",
+   "count_basis": {
+    "entity": "/api/v2/patients",
+    "distinct_key": "patientId"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "patientId",
+     "transform": "Prefix with system identifier: 'ehr-rest-' + patientId"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "N/A",
+     "transform": "Static value: 'urn:system:ehr-rest'"
+    },
+    {
+     "fhir": "identifier[0]",
+     "source": "mrn",
+     "transform": "Construct object: {'system': 'http://hospital.example.org/mrn', 'value': str(mrn)}"
+    },
+    {
+     "fhir": "active",
+     "source": "active",
+     "transform": "Pass through boolean value"
+    },
+    {
+     "fhir": "name[0].given[0]",
+     "source": "name.first",
+     "transform": "Pass through string if non-empty"
+    },
+    {
+     "fhir": "name[0].family",
+     "source": "name.last",
+     "transform": "Pass through string if non-empty"
+    },
+    {
+     "fhir": "birthDate",
+     "source": "dob",
+     "transform": "Parse date format MM/DD/YYYY and format as YYYY-MM-DD"
+    },
+    {
+     "fhir": "gender",
+     "source": "sex",
+     "transform": "Map codes: 'M' -> 'male', 'F' -> 'female', default -> 'unknown'"
+    },
+    {
+     "fhir": "telecom[0]",
+     "source": "contact.phone",
+     "transform": "Construct object if non-empty: {'system': 'phone', 'value': contact.phone, 'use': 'home'}"
+    },
+    {
+     "fhir": "address[0].line[0]",
+     "source": "address.line1",
+     "transform": "Pass through string if non-empty"
+    },
+    {
+     "fhir": "address[0].city",
+     "source": "address.city",
+     "transform": "Pass through string if non-empty"
+    },
+    {
+     "fhir": "address[0].postalCode",
+     "source": "address.postCode",
+     "transform": "Pass through string if non-empty"
+    },
+    {
+     "fhir": "address[0].country",
+     "source": "address.country",
+     "transform": "Pass through string if non-empty"
+    }
+   ],
+   "merge_rule": "none",
+   "expected_count": 40
+  },
+  {
+   "resource_type": "Condition",
+   "source_entity": "Condition",
+   "id_source_field": "conditionId",
+   "count_basis": {
+    "entity": "/api/v2/conditions",
+    "distinct_key": "conditionId"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "conditionId",
+     "transform": "Prefix with system identifier: 'ehr-rest-' + conditionId"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "N/A",
+     "transform": "Static value: 'urn:system:ehr-rest'"
+    },
+    {
+     "fhir": "clinicalStatus",
+     "source": "state",
+     "transform": "Map codes: 'A' -> {'coding': [{'system': 'http://terminology.hl7.org/CodeSystem/condition-clinical', 'code': 'active'}]}, 'R' -> {'coding': [{'system': 'http://terminology.hl7.org/CodeSystem/condition-clinical', 'code': 'resolved'}]}"
+    },
+    {
+     "fhir": "code.coding[0].system",
+     "source": "code.system",
+     "transform": "Static mapping to SNOMED URI: 'http://snomed.info/sct'"
+    },
+    {
+     "fhir": "code.coding[0].code",
+     "source": "code.value",
+     "transform": "Convert integer to string code representation"
+    },
+    {
+     "fhir": "code.coding[0].display",
+     "source": "code.text",
+     "transform": "Pass through display text if non-empty"
+    },
+    {
+     "fhir": "subject",
+     "source": "mrn",
+     "transform": "Construct logical patient reference: {'identifier': {'system': 'http://hospital.example.org/mrn', 'value': str(mrn)}}"
+    },
+    {
+     "fhir": "onsetDateTime",
+     "source": "onsetDate",
+     "transform": "Pass through ISO date string YYYY-MM-DD"
+    }
+   ],
+   "merge_rule": "none",
+   "expected_count": 437
+  }
+ ],
+ "risks": [
+  "Inconsistent date formats (MM/DD/YYYY for dob vs YYYY-MM-DD for onsetDate) may cause runtime parsing errors if invalid dates are encountered.",
+  "API key rate limits or network latency from the upstream REST service could impact response times for facade clients."
+ ],
+ "human_review_points": [
+  "Confirm whether condition state 'R' mapped to 'resolved' is correct or if it implies 'remission' in MediCore business logic.",
+  "Verify whether contact.email is permanently deprecated or if empty field suppression handling is sufficient."
+ ]
+}

@@ -2,9 +2,8 @@ openapi: 3.0.3
 info:
   title: 'LabTrak LIS (legacy SQL database): FHIR facade'
   version: 0.1.0
-  description: 'Integration pattern: database_polling. LabTrak LIS is an isolated SQLite relational database without
-    an HTTP API, message feed, or change-data-capture stream. Read-only SQL polling on a scheduled interval is the
-    most direct and least intrusive mechanism to extract patient demographics and laboratory result records.'
+  description: 'Integration pattern: database_polling. LabTrak LIS is a legacy SQLite database with direct read-only
+    SQL file access. It lacks an API or event messaging stream, making scheduled SQL polling the only suitable mechanism.'
 paths:
   /fhir/Patient:
     get:
@@ -34,25 +33,26 @@ paths:
       x-field-map:
       - fhir: id
         source: PT_MSTR.PT_ID
-        transform: Prefix with 'lab-sql-' resulting in 'lab-sql-<PT_ID>'
+        transform: 'Prefix with system identifier: ''lab-sql-'' + PT_ID'
       - fhir: meta.source
-        source: N/A
-        transform: Constant 'urn:system:lab-sql'
+        source: static
+        transform: Set constant 'urn:system:lab-sql'
       - fhir: identifier[0]
         source: PT_MSTR.MRN_NO
-        transform: Map to identifier object with system 'http://hospital.example.org/mrn' and value from MRN_NO
+        transform: Build Identifier object with system 'http://hospital.example.org/mrn' and value set to MRN_NO
+          string
       - fhir: name[0].family
         source: PT_MSTR.LNAME
-        transform: String copy
+        transform: Direct string map; omit if null or empty
       - fhir: name[0].given[0]
         source: PT_MSTR.FNAME
-        transform: Wrap in single-element string array
+        transform: Wrap non-empty string in single-element array; omit if null or empty
       - fhir: gender
         source: PT_MSTR.SEX_CD
-        transform: 'Map codes: ''M'' -> ''male'', ''F'' -> ''female'', all other values -> ''unknown'''
+        transform: 'Code mapping: ''M'' -> ''male'', ''F'' -> ''female''; otherwise ''unknown'''
       - fhir: birthDate
         source: PT_MSTR.DOB_DT
-        transform: Convert YYYYMMDD integer/string to ISO date YYYY-MM-DD format
+        transform: Format YYYYMMDD integer/text into date string 'YYYY-MM-DD'
   /fhir/Observation:
     get:
       summary: Observation resources sourced from LabTrak LIS (legacy SQL database)
@@ -81,39 +81,36 @@ paths:
       x-field-map:
       - fhir: id
         source: LAB_RSLT.RSLT_ID
-        transform: Prefix with 'lab-sql-' resulting in 'lab-sql-<RSLT_ID>'
+        transform: 'Prefix with system identifier: ''lab-sql-'' + RSLT_ID'
       - fhir: meta.source
-        source: N/A
-        transform: Constant 'urn:system:lab-sql'
+        source: static
+        transform: Set constant 'urn:system:lab-sql'
       - fhir: status
         source: LAB_RSLT.RSLT_STAT
-        transform: 'Map codes: ''F'' -> ''final'', ''C'' -> ''corrected'', ''P'' -> ''preliminary'', default ->
-          ''unknown'''
+        transform: 'Code mapping: ''F'' -> ''final'', ''P'' -> ''preliminary'', ''C'' -> ''corrected''; default
+          to ''registered'' if unmapped or missing'
       - fhir: category[0]
-        source: N/A
-        transform: Constant code 'laboratory' with system 'http://terminology.hl7.org/CodeSystem/observation-category'
-      - fhir: code
-        source: TEST_REF.LOINC_CD
-        transform: Map to code.coding[0] with system 'http://loinc.org', code LOINC_CD, and display TEST_REF.TEST_NM
+        source: static
+        transform: Set coding array containing system 'http://terminology.hl7.org/CodeSystem/observation-category'
+          and code 'laboratory'
+      - fhir: code.coding[0]
+        source: TEST_REF.LOINC_CD, TEST_REF.TEST_NM
+        transform: Join LAB_RSLT to TEST_REF on TEST_CD. Map system 'http://loinc.org', code LOINC_CD, display TEST_NM
       - fhir: subject
         source: PT_MSTR.MRN_NO
-        transform: 'Construct logical reference subject.identifier = {''system'': ''http://hospital.example.org/mrn'',
-          ''value'': PT_MSTR.MRN_NO} via join LAB_RSLT.PT_ID = PT_MSTR.PT_ID'
+        transform: Join LAB_RSLT to PT_MSTR on PT_ID. Set logical reference identifier system 'http://hospital.example.org/mrn'
+          and value MRN_NO
       - fhir: effectiveDateTime
         source: LAB_RSLT.COLL_DTTM
-        transform: Parse string 'YYYYMMDDHHMMSS' and format as UTC ISO dateTime 'YYYY-MM-DDThh:mm:ssZ'
-      - fhir: valueQuantity.value
-        source: LAB_RSLT.RSLT_VAL
-        transform: Parse string to decimal number; if non-numeric or qualitative, omit valueQuantity and set valueString
-      - fhir: valueQuantity.unit
-        source: TEST_REF.UOM
-        transform: String copy via join LAB_RSLT.TEST_CD = TEST_REF.TEST_CD
-      - fhir: valueQuantity.system
-        source: N/A
-        transform: Constant 'http://unitsofmeasure.org'
-      - fhir: interpretation[0]
+        transform: Parse timestamp string YYYYMMDDHHMMSS and convert to ISO-8601 UTC string 'YYYY-MM-DDThh:mm:ssZ'
+      - fhir: valueQuantity
+        source: LAB_RSLT.RSLT_VAL, TEST_REF.UOM
+        transform: Parse RSLT_VAL as numeric float for value. Map UOM to unit and code, with system 'http://unitsofmeasure.org'.
+          Omit if RSLT_VAL is non-numeric string.
+      - fhir: interpretation[0].coding[0]
         source: LAB_RSLT.ABN_FLG
-        transform: 'Map codes: ''H'' -> ''H'', ''L'' -> ''L'', ''N'' -> ''N'' with system ''http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation'''
+        transform: 'Code mapping: ''H'' -> ''H'', ''L'' -> ''L'', ''N'' -> ''N'' with system ''http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation'';
+          omit if empty or unmapped'
 components:
   schemas:
     Bundle:

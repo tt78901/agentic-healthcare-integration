@@ -73,6 +73,37 @@ def diff(approved: dict[str, str], current: dict[str, str]) -> dict:
             "removed": sorted(k for k in approved if k not in current), "changed": changed}
 
 
+def check_system(system: dict, mrn_system: str, folder: Path, with_truth: bool = True) -> dict:
+    """Health of one promoted integration: structural drift + the full validation contract."""
+    status = {"checked_at": now(), "drift": None, "contract": "error", "failed": [], "evaluation": None,
+              "healthy": False, "checks_passed": 0, "checks_total": 0, "resources": 0}
+    try:
+        current = skeleton(probe(system, Masker("check")))  # samples are discarded; only structure is kept
+        approved = json.loads((folder / "fingerprint.json").read_text(encoding="utf-8"))
+        delta = diff(approved, current)
+        status["drift"] = delta if any(delta.values()) else None
+        design = json.loads((folder / "design.json").read_text(encoding="utf-8"))
+        code = (folder / "adapter.py").read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as tmp:
+            result = validate(code, system, design, mrn_system, Path(tmp) / "work")
+        status["contract"] = "pass" if result["passed"] else "fail"
+        status["checks_total"] = len(result["checks"])
+        status["checks_passed"] = sum(1 for c in result["checks"] if c["status"] == "pass")
+        status["resources"] = sum(len(v) for v in result["resources"].values())
+        status["counts"] = {rt: len(v) for rt, v in result["resources"].items() if v}   # what it serves today
+        status["failed"] = [{"id": c["id"], "title": c["title"], "detail": c["detail"]}
+                            for c in result["checks"] if c["status"] == "fail"]
+        status["checks"] = [{"id": c["id"], "title": c["title"], "status": c["status"], "detail": c["detail"]}
+                            for c in result["checks"]]
+        truth = load_truth(system) if with_truth else None
+        if truth and result["resources"]:
+            status["evaluation"] = evaluate(system["id"], result["resources"], truth, mrn_system)
+    except Exception as exc:  # noqa: BLE001  (an unreachable source is itself a finding)
+        status["error"] = f"{type(exc).__name__}: source or artefacts unavailable"
+    status["healthy"] = status["contract"] == "pass" and status["drift"] is None
+    return status
+
+
 def check(cfg: dict, generated: Path = GENERATED) -> dict[str, dict]:
     """Health of every promoted integration. Writes generated/status.json and returns it."""
     registry_path = generated / "registry.json"
@@ -85,28 +116,7 @@ def check(cfg: dict, generated: Path = GENERATED) -> dict[str, dict]:
         system = systems.get(sid)
         if not system:
             continue
-        status = {"checked_at": now(), "drift": None, "contract": "error", "failed": [], "evaluation": None,
-                  "healthy": False}
-        folder = generated / sid
-        try:
-            current = skeleton(probe(system, Masker("check")))  # samples are discarded; only structure is kept
-            approved = json.loads((folder / "fingerprint.json").read_text(encoding="utf-8"))
-            delta = diff(approved, current)
-            status["drift"] = delta if any(delta.values()) else None
-            design = json.loads((folder / "design.json").read_text(encoding="utf-8"))
-            code = (folder / "adapter.py").read_text(encoding="utf-8")
-            with tempfile.TemporaryDirectory() as tmp:
-                result = validate(code, system, design, mrn_system, Path(tmp) / "work")
-            status["contract"] = "pass" if result["passed"] else "fail"
-            status["failed"] = [{"id": c["id"], "title": c["title"], "detail": c["detail"]}
-                                for c in result["checks"] if c["status"] == "fail"]
-            truth = load_truth(system)
-            if truth and result["resources"]:
-                status["evaluation"] = evaluate(sid, result["resources"], truth, mrn_system)
-        except Exception as exc:  # noqa: BLE001  (an unreachable source is itself a finding)
-            status["error"] = f"{type(exc).__name__}: source or artefacts unavailable"
-        status["healthy"] = status["contract"] == "pass" and status["drift"] is None
-        statuses[sid] = status
+        statuses[sid] = check_system(system, mrn_system, generated / sid)
 
     generated.mkdir(parents=True, exist_ok=True)
     (generated / "status.json").write_text(json.dumps(statuses, indent=1), encoding="utf-8")

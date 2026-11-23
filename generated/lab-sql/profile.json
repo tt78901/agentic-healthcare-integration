@@ -1,108 +1,108 @@
 {
  "system_id": "lab-sql",
- "summary": "LabTrak LIS is a legacy SQLite database system used for laboratory information management. It maintains patient demographics, a catalog of laboratory test definitions mapped to LOINC, and clinical laboratory test results.",
+ "summary": "LabTrak LIS is a legacy Laboratory Information System built on a SQLite database. It stores patient demographic records, a reference dictionary of lab test definitions with LOINC mappings, and recorded laboratory test results.",
  "access": {
   "mechanism": "sql_database",
-  "notes": "Read-only access via SQLite dialect. Database file path is supplied dynamically via configuration."
+  "notes": "Direct read-only SQLite database access via local path configured at runtime."
  },
  "entities": [
   {
    "name": "Patient",
    "source": "PT_MSTR",
-   "description": "Patient demographic records maintained within the lab system.",
+   "description": "Master demographic records for patients registered in the LIS.",
    "primary_key": "PT_ID",
    "patient_key": "MRN_NO",
    "fields": [
     {
      "name": "PT_ID",
      "format": "integer",
-     "meaning": "Internal system surrogate key for the patient",
+     "meaning": "Internal surrogate primary key for the patient",
      "phi": false,
      "fhir_candidate": null
     },
     {
      "name": "MRN_NO",
-     "format": "string",
-     "meaning": "Hospital Medical Record Number",
+     "format": "integer stored as text",
+     "meaning": "Medical Record Number linking patient to hospital enterprise systems",
      "phi": true,
-     "fhir_candidate": "Patient.identifier.value"
+     "fhir_candidate": "Patient.identifier"
     },
     {
      "name": "LNAME",
-     "format": "string",
-     "meaning": "Patient family/last name",
+     "format": "text",
+     "meaning": "Patient family name",
      "phi": true,
      "fhir_candidate": "Patient.name.family"
     },
     {
      "name": "FNAME",
-     "format": "string",
-     "meaning": "Patient given/first name",
+     "format": "text",
+     "meaning": "Patient given name",
      "phi": true,
      "fhir_candidate": "Patient.name.given"
     },
     {
      "name": "DOB_DT",
      "format": "integer (YYYYMMDD)",
-     "meaning": "Date of birth",
+     "meaning": "Patient date of birth",
      "phi": true,
      "fhir_candidate": "Patient.birthDate"
     },
     {
      "name": "SEX_CD",
-     "format": "string",
-     "meaning": "Administrative sex code",
+     "format": "text (1 char)",
+     "meaning": "Administrative sex code (M/F)",
      "phi": false,
      "fhir_candidate": "Patient.gender"
     }
    ]
   },
   {
-   "name": "Test Definition",
+   "name": "Test Reference",
    "source": "TEST_REF",
-   "description": "Reference catalog for laboratory tests, including LOINC mappings, measurement units, and reference intervals.",
+   "description": "Reference catalog of laboratory test codes, standard LOINC mappings, names, measurement units, and standard reference ranges.",
    "primary_key": "TEST_CD",
    "patient_key": null,
    "fields": [
     {
      "name": "TEST_CD",
-     "format": "string",
-     "meaning": "Local code identifying the lab test",
+     "format": "text",
+     "meaning": "Internal local code for the laboratory test",
      "phi": false,
      "fhir_candidate": "Observation.code.coding.code"
     },
     {
      "name": "LOINC_CD",
-     "format": "string",
-     "meaning": "Standard LOINC code mapped to the test",
+     "format": "text",
+     "meaning": "Standard LOINC code for the lab test",
      "phi": false,
      "fhir_candidate": "Observation.code.coding.code"
     },
     {
      "name": "TEST_NM",
-     "format": "string",
-     "meaning": "Display name of the laboratory test",
+     "format": "text",
+     "meaning": "Human-readable test display name",
      "phi": false,
      "fhir_candidate": "Observation.code.coding.display"
     },
     {
      "name": "UOM",
-     "format": "string",
-     "meaning": "Unit of measure for the test result",
+     "format": "text",
+     "meaning": "Unit of measure for the test result value",
      "phi": false,
      "fhir_candidate": "Observation.valueQuantity.unit"
     },
     {
      "name": "REF_LO",
      "format": "decimal",
-     "meaning": "Lower reference range boundary",
+     "meaning": "Lower reference range boundary for normal result",
      "phi": false,
      "fhir_candidate": "Observation.referenceRange.low.value"
     },
     {
      "name": "REF_HI",
      "format": "decimal",
-     "meaning": "Upper reference range boundary",
+     "meaning": "Upper reference range boundary for normal result",
      "phi": false,
      "fhir_candidate": "Observation.referenceRange.high.value"
     }
@@ -111,63 +111,63 @@
   {
    "name": "Lab Result",
    "source": "LAB_RSLT",
-   "description": "Individual lab test result records associated with a patient and test definition.",
+   "description": "Executed laboratory test results linked to a patient and test reference definition.",
    "primary_key": "RSLT_ID",
    "patient_key": "PT_ID",
    "fields": [
     {
      "name": "RSLT_ID",
      "format": "integer",
-     "meaning": "Primary key for the result record",
+     "meaning": "Internal primary key for the lab result record",
      "phi": false,
      "fhir_candidate": null
     },
     {
      "name": "PT_ID",
      "format": "integer",
-     "meaning": "Foreign key linking to patient record",
+     "meaning": "Foreign key pointing to PT_MSTR.PT_ID",
      "phi": false,
      "fhir_candidate": "Observation.subject"
     },
     {
      "name": "TEST_CD",
-     "format": "string",
-     "meaning": "Foreign key linking to test definition",
+     "format": "text",
+     "meaning": "Foreign key pointing to TEST_REF.TEST_CD",
      "phi": false,
      "fhir_candidate": "Observation.code"
     },
     {
      "name": "RSLT_VAL",
-     "format": "string",
+     "format": "text",
      "meaning": "Observed test result value",
      "phi": false,
      "fhir_candidate": "Observation.valueQuantity.value"
     },
     {
      "name": "ABN_FLG",
-     "format": "string",
-     "meaning": "Abnormality indicator flag",
+     "format": "text",
+     "meaning": "Abnormality indicator (H = High, L = Low, N = Normal)",
      "phi": false,
      "fhir_candidate": "Observation.interpretation"
     },
     {
      "name": "RSLT_STAT",
-     "format": "string",
-     "meaning": "Result status code",
+     "format": "text",
+     "meaning": "Status of the lab result (e.g. F = Final)",
      "phi": false,
      "fhir_candidate": "Observation.status"
     },
     {
      "name": "COLL_DTTM",
-     "format": "string (YYYYMMDDHHMMSS)",
+     "format": "text (YYYYMMDDHHMMSS)",
      "meaning": "Specimen collection date and time",
      "phi": false,
      "fhir_candidate": "Observation.effectiveDateTime"
     },
     {
      "name": "RSLT_DTTM",
-     "format": "string (YYYYMMDDHHMMSS)",
-     "meaning": "Result verification/completion date and time",
+     "format": "text (YYYYMMDDHHMMSS)",
+     "meaning": "Date and time the result was produced/verified",
      "phi": false,
      "fhir_candidate": "Observation.issued"
     }
@@ -181,14 +181,15 @@
  "cross_system_keys": [
   {
    "field": "MRN_NO",
-   "meaning": "Enterprise Patient Medical Record Number"
-  },
-  {
-   "field": "LOINC_CD",
-   "meaning": "Standard LOINC vocabulary code for lab test identification across clinical systems"
+   "meaning": "Enterprise Master Patient Index MRN used across hospital systems"
   }
  ],
  "code_systems": [
+  {
+   "field": "LOINC_CD",
+   "system": "LOINC",
+   "value_map": {}
+  },
   {
    "field": "SEX_CD",
    "system": "local",
@@ -210,39 +211,20 @@
    "field": "RSLT_STAT",
    "system": "local",
    "value_map": {
-    "C": "Corrected",
-    "F": "Final",
-    "P": "Pending"
-   }
-  },
-  {
-   "field": "TEST_CD",
-   "system": "local",
-   "value_map": {
-    "ALT": "Alanine Aminotransferase",
-    "CHOL": "Cholesterol",
-    "CREA": "Creatinine",
-    "GLU": "Glucose",
-    "HBA1C": "Hemoglobin A1c",
-    "HDL": "HDL Cholesterol",
-    "HGB": "Hemoglobin",
-    "K": "Potassium",
-    "NA": "Sodium",
-    "PLT": "Platelet Count",
-    "TRIG": "Triglycerides",
-    "TSH": "Thyroid Stimulating Hormone",
-    "WBC": "White Blood Cell Count"
+    "F": "Final"
    }
   }
  ],
  "data_quality_notes": [
-  "Date of birth (DOB_DT) is stored as an INTEGER in YYYYMMDD format rather than a standard ISO date.",
-  "Result values (RSLT_VAL) are stored as TEXT despite containing numeric values, requiring conversion for quantitative analysis.",
-  "Timestamps COLL_DTTM and RSLT_DTTM are unparsed strings in YYYYMMDDHHMMSS format without explicit timezone offset attributes."
+  "DOB_DT in PT_MSTR is stored as an integer formatted as YYYYMMDD instead of a standard date column.",
+  "COLL_DTTM and RSLT_DTTM in LAB_RSLT are unparsed text strings formatted as YYYYMMDDHHMMSS without explicit timezone designations.",
+  "RSLT_VAL in LAB_RSLT is stored as text rather than a numeric datatype, requiring conversion for numeric comparisons.",
+  "Reference ranges REF_LO and REF_HI in TEST_REF are missing (null) for 51 out of 63 defined tests."
  ],
  "open_questions": [
-  "What specific timezone should be assumed for COLL_DTTM and RSLT_DTTM timestamps when mapping to UTC/FHIR?",
-  "Can RSLT_VAL contain free-text or non-numeric values (e.g. '<0.01', 'Positive', 'Cancelled')?",
-  "Are there any legacy patient records in PT_MSTR where MRN_NO may contain leading zeros or non-numeric characters?"
+  "What timezone should be assumed for COLL_DTTM and RSLT_DTTM timestamps?",
+  "Can RSLT_VAL contain qualitative text values (e.g. 'Positive', 'Negative') in addition to numeric values?",
+  "Are missing reference ranges in TEST_REF intended for qualitative tests or is reference range data missing from the LIS setup?",
+  "Is MRN_NO padded with leading zeros in other enterprise systems, or stored cleanly as text numbers?"
  ]
 }

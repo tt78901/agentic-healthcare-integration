@@ -1,22 +1,22 @@
 {
  "system_id": "pharmacy-csv",
- "summary": "Nightly flat file export of pharmacy prescriptions containing patient MRNs, RxNorm drug codes, dosage descriptions, prescribed quantities, start dates, and prescription status flags.",
+ "summary": "Nightly pipe-delimited flat file export containing pharmacy prescription and medication records. Holds patient MRNs, prescription order numbers, drug descriptions, RxNorm concept codes, administration instructions (sig), quantities, start dates, and prescription status codes.",
  "access": {
   "mechanism": "delimited_file_export",
-  "notes": "Read-only access to pipe-delimited (|) CSV files matching pattern rx_export_*.csv in a designated runtime path."
+  "notes": "Read-only access to folder containing pipe-delimited CSV files matching pattern rx_export_*.csv."
  },
  "entities": [
   {
    "name": "Prescription",
    "source": "rx_export_*.csv",
-   "description": "Represents a single medication prescription record issued to a patient. New files are exported daily and may contain repeated or updated prescription entries.",
+   "description": "Represents a single medication order or prescription record. Consecutive daily exports may contain overlapping or updated records that require deduplication.",
    "primary_key": "RX_NO",
    "patient_key": "MRN",
    "fields": [
     {
      "name": "RX_NO",
-     "format": "text (max length 9)",
-     "meaning": "Unique prescription identifier number",
+     "format": "string",
+     "meaning": "Unique prescription order number",
      "phi": false,
      "fhir_candidate": "MedicationRequest.identifier"
     },
@@ -25,47 +25,47 @@
      "format": "integer stored as text",
      "meaning": "Patient Medical Record Number",
      "phi": true,
-     "fhir_candidate": "MedicationRequest.subject"
+     "fhir_candidate": "Patient.identifier"
     },
     {
      "name": "DRUG_DESC",
-     "format": "text (max length 70)",
-     "meaning": "Text description of medication name, dose, and form",
+     "format": "string",
+     "meaning": "Medication name and description text",
      "phi": false,
      "fhir_candidate": "MedicationRequest.medicationCodeableConcept.text"
     },
     {
      "name": "RXNORM_CD",
      "format": "integer stored as text",
-     "meaning": "RxNorm concept unique identifier",
+     "meaning": "RxNorm standard drug concept code",
      "phi": false,
      "fhir_candidate": "MedicationRequest.medicationCodeableConcept.coding.code"
     },
     {
      "name": "SIG_TXT",
-     "format": "text (max length 47)",
-     "meaning": "Directions for administration / sig text",
+     "format": "string",
+     "meaning": "Dosage and administration instructions",
      "phi": false,
      "fhir_candidate": "MedicationRequest.dosageInstruction.text"
     },
     {
      "name": "QTY",
      "format": "integer stored as text",
-     "meaning": "Total quantity of drug prescribed",
+     "meaning": "Prescribed or dispensed quantity",
      "phi": false,
      "fhir_candidate": "MedicationRequest.dispenseRequest.quantity.value"
     },
     {
      "name": "START_DT",
-     "format": "date DD/MM/YYYY",
-     "meaning": "Date prescription begins",
+     "format": "DD/MM/YYYY",
+     "meaning": "Prescription start date",
      "phi": false,
      "fhir_candidate": "MedicationRequest.dispenseRequest.validityPeriod.start"
     },
     {
      "name": "STAT",
-     "format": "text (max length 1)",
-     "meaning": "Status code of the prescription",
+     "format": "code",
+     "meaning": "Prescription status flag",
      "phi": false,
      "fhir_candidate": "MedicationRequest.status"
     }
@@ -76,44 +76,36 @@
  "cross_system_keys": [
   {
    "field": "MRN",
-   "meaning": "Links prescription records to master patient index and EHR demographic records"
+   "meaning": "Patient identifier linking prescriptions to patient records across enterprise EHR and clinical systems."
+  },
+  {
+   "field": "RXNORM_CD",
+   "meaning": "Standard RxNorm clinical drug terminology code for interoperable medication mapping."
   }
  ],
  "code_systems": [
   {
    "field": "RXNORM_CD",
    "system": "RxNorm",
-   "value_map": {
-    "197361": "Acetaminophen 325 MG Oral Tablet",
-    "259255": "Hydrochlorothiazide 25 MG Oral Tablet",
-    "309362": "Clopidogrel 75 MG Oral Tablet",
-    "310798": "Levothyroxine Sodium 0.075 MG Oral Tablet",
-    "312961": "Simvastatin 20 MG Oral Tablet",
-    "313782": "Atorvastatin 80 MG Oral Tablet",
-    "314076": "Lisinopril 10 MG Oral Tablet",
-    "860975": "24 HR Metformin hydrochloride 500 MG Extended Release Oral Tablet",
-    "895994": "120 ACTUAT Fluticasone propionate 0.044 MG/ACTUAT Metered Dose Inhaler",
-    "966247": "Amlodipine 5 MG Oral Tablet"
-   }
+   "value_map": {}
   },
   {
    "field": "STAT",
    "system": "local",
    "value_map": {
-    "A": "Active",
-    "C": "Cancelled or Completed",
-    "S": "Suspended or Stopped"
+    "A": "Active / Approved (unconfirmed)",
+    "C": "Cancelled / Closed / Completed (unconfirmed)"
    }
   }
  ],
  "data_quality_notes": [
-  "Duplicate RX_NO values across export files (60 distinct across 65 total rows), indicating multiple daily snapshots contain overlapping prescription records.",
-  "Dates in START_DT use DD/MM/YYYY format without explicit time or timezone offset.",
-  "Numeric values like MRN, RXNORM_CD, and QTY are formatted as string representations of integers."
+  "RX_NO contains 116 distinct values across 121 rows in 3 export files, indicating multi-day overlapping records across daily files.",
+  "QTY value is '30' for all 121 rows, suggesting possible fixed default formatting or limited sample variation.",
+  "START_DT uses DD/MM/YYYY string format lacking time parts and timezone offsets."
  ],
  "open_questions": [
-  "What exact business status names correspond to local STAT codes 'A', 'C', and 'S'?",
-  "Are daily export files incremental delta updates or full cumulative extracts of pharmacy prescriptions?",
-  "Should multiple instances of the same RX_NO across daily files be processed as upserts (overwrites) or deduplicated?"
+  "What are the precise clinical definitions for the STAT code values 'A' and 'C'?",
+  "Should nightly files be processed incrementally (deltas) or treated as full state replacements?",
+  "Is QTY intended to support variable non-integer or larger quantities in production?"
  ]
 }

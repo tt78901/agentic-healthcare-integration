@@ -1,0 +1,46 @@
+{
+ "records": {
+  "expected": 116,
+  "matched": 116,
+  "missing": 0,
+  "unexpected": 0
+ },
+ "fields": {
+  "MedicationRequest.mrn": {
+   "correct": 116,
+   "wrong": 0,
+   "absent": 0
+  },
+  "MedicationRequest.code": {
+   "correct": 116,
+   "wrong": 0,
+   "absent": 0
+  },
+  "MedicationRequest.status": {
+   "correct": 116,
+   "wrong": 0,
+   "absent": 0
+  },
+  "MedicationRequest.authoredOn": {
+   "correct": 116,
+   "wrong": 0,
+   "absent": 0
+  },
+  "MedicationRequest.quantity": {
+   "correct": 116,
+   "wrong": 0,
+   "absent": 0
+  },
+  "MedicationRequest.dosage": {
+   "correct": 116,
+   "wrong": 0,
+   "absent": 0
+  }
+ },
+ "values_correct": 696,
+ "values_wrong": 0,
+ "values_absent": 0,
+ "accuracy": 1.0,
+ "coverage": 1.0,
+ "clean": true
+}

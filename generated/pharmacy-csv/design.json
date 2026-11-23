@@ -1,24 +1,24 @@
 {
  "system_id": "pharmacy-csv",
  "pattern": "file_drop_ingest",
- "pattern_rationale": "The system drops periodic flat CSV files (rx_export_*.csv) on a nightly schedule into a designated runtime directory. The file_drop_ingest pattern ingests these files and de-duplicates re-exported records across daily drops.",
+ "pattern_rationale": "The pharmacy system drops periodic flat files matching rx_export_*.csv. Reading the exports, deduplicating re-exported records across daily files (latest file wins), and translating to FHIR matches the file_drop_ingest pattern.",
  "alternatives_considered": [
   {
    "pattern": "api_facade",
-   "why_not": "The source system provides flat file exports rather than exposing an HTTP API."
+   "why_not": "The system does not expose an HTTP API; it only produces nightly CSV drops."
   },
   {
    "pattern": "database_polling",
-   "why_not": "No direct database connection or read-only SQL interface is available."
+   "why_not": "Direct read-only SQL database access is not provided; data is only available via file drops."
   },
   {
    "pattern": "message_feed_ingest",
-   "why_not": "The system emits periodic batch file drops instead of real-time event messages."
+   "why_not": "The source system does not push event feeds (such as HL7 v2 messages) in real-time."
   }
  ],
  "sync": {
   "mode": "scheduled_poll",
-  "detail": "Nightly polling of directory specified in config['path'] for rx_export_*.csv files"
+  "detail": "Nightly batch polling of configured folder for rx_export_*.csv files"
  },
  "resources": [
   {
@@ -33,74 +33,76 @@
     {
      "fhir": "id",
      "source": "RX_NO",
-     "transform": "Format as 'pharmacy-csv-' + RX_NO"
+     "transform": "Format as string: 'pharmacy-csv-' + RX_NO, replacing any disallowed characters with '-'"
     },
     {
      "fhir": "meta.source",
      "source": "N/A",
-     "transform": "Hardcode 'urn:system:pharmacy-csv'"
+     "transform": "Set constant string 'urn:system:pharmacy-csv'"
     },
     {
      "fhir": "status",
      "source": "STAT",
-     "transform": "Map local status codes: 'A' -> 'active', 'C' -> 'completed', 'S' -> 'stopped'"
+     "transform": "Map code: 'A' -> 'active', 'C' -> 'completed', 'S' -> 'stopped'"
     },
     {
      "fhir": "intent",
      "source": "N/A",
-     "transform": "Hardcode 'order'"
-    },
-    {
-     "fhir": "subject.identifier.system",
-     "source": "N/A",
-     "transform": "Hardcode 'http://hospital.example.org/mrn'"
-    },
-    {
-     "fhir": "subject.identifier.value",
-     "source": "MRN",
-     "transform": "Pass through string representation of MRN"
+     "transform": "Set constant string 'order'"
     },
     {
      "fhir": "medicationCodeableConcept.coding[0].system",
      "source": "N/A",
-     "transform": "Hardcode 'http://www.nlm.nih.gov/research/umls/rxnorm'"
+     "transform": "Set constant string 'http://www.nlm.nih.gov/research/umls/rxnorm'"
     },
     {
      "fhir": "medicationCodeableConcept.coding[0].code",
      "source": "RXNORM_CD",
-     "transform": "Pass through RxNorm code as string"
+     "transform": "Cast string to clean RxNorm code representation"
     },
     {
      "fhir": "medicationCodeableConcept.coding[0].display",
      "source": "DRUG_DESC",
-     "transform": "Pass through DRUG_DESC text as display string"
+     "transform": "Pass through string description"
     },
     {
-     "fhir": "dosageInstruction[0].text",
-     "source": "SIG_TXT",
-     "transform": "Pass through administration instructions text"
+     "fhir": "subject.identifier.system",
+     "source": "N/A",
+     "transform": "Set constant string 'http://hospital.example.org/mrn'"
     },
     {
-     "fhir": "dispenseRequest.quantity.value",
-     "source": "QTY",
-     "transform": "Parse integer string to numeric JSON value"
+     "fhir": "subject.identifier.value",
+     "source": "MRN",
+     "transform": "Pass through string MRN"
     },
     {
      "fhir": "authoredOn",
      "source": "START_DT",
-     "transform": "Parse date in DD/MM/YYYY format and emit ISO 8601 YYYY-MM-DD string"
+     "transform": "Parse DD/MM/YYYY date format and convert to YYYY-MM-DD"
+    },
+    {
+     "fhir": "dosageInstruction[0].text",
+     "source": "SIG_TXT",
+     "transform": "Pass through instruction text"
+    },
+    {
+     "fhir": "dispenseRequest.quantity.value",
+     "source": "QTY",
+     "transform": "Parse string to numeric integer"
     }
    ],
-   "merge_rule": "latest_file_wins",
-   "expected_count": 60
+   "merge_rule": "Latest export file wins by RX_NO; re-exported RX_NO records update/overwrite existing MedicationRequest resource.",
+   "expected_count": 116
   }
  ],
  "risks": [
-  "Re-processed or out-of-order export files may overwrite newer prescription states if file ordering does not strictly follow timestamp sequence.",
-  "Data parsing failures if START_DT contains malformed date strings or non-standard formats."
+  "Unmapped or unexpected STAT codes in future exports will fail status mapping if not handled.",
+  "START_DT lacks time and timezone information, so authoredOn date reflects date-only precision.",
+  "Overlapping daily exports might arrive out of order if file timestamps or naming order is corrupted."
  ],
  "human_review_points": [
-  "Verify whether local status code 'C' should map to 'completed' or 'cancelled'.",
-  "Confirm whether nightly export files represent cumulative extracts or incremental updates."
+  "Confirm that STAT code mapping ('A' -> 'active', 'C' -> 'completed', 'S' -> 'stopped') matches all clinical status definitions in production.",
+  "Verify whether QTY string parsing reliably produces valid numeric quantities for all prescriptions.",
+  "Confirm file processing sequence and archive strategy after ingestion."
  ]
 }

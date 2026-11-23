@@ -1,0 +1,141 @@
+{
+ "system_id": "lab-sql",
+ "pattern": "database_polling",
+ "pattern_rationale": "LabTrak LIS is a legacy SQLite database with direct read-only SQL file access. It lacks an API or event messaging stream, making scheduled SQL polling the only suitable mechanism.",
+ "alternatives_considered": [
+  {
+   "pattern": "api_facade",
+   "why_not": "LabTrak LIS does not expose an HTTP REST or SOAP API interface."
+  },
+  {
+   "pattern": "message_feed_ingest",
+   "why_not": "The database does not produce real-time event feeds such as HL7 v2 or Kafka messages."
+  },
+  {
+   "pattern": "file_drop_ingest",
+   "why_not": "Data is stored directly in an active SQLite database rather than periodically dumped as flat export files."
+  }
+ ],
+ "sync": {
+  "mode": "scheduled_poll",
+  "detail": "Runs a SQL query every 15 minutes polling for new or modified records in LAB_RSLT."
+ },
+ "resources": [
+  {
+   "resource_type": "Patient",
+   "source_entity": "PT_MSTR",
+   "id_source_field": "PT_ID",
+   "count_basis": {
+    "entity": "PT_MSTR",
+    "distinct_key": "PT_ID"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "PT_MSTR.PT_ID",
+     "transform": "Prefix with system identifier: 'lab-sql-' + PT_ID"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "static",
+     "transform": "Set constant 'urn:system:lab-sql'"
+    },
+    {
+     "fhir": "identifier[0]",
+     "source": "PT_MSTR.MRN_NO",
+     "transform": "Build Identifier object with system 'http://hospital.example.org/mrn' and value set to MRN_NO string"
+    },
+    {
+     "fhir": "name[0].family",
+     "source": "PT_MSTR.LNAME",
+     "transform": "Direct string map; omit if null or empty"
+    },
+    {
+     "fhir": "name[0].given[0]",
+     "source": "PT_MSTR.FNAME",
+     "transform": "Wrap non-empty string in single-element array; omit if null or empty"
+    },
+    {
+     "fhir": "gender",
+     "source": "PT_MSTR.SEX_CD",
+     "transform": "Code mapping: 'M' -> 'male', 'F' -> 'female'; otherwise 'unknown'"
+    },
+    {
+     "fhir": "birthDate",
+     "source": "PT_MSTR.DOB_DT",
+     "transform": "Format YYYYMMDD integer/text into date string 'YYYY-MM-DD'"
+    }
+   ],
+   "merge_rule": "none",
+   "expected_count": 23
+  },
+  {
+   "resource_type": "Observation",
+   "source_entity": "LAB_RSLT",
+   "id_source_field": "RSLT_ID",
+   "count_basis": {
+    "entity": "LAB_RSLT",
+    "distinct_key": "RSLT_ID"
+   },
+   "field_map": [
+    {
+     "fhir": "id",
+     "source": "LAB_RSLT.RSLT_ID",
+     "transform": "Prefix with system identifier: 'lab-sql-' + RSLT_ID"
+    },
+    {
+     "fhir": "meta.source",
+     "source": "static",
+     "transform": "Set constant 'urn:system:lab-sql'"
+    },
+    {
+     "fhir": "status",
+     "source": "LAB_RSLT.RSLT_STAT",
+     "transform": "Code mapping: 'F' -> 'final', 'P' -> 'preliminary', 'C' -> 'corrected'; default to 'registered' if unmapped or missing"
+    },
+    {
+     "fhir": "category[0]",
+     "source": "static",
+     "transform": "Set coding array containing system 'http://terminology.hl7.org/CodeSystem/observation-category' and code 'laboratory'"
+    },
+    {
+     "fhir": "code.coding[0]",
+     "source": "TEST_REF.LOINC_CD, TEST_REF.TEST_NM",
+     "transform": "Join LAB_RSLT to TEST_REF on TEST_CD. Map system 'http://loinc.org', code LOINC_CD, display TEST_NM"
+    },
+    {
+     "fhir": "subject",
+     "source": "PT_MSTR.MRN_NO",
+     "transform": "Join LAB_RSLT to PT_MSTR on PT_ID. Set logical reference identifier system 'http://hospital.example.org/mrn' and value MRN_NO"
+    },
+    {
+     "fhir": "effectiveDateTime",
+     "source": "LAB_RSLT.COLL_DTTM",
+     "transform": "Parse timestamp string YYYYMMDDHHMMSS and convert to ISO-8601 UTC string 'YYYY-MM-DDThh:mm:ssZ'"
+    },
+    {
+     "fhir": "valueQuantity",
+     "source": "LAB_RSLT.RSLT_VAL, TEST_REF.UOM",
+     "transform": "Parse RSLT_VAL as numeric float for value. Map UOM to unit and code, with system 'http://unitsofmeasure.org'. Omit if RSLT_VAL is non-numeric string."
+    },
+    {
+     "fhir": "interpretation[0].coding[0]",
+     "source": "LAB_RSLT.ABN_FLG",
+     "transform": "Code mapping: 'H' -> 'H', 'L' -> 'L', 'N' -> 'N' with system 'http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation'; omit if empty or unmapped"
+    }
+   ],
+   "merge_rule": "none",
+   "expected_count": 1215
+  }
+ ],
+ "risks": [
+  "COLL_DTTM and RSLT_DTTM timestamps lack explicit timezone indicators in SQLite; treating them as UTC could result in timezone shifts if the legacy server recorded local time.",
+  "RSLT_VAL is stored as text and may contain non-numeric or qualitative results (e.g., 'POSITIVE', 'SEE NOTE'), causing numeric conversion to fail for valueQuantity.",
+  "SQLite database locking during active polling could interfere with legacy write operations or cause read timeouts."
+ ],
+ "human_review_points": [
+  "Confirm whether COLL_DTTM and RSLT_DTTM timestamps are logged in local hospital timezone or UTC.",
+  "Verify how non-numeric result strings in RSLT_VAL should be handled (e.g., fallback to valueString instead of valueQuantity).",
+  "Confirm if MRN_NO format in PT_MSTR requires zero-padding alignment to match enterprise MRN standards."
+ ]
+}

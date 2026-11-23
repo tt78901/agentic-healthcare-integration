@@ -1,0 +1,81 @@
+{
+ "records": {
+  "expected": 285,
+  "matched": 285,
+  "missing": 0,
+  "unexpected": 0
+ },
+ "fields": {
+  "Patient.mrn": {
+   "correct": 35,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.family": {
+   "correct": 35,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.given": {
+   "correct": 35,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.birthDate": {
+   "correct": 35,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.gender": {
+   "correct": 35,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.phone": {
+   "correct": 35,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.city": {
+   "correct": 35,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Patient.postalCode": {
+   "correct": 35,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Encounter.mrn": {
+   "correct": 250,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Encounter.class": {
+   "correct": 250,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Encounter.status": {
+   "correct": 250,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Encounter.start": {
+   "correct": 250,
+   "wrong": 0,
+   "absent": 0
+  },
+  "Encounter.end": {
+   "correct": 250,
+   "wrong": 0,
+   "absent": 0
+  }
+ },
+ "values_correct": 1530,
+ "values_wrong": 0,
+ "values_absent": 0,
+ "accuracy": 1.0,
+ "coverage": 1.0,
+ "clean": true
+}

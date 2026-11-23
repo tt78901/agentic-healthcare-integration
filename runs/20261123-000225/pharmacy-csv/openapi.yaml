@@ -1,0 +1,93 @@
+openapi: 3.0.3
+info:
+  title: 'Pharmacy nightly export (flat files): FHIR facade'
+  version: 0.1.0
+  description: 'Integration pattern: file_drop_ingest. The pharmacy system drops periodic flat files matching rx_export_*.csv.
+    Reading the exports, deduplicating re-exported records across daily files (latest file wins), and translating
+    to FHIR matches the file_drop_ingest pattern.'
+paths:
+  /fhir/MedicationRequest:
+    get:
+      summary: MedicationRequest resources sourced from Pharmacy nightly export (flat files)
+      parameters:
+      - name: mrn
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Return only resources for the patient with this MRN.
+      - name: source
+        in: query
+        required: false
+        schema:
+          type: string
+        description: Restrict to one source system, e.g. pharmacy-csv.
+      responses:
+        '200':
+          description: FHIR R4 searchset Bundle
+          content:
+            application/fhir+json:
+              schema:
+                $ref: '#/components/schemas/Bundle'
+      x-source-entity: Prescription
+      x-merge-rule: Latest export file wins by RX_NO; re-exported RX_NO records update/overwrite existing MedicationRequest
+        resource.
+      x-field-map:
+      - fhir: id
+        source: RX_NO
+        transform: 'Format as string: ''pharmacy-csv-'' + RX_NO, replacing any disallowed characters with ''-'''
+      - fhir: meta.source
+        source: N/A
+        transform: Set constant string 'urn:system:pharmacy-csv'
+      - fhir: status
+        source: STAT
+        transform: 'Map code: ''A'' -> ''active'', ''C'' -> ''completed'', ''S'' -> ''stopped'''
+      - fhir: intent
+        source: N/A
+        transform: Set constant string 'order'
+      - fhir: medicationCodeableConcept.coding[0].system
+        source: N/A
+        transform: Set constant string 'http://www.nlm.nih.gov/research/umls/rxnorm'
+      - fhir: medicationCodeableConcept.coding[0].code
+        source: RXNORM_CD
+        transform: Cast string to clean RxNorm code representation
+      - fhir: medicationCodeableConcept.coding[0].display
+        source: DRUG_DESC
+        transform: Pass through string description
+      - fhir: subject.identifier.system
+        source: N/A
+        transform: Set constant string 'http://hospital.example.org/mrn'
+      - fhir: subject.identifier.value
+        source: MRN
+        transform: Pass through string MRN
+      - fhir: authoredOn
+        source: START_DT
+        transform: Parse DD/MM/YYYY date format and convert to YYYY-MM-DD
+      - fhir: dosageInstruction[0].text
+        source: SIG_TXT
+        transform: Pass through instruction text
+      - fhir: dispenseRequest.quantity.value
+        source: QTY
+        transform: Parse string to numeric integer
+components:
+  schemas:
+    Bundle:
+      type: object
+      description: FHIR R4 Bundle (type searchset)
+      externalDocs:
+        url: https://hl7.org/fhir/R4/bundle.html
+      properties:
+        resourceType:
+          type: string
+          enum:
+          - Bundle
+        type:
+          type: string
+          enum:
+          - searchset
+        total:
+          type: integer
+        entry:
+          type: array
+          items:
+            type: object

@@ -1,0 +1,52 @@
+{"ts": "2026-11-23T00:02:25+00:00", "system": null, "event": "run_started", "model": "gemini-3.6-flash via generativelanguage.googleapis.com", "stub": false, "systems": ["ehr-rest", "lab-sql", "adt-feed", "pharmacy-csv"]}
+{"ts": "2026-11-23T00:02:25+00:00", "system": "ehr-rest", "event": "probe", "system_kind": "http", "chars": 5415}
+{"ts": "2026-11-23T00:02:50+00:00", "system": "ehr-rest", "event": "llm_call", "tag": "discover:ehr-rest", "model": "gemini-3.6-flash", "prompt_sha256_16": "0047f308c47ca4ab", "prompt_chars": 9734, "prompt_tokens": 3720, "completion_tokens": 1998, "ms": 24430, "cached": false}
+{"ts": "2026-11-23T00:03:30+00:00", "system": "ehr-rest", "event": "gate", "gate": "system profile", "approved": true, "by": "reviewer", "feedback": "", "seconds": 40.2}
+{"ts": "2026-11-23T00:03:44+00:00", "system": "ehr-rest", "event": "llm_call", "tag": "design:ehr-rest", "model": "gemini-3.6-flash", "prompt_sha256_16": "df8dbed0f6da4f73", "prompt_chars": 11506, "prompt_tokens": 3385, "completion_tokens": 1632, "ms": 14065, "cached": false}
+{"ts": "2026-11-23T00:04:07+00:00", "system": "ehr-rest", "event": "gate", "gate": "integration design", "approved": true, "by": "reviewer", "feedback": "", "seconds": 23.5}
+{"ts": "2026-11-23T00:04:37+00:00", "system": "ehr-rest", "event": "llm_call", "tag": "generate:ehr-rest", "model": "gemini-3.6-flash", "prompt_sha256_16": "d19a5a59079f8b95", "prompt_chars": 23912, "prompt_tokens": 8031, "completion_tokens": 1663, "ms": 29232, "cached": false}
+{"ts": "2026-11-23T00:04:37+00:00", "system": "ehr-rest", "event": "validation", "attempt": 1, "passed": false, "failed": ["static.syntax"]}
+{"ts": "2026-11-23T00:04:58+00:00", "system": "ehr-rest", "event": "llm_call", "tag": "repair1:ehr-rest", "model": "gemini-3.6-flash", "prompt_sha256_16": "fa21b6df74caea4f", "prompt_chars": 29872, "prompt_tokens": 9757, "completion_tokens": 1663, "ms": 21696, "cached": false}
+{"ts": "2026-11-23T00:04:58+00:00", "system": "ehr-rest", "event": "validation", "attempt": 2, "passed": true, "failed": []}
+{"ts": "2026-11-23T00:04:58+00:00", "system": "ehr-rest", "event": "evaluation", "accuracy": 1.0, "coverage": 1.0, "clean": true}
+{"ts": "2026-11-23T00:05:11+00:00", "system": "ehr-rest", "event": "gate", "gate": "promote adapter", "approved": true, "by": "reviewer", "feedback": "", "seconds": 12.8}
+{"ts": "2026-11-23T00:05:11+00:00", "system": "ehr-rest", "event": "promoted", "path": "/Users/taruntejamagendran/Developer/EXL_HACKATHON/agentic-healthcare-integration/generated/ehr-rest"}
+{"ts": "2026-11-23T00:05:11+00:00", "system": "lab-sql", "event": "probe", "system_kind": "sqlite", "chars": 5948}
+{"ts": "2026-11-23T00:05:28+00:00", "system": "lab-sql", "event": "llm_call", "tag": "discover:lab-sql", "model": "gemini-3.6-flash", "prompt_sha256_16": "c65d8b05f73316e4", "prompt_chars": 10344, "prompt_tokens": 4171, "completion_tokens": 2136, "ms": 16296, "cached": false}
+{"ts": "2026-11-23T00:06:13+00:00", "system": "lab-sql", "event": "gate", "gate": "system profile", "approved": true, "by": "reviewer", "feedback": "", "seconds": 45.1}
+{"ts": "2026-11-23T00:06:27+00:00", "system": "lab-sql", "event": "llm_call", "tag": "design:lab-sql", "model": "gemini-3.6-flash", "prompt_sha256_16": "2ed1d310aa42a301", "prompt_chars": 11506, "prompt_tokens": 3462, "completion_tokens": 1695, "ms": 13976, "cached": false}
+{"ts": "2026-11-23T00:07:30+00:00", "system": "lab-sql", "event": "gate", "gate": "integration design", "approved": false, "by": "reviewer", "feedback": "RSLT_STAT also uses P (preliminary) and C (corrected). Map F -> final, P -> preliminary, C -> corrected. Keep everything else the same.", "seconds": 63.8}
+{"ts": "2026-11-23T00:07:43+00:00", "system": "lab-sql", "event": "llm_call", "tag": "design:lab-sql", "model": "gemini-3.6-flash", "prompt_sha256_16": "691b6590c690b0f2", "prompt_chars": 16879, "prompt_tokens": 5228, "completion_tokens": 1711, "ms": 12470, "cached": false}
+{"ts": "2026-11-23T00:08:05+00:00", "system": "lab-sql", "event": "gate", "gate": "integration design", "approved": true, "by": "reviewer", "feedback": "", "seconds": 21.8}
+{"ts": "2026-11-23T00:09:01+00:00", "system": "lab-sql", "event": "llm_call", "tag": "generate:lab-sql", "model": "gemini-3.6-flash", "prompt_sha256_16": "4674466d5b0e905a", "prompt_chars": 24560, "prompt_tokens": 8688, "completion_tokens": 2194, "ms": 56041, "cached": false}
+{"ts": "2026-11-23T00:09:01+00:00", "system": "lab-sql", "event": "validation", "attempt": 1, "passed": true, "failed": []}
+{"ts": "2026-11-23T00:09:01+00:00", "system": "lab-sql", "event": "evaluation", "accuracy": 1.0, "coverage": 1.0, "clean": true}
+{"ts": "2026-11-23T00:09:23+00:00", "system": "lab-sql", "event": "gate", "gate": "promote adapter", "approved": true, "by": "reviewer", "feedback": "", "seconds": 22.1}
+{"ts": "2026-11-23T00:09:23+00:00", "system": "lab-sql", "event": "promoted", "path": "/Users/taruntejamagendran/Developer/EXL_HACKATHON/agentic-healthcare-integration/generated/lab-sql"}
+{"ts": "2026-11-23T00:09:23+00:00", "system": "adt-feed", "event": "probe", "system_kind": "hl7v2_files", "chars": 6035}
+{"ts": "2026-11-23T00:09:44+00:00", "system": "adt-feed", "event": "llm_call", "tag": "discover:adt-feed", "model": "gemini-3.6-flash", "prompt_sha256_16": "9081273bea1342e7", "prompt_chars": 9530, "prompt_tokens": 4340, "completion_tokens": 2493, "ms": 20740, "cached": false}
+{"ts": "2026-11-23T00:10:03+00:00", "system": "adt-feed", "event": "gate", "gate": "system profile", "approved": true, "by": "reviewer", "feedback": "", "seconds": 19.6}
+{"ts": "2026-11-23T00:10:16+00:00", "system": "adt-feed", "event": "llm_call", "tag": "design:adt-feed", "model": "gemini-3.6-flash", "prompt_sha256_16": "5dfe67c6bb5b6d1e", "prompt_chars": 12363, "prompt_tokens": 3859, "completion_tokens": 2335, "ms": 12270, "cached": false}
+{"ts": "2026-11-23T00:10:40+00:00", "system": "adt-feed", "event": "gate", "gate": "integration design", "approved": true, "by": "reviewer", "feedback": "", "seconds": 24.0}
+{"ts": "2026-11-23T00:11:57+00:00", "system": "adt-feed", "event": "llm_call", "tag": "generate:adt-feed", "model": "gemini-3.6-flash", "prompt_sha256_16": "0ff23e58128c349c", "prompt_chars": 26703, "prompt_tokens": 9862, "completion_tokens": 3115, "ms": 76901, "cached": false}
+{"ts": "2026-11-23T00:11:57+00:00", "system": "adt-feed", "event": "validation", "attempt": 1, "passed": true, "failed": []}
+{"ts": "2026-11-23T00:11:57+00:00", "system": "adt-feed", "event": "evaluation", "accuracy": 1.0, "coverage": 0.9771, "clean": false}
+{"ts": "2026-11-23T00:12:41+00:00", "system": "adt-feed", "event": "gate", "gate": "promote adapter", "approved": false, "by": "reviewer", "feedback": "Also map the patient address from PID.11: line from PID.11.1, city from PID.11.3, postalCode from PID.11.5, country from PID.11.6. Change nothing else.", "seconds": 43.9}
+{"ts": "2026-11-23T00:12:59+00:00", "system": "adt-feed", "event": "llm_call", "tag": "repair1:adt-feed", "model": "gemini-3.6-flash", "prompt_sha256_16": "e7d5b234823a4ac9", "prompt_chars": 36481, "prompt_tokens": 13078, "completion_tokens": 3126, "ms": 17969, "cached": false}
+{"ts": "2026-11-23T00:12:59+00:00", "system": "adt-feed", "event": "validation", "attempt": 2, "passed": true, "failed": []}
+{"ts": "2026-11-23T00:12:59+00:00", "system": "adt-feed", "event": "evaluation", "accuracy": 1.0, "coverage": 1.0, "clean": true}
+{"ts": "2026-11-23T00:13:26+00:00", "system": "adt-feed", "event": "gate", "gate": "promote adapter", "approved": true, "by": "reviewer", "feedback": "", "seconds": 27.6}
+{"ts": "2026-11-23T00:13:26+00:00", "system": "adt-feed", "event": "promoted", "path": "/Users/taruntejamagendran/Developer/EXL_HACKATHON/agentic-healthcare-integration/generated/adt-feed"}
+{"ts": "2026-11-23T00:13:26+00:00", "system": "pharmacy-csv", "event": "probe", "system_kind": "delimited_files", "chars": 2267}
+{"ts": "2026-11-23T00:13:36+00:00", "system": "pharmacy-csv", "event": "llm_call", "tag": "discover:pharmacy-csv", "model": "gemini-3.6-flash", "prompt_sha256_16": "dccf7093ce2d5c1a", "prompt_chars": 5099, "prompt_tokens": 1882, "completion_tokens": 1073, "ms": 9530, "cached": false}
+{"ts": "2026-11-23T00:13:53+00:00", "system": "pharmacy-csv", "event": "gate", "gate": "system profile", "approved": true, "by": "reviewer", "feedback": "", "seconds": 17.6}
+{"ts": "2026-11-23T00:14:04+00:00", "system": "pharmacy-csv", "event": "llm_call", "tag": "design:pharmacy-csv", "model": "gemini-3.6-flash", "prompt_sha256_16": "9128b3a9dc75c95c", "prompt_chars": 8711, "prompt_tokens": 2413, "completion_tokens": 1104, "ms": 10383, "cached": false}
+{"ts": "2026-11-23T00:14:25+00:00", "system": "pharmacy-csv", "event": "gate", "gate": "integration design", "approved": false, "by": "reviewer", "feedback": "STAT also uses S (stopped). Map A -> active, C -> completed, S -> stopped. Keep everything else the same.", "seconds": 21.5}
+{"ts": "2026-11-23T00:14:32+00:00", "system": "pharmacy-csv", "event": "llm_call", "tag": "design:pharmacy-csv", "model": "gemini-3.6-flash", "prompt_sha256_16": "9e0b1033933d92ff", "prompt_chars": 12614, "prompt_tokens": 3566, "completion_tokens": 1112, "ms": 6290, "cached": false}
+{"ts": "2026-11-23T00:14:44+00:00", "system": "pharmacy-csv", "event": "gate", "gate": "integration design", "approved": true, "by": "reviewer", "feedback": "", "seconds": 12.5}
+{"ts": "2026-11-23T00:15:05+00:00", "system": "pharmacy-csv", "event": "llm_call", "tag": "generate:pharmacy-csv", "model": "gemini-3.6-flash", "prompt_sha256_16": "087632e54f01f4cc", "prompt_chars": 15004, "prompt_tokens": 4714, "completion_tokens": 1060, "ms": 20953, "cached": false}
+{"ts": "2026-11-23T00:15:05+00:00", "system": "pharmacy-csv", "event": "validation", "attempt": 1, "passed": true, "failed": []}
+{"ts": "2026-11-23T00:15:05+00:00", "system": "pharmacy-csv", "event": "evaluation", "accuracy": 1.0, "coverage": 1.0, "clean": true}
+{"ts": "2026-11-23T00:15:21+00:00", "system": "pharmacy-csv", "event": "gate", "gate": "promote adapter", "approved": true, "by": "reviewer", "feedback": "", "seconds": 15.4}
+{"ts": "2026-11-23T00:15:21+00:00", "system": "pharmacy-csv", "event": "promoted", "path": "/Users/taruntejamagendran/Developer/EXL_HACKATHON/agentic-healthcare-integration/generated/pharmacy-csv"}
+{"ts": "2026-11-23T00:15:21+00:00", "system": null, "event": "run_finished", "promoted": ["ehr-rest", "lab-sql", "adt-feed", "pharmacy-csv"]}

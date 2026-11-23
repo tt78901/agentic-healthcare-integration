@@ -1,0 +1,54 @@
+{
+ "passed": false,
+ "checks": [
+  {
+   "id": "static.syntax",
+   "status": "fail",
+   "detail": "SyntaxError at line 20: closing parenthesis '}' does not match opening parenthesis '['",
+   "title": "Module parses"
+  },
+  {
+   "id": "runtime.executes",
+   "status": "skip",
+   "detail": "not run: static checks failed",
+   "title": "Runs to completion in a separate process"
+  },
+  {
+   "id": "runtime.deterministic",
+   "status": "skip",
+   "detail": "not run: static checks failed",
+   "title": "Two runs give identical output"
+  },
+  {
+   "id": "runtime.silent",
+   "status": "skip",
+   "detail": "not run: static checks failed",
+   "title": "Writes nothing to stdout or stderr"
+  },
+  {
+   "id": "contract.coverage",
+   "status": "skip",
+   "detail": "not run: static checks failed",
+   "title": "Publishes exactly the resource types in the design"
+  },
+  {
+   "id": "fhir.schema",
+   "status": "skip",
+   "detail": "not run: static checks failed",
+   "title": "Every resource is valid FHIR R4"
+  },
+  {
+   "id": "fhir.conventions",
+   "status": "skip",
+   "detail": "not run: static checks failed",
+   "title": "Estate conventions: ids, provenance, MRN linkage, no empty elements"
+  },
+  {
+   "id": "reconcile.counts",
+   "status": "skip",
+   "detail": "not run: static checks failed",
+   "title": "Resource counts match the source"
+  }
+ ],
+ "counts": {}
+}

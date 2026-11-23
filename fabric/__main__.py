@@ -1,6 +1,6 @@
 """Command line.
 
-    python -m fabric seed [--synthea DIR]     build the four mock source systems
+    python -m fabric seed [--synthea DIR]     build the four mock source systems from Synthea
     python -m fabric run [--system ID ...]    run the agent pipeline (interactive gates)
     python -m fabric demo                     seed if needed, run every system, build the report
     python -m fabric report [RUN_ID]          rebuild the HTML report for a run
@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import atexit
+import os
 import subprocess
 import sys
 import time
@@ -51,14 +52,16 @@ def ensure_mocks(cfg: dict) -> None:
 def cmd_seed(args) -> None:
     from mock_systems.build import build_all
 
-    if args.synthea:
-        from mock_systems.synthea import load_synthea
+    if getattr(args, "synthea", None):
+        from mock_systems.synthea import load_synthea, save_estate
 
         dataset = load_synthea(args.synthea, max_patients=args.patients)
+        if getattr(args, "save_estate", False):
+            print("Saved as the default estate:", save_estate(dataset))
     else:
-        from mock_systems.dataset import generate
+        from mock_systems.synthea import load_estate
 
-        dataset = generate(n_patients=args.patients)
+        dataset = load_estate()
     print("Mock systems built:", build_all(dataset))
 
 
@@ -149,6 +152,11 @@ def cmd_gateway(args) -> None:
     import uvicorn
 
     ensure_mocks(load_config())
+    if args.no_demo_uploads:
+        os.environ["FABRIC_DEMO_UPLOADS"] = "0"   # read by the gateway's upload endpoints
+        print("Demo uploads OFF")
+    else:
+        print("Demo uploads ON: Upload buttons in the Overview topology (switch off with --no-demo-uploads)")
     print(f"Console: http://127.0.0.1:{args.port}/console   FHIR API: http://127.0.0.1:{args.port}/docs")
     uvicorn.run("fabric.gateway:app", host="127.0.0.1", port=args.port, log_level="warning")
 
@@ -164,7 +172,9 @@ def main() -> None:
     codes.set_defaults(func=cmd_codes)
 
     seed = sub.add_parser("seed", help="build the mock source systems")
-    seed.add_argument("--synthea", metavar="DIR", help="folder of Synthea FHIR R4 patient bundles to seed from")
+    seed.add_argument("--synthea", metavar="DIR", help="folder of Synthea FHIR R4 patient bundles to seed from "
+                      "(default: the committed Synthea estate)")
+    seed.add_argument("--save-estate", action="store_true", help="with --synthea: make this export the default estate")
     seed.add_argument("--patients", type=int, default=40)
     seed.set_defaults(func=cmd_seed)
 
@@ -199,6 +209,8 @@ def main() -> None:
 
     gw = sub.add_parser("gateway", help="serve the unified FHIR API")
     gw.add_argument("--port", type=int, default=8000)
+    gw.add_argument("--no-demo-uploads", action="store_true",
+                    help="hide the console's demo upload buttons and refuse uploads")
     gw.set_defaults(func=cmd_gateway)
 
     args = parser.parse_args()
